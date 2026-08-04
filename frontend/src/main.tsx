@@ -1,0 +1,20 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { App } from './app/App';
+import './index.css';
+
+const rootElement =
+  document.getElementById('root');
+
+if (!rootElement) {
+  throw new Error(
+    'Не найден HTML-элемент с id="root"',
+  );
+}
+const root =
+  ReactDOM.createRoot(rootElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

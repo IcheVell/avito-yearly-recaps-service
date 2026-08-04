@@ -4,3 +4,6 @@
 .idea
 node_modules
 dist
+.gitignore
+.vscode
+*.log
