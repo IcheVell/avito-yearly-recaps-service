@@ -123,26 +123,6 @@ func parsePositiveInt64PathParam(w http.ResponseWriter, r *http.Request, name st
 	return value, true
 }
 
-func parseOptionalYearQuery(w http.ResponseWriter, r *http.Request) (int, bool) {
-	raw := r.URL.Query().Get("year")
-	if raw == "" {
-		return 0, true
-	}
-
-	year, err := strconv.Atoi(raw)
-	if err != nil {
-		writeValidationError(w, "invalid query parameter", map[string]string{"field": "year"})
-		return 0, false
-	}
-
-	if !validYear(year) {
-		writeValidationError(w, "year must be between 2000 and current year", map[string]string{"field": "year"})
-		return 0, false
-	}
-
-	return year, true
-}
-
 func validYear(year int) bool {
 	currentYear := time.Now().Year()
 	return year >= 2000 && year <= currentYear
