@@ -36,11 +36,11 @@ func ResolveRole(metrics domain.YearMetrics) (domain.RecapRole, error) {
 		Title:                title,
 		Subtitle:             subtitle,
 		Why:                  why,
-		ActivitySharePercent: percent,
+		ActivitySharePercent: int(percent),
 	}, nil
 }
 
-func chooseText(role string, percent int, metrics domain.YearMetrics) (string, string, string, error) {
+func chooseText(role string, percent int64, metrics domain.YearMetrics) (string, string, string, error) {
 	roleStats, err := loadRoleCopies()
 	if err != nil {
 		return "", "", "", err
@@ -59,7 +59,7 @@ func chooseText(role string, percent int, metrics domain.YearMetrics) (string, s
 	randomIndex := rand.IntN(titlesNum)
 	title := stats.Titles[randomIndex]
 
-	var metric int
+	var metric int64
 
 	switch role {
 	case seller:
@@ -76,7 +76,7 @@ func chooseText(role string, percent int, metrics domain.YearMetrics) (string, s
 	return title, subtitle, why, nil
 }
 
-func chooseCode(metrics domain.YearMetrics) (string, int) {
+func chooseCode(metrics domain.YearMetrics) (string, int64) {
 	sellerScore := metrics.ListingsCreatedCount*weightListingCreated + metrics.SellsCount*weightSell
 	buyerScore := metrics.FavoritesCount*weightFavorite + metrics.BuysCount*weightBuy
 	watcherScore := metrics.ViewsCount*weightView + metrics.SearchesCount*weightSearch

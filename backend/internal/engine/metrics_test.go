@@ -7,8 +7,8 @@ import (
 )
 
 func TestResolveMetrics_OK(t *testing.T) {
-	earned := 120_000
-	spent := 48_000
+	var earned int64 = 120_000
+	var spent int64 = 48_000
 
 	m := domain.YearMetrics{
 		EarnedAmount:  &earned,
