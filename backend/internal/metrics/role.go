@@ -15,9 +15,9 @@ const (
 	watcher = "watcher"
 )
 
-func ResolveRole(metrics domain.YearMetrics) (error, domain.RecapRole) {
+func ResolveRole(metrics domain.YearMetrics, path string) (error, domain.RecapRole) {
 	role, percent := choseCode(metrics)
-	err, title, subtitle, why := choseText(role, percent, metrics)
+	err, title, subtitle, why := choseText(role, percent, metrics, path)
 	if err != nil {
 		return err, domain.RecapRole{}
 	}
@@ -30,8 +30,8 @@ func ResolveRole(metrics domain.YearMetrics) (error, domain.RecapRole) {
 	}
 }
 
-func choseText(role string, percent int, metrics domain.YearMetrics) (error, string, string, string) {
-	err, roleStats := getRoleStats("./roles.json")
+func choseText(role string, percent int, metrics domain.YearMetrics, path string) (error, string, string, string) {
+	err, roleStats := getRoleStats(path)
 	if err != nil {
 		return err, "", "", ""
 	}
