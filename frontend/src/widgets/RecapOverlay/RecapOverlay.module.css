@@ -1,0 +1,59 @@
+
+.overlay {
+ 
+  position: fixed;
+
+  /*
+   * inset: 0  одновременно:
+   * top: 0;
+   * right: 0;
+   * bottom: 0;
+   * left: 0;
+   *
+   */
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  background: rgb(0 0 0 / 78%);
+  backdrop-filter: blur(2px);
+}
+
+
+.track {
+  width: 100%;
+  padding: 0 16px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+
+.progress {
+
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  width: min(310px, 48vw);
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+}
+
+.progressItem {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 45%);
+}
+
+/*свяжи потом со слайдом*/
+.progressItem:first-child {
+  background: white;
+}

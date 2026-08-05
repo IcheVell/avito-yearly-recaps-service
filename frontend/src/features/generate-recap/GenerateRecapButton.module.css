@@ -1,0 +1,43 @@
+.button {
+  min-width: 250px;
+  padding: 16px 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 14px;
+  background: #00aaff;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.button:hover:not(:disabled) {
+  background: #0095dd;
+}
+
+.button:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgb(255 255 255 / 35%);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
