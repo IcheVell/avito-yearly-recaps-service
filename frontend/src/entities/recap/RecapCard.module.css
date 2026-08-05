@@ -1,9 +1,10 @@
 .card {
   flex: 0 0 min(390px, calc(100vw - 40px));
+  min-width: 360px;
 
   height: min(620px, calc(100vh - 190px));
   height: min(620px, calc(100dvh - 190px));
-  min-height: 470px;
+  min-height: min(570px, calc(100dvh - 190px));
 
   padding: 26px 30px;
 
@@ -13,7 +14,10 @@
   gap: 24px;
 
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
 
   border: 1px solid rgb(255 255 255 / 50%);
   border-radius: 32px;
@@ -31,11 +35,15 @@
   scroll-snap-stop: always;
 }
 
+.card::-webkit-scrollbar {
+  display: none;
+}
+
 .logoImage {
-  height: 24px;   /* подберите нужный размер */
+  height: 24px;
   width: auto;
 }
-/* Мягкий блик на стеклянной поверхности. */
+
 .card::before {
   content: '';
 
@@ -57,10 +65,10 @@
   pointer-events: none;
 }
 
-/* Контент всегда находится выше декоративного блика. */
 .card > * {
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
 }
 
 .header {
@@ -68,20 +76,6 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
   gap: 20px;
-}
-
-.logo {
-  white-space: nowrap;
-
-  font-size: 24px;
-  line-height: 1;
-  font-weight: 800;
-}
-
-.logoDots {
-  margin-right: 6px;
-  color: #00aaff;
-  letter-spacing: -6px;
 }
 
 .title {
@@ -114,6 +108,14 @@
 .valueLong {
   font-size: clamp(42px, 4.3vw, 72px);
   letter-spacing: -0.04em;
+}
+
+.highlightValue {
+  font-size: clamp(68px, 7vw, 128px);
+}
+
+.highlightValue.valueLong {
+  font-size: clamp(40px, 5vw, 84px);
 }
 
 .text {
@@ -172,7 +174,6 @@
   opacity: 0.84;
 }
 
-/* Градиенты карточек. Цвет назначается frontend случайно и стабильно. */
 .red {
   background: linear-gradient(
     135deg,
@@ -249,7 +250,8 @@
 @media (max-width: 640px) {
   .card {
     flex-basis: calc(100vw - 28px);
-    min-height: 430px;
+    min-width: min(360px, calc(100vw - 28px));
+    min-height: min(430px, calc(100dvh - 190px));
     padding: 22px;
     border-radius: 26px;
   }
@@ -258,7 +260,4 @@
     gap: 14px;
   }
 
-  .logo {
-    font-size: 20px;
-  }
 }

@@ -32,7 +32,7 @@ export function MetricCard({metric, variant}: MetricCardProps) {
         />
       )}
       <strong
-        className={`${styles.value} ${
+        className={`${styles.value} ${styles.highlightValue} ${
           isLongValue ? styles.valueLong : ''
         }`}
       >

@@ -1,6 +1,5 @@
 import type { ProfilesResponse } from '../entities/profile/types';
 
-/** Заглушка ответа GET /api/profiles. */
 export const mockProfiles: ProfilesResponse = {
   items: [
     {

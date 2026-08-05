@@ -25,13 +25,9 @@
 }
 
 .logo {
-  font-size: 28px;
-  white-space: nowrap;
-}
-
-.logo span {
-  color: #00aaff;
-  letter-spacing: -8px;
+  display: block;
+  width: auto;
+  height: 28px;
 }
 
 .navigation {

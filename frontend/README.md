@@ -1,75 +1,63 @@
-# React + TypeScript + Vite
+## Требования
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- Node.js `20.19+` или `22.12+`;
+- npm;
+- доступ в интернет для загрузки внешних изображений из моков.
 
-Currently, two official plugins are available:
+Проверить версии:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+node --version
+npm --version
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Быстрый запуск на моках
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Из корня репозитория перейдите в папку frontend и установите зависимости:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd frontend
+npm ci
+```
 
+Создайте файл `frontend/.env.local`:
+
+```dotenv
+VITE_USE_MOCKS=true
+```
+
+Запустите dev-сервер:
+
+```bash
+npm run dev
+```
+
+Vite выведет адрес приложения в терминале, обычно это <http://localhost:5173>.
+
+В режиме моков backend и база данных не требуются. Для трёх тестовых профилей используются разные наборы recap-карточек из `src/mocks`.
+
+## Запуск с API
+
+Переменные окружения frontend:
+
+```dotenv
+VITE_USE_MOCKS=false
+VITE_API_BASE_URL=/api
+```
+
+`VITE_USE_MOCKS` включает локальные данные только при точном значении `true`. Если `VITE_API_BASE_URL` не указан, используется `/api`.
+
+## Полезные команды
+
+Все команды выполняются из папки `frontend`:
+
+```bash
+# Dev-сервер с hot reload
+npm run dev
+
+# Проверка ESLint
+npm run lint
+
+# TypeScript-проверка 
+npm run build
 ```
