@@ -1,11 +1,15 @@
 .wrapper {
+  width: 100%;
+  max-width: 100%;
+
   display: grid;
   gap: 12px;
   justify-items: start;
 }
 
 .button {
-  min-width: 260px;
+  min-width: min(260px, 100%);
+  max-width: 100%;
   padding: 16px 24px;
 
   display: inline-flex;
@@ -22,8 +26,17 @@
   font: inherit;
   font-size: 18px;
   font-weight: 800;
+  text-align: center;
+  overflow-wrap: anywhere;
 
   cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .button:hover:not(:disabled) {

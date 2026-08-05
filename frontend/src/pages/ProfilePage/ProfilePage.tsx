@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import logoSrc from '../../assets/logo.svg.webp';
 import type { Profile } from '../../entities/profile/types';
@@ -12,7 +12,7 @@ import { RecapOverlay } from '../../widgets/RecapOverlay/RecapOverlay';
 
 import styles from './ProfilePage.module.css';
 
-const RECAP_YEAR = 2025;
+const RECAP_YEAR = 2026;
 
 
 export function ProfilePage() {
@@ -28,19 +28,10 @@ export function ProfilePage() {
   } = useGetProfilesQuery();
 
 
-  useEffect(() => {
-    if (
-      selectedProfileId === null &&
-      data?.items.length
-    ) {
-      setSelectedProfileId(data.items[0].id);
-    }
-  }, [data, selectedProfileId]);
-
   const selectedProfile: Profile | undefined =
     data?.items.find(
       (profile) => profile.id === selectedProfileId,
-    );
+    ) ?? data?.items[0];
 
   return (
     <>
@@ -55,94 +46,96 @@ export function ProfilePage() {
           <nav className={styles.navigation}>
             Бизнес 360 · Авто · Недвижимость · Работа · Услуги
           </nav>
+
+          <span className={styles.headerMessage}>
+            Hello kitty and her friends
+          </span>
         </header>
 
-        <section className={styles.hero}>
-          <p className={styles.eyebrow}>Итоги года</p>
-          <h1>Выбери тестовый профиль</h1>
-          <p>
-            Recap откроется поверх этой страницы, как модальная
-            горизонтальная история.
-          </p>
-        </section>
+        <div className={styles.workspace}>
+          <aside className={styles.profilesPanel}>
+            <h1>Профили</h1>
 
-        {isLoading && (
-          <section className={styles.panel}>
-            <Loader label="Загружаем профили…" />
-          </section>
-        )}
+            {isLoading && (
+              <Loader label="Загружаем профили…" />
+            )}
 
-        {error && (
-          <section className={styles.panel}>
-            <ErrorMessage
-              message={getApiErrorMessage(error)}
-              onRetry={refetch}
-            />
-          </section>
-        )}
-
-        {data && (
-          <section className={styles.panel}>
-            <h2>Профили</h2>
-
-            <div className={styles.profileList}>
-              {data.items.map((profile) => {
-                const isSelected =
-                  profile.id === selectedProfileId;
-
-                return (
-                  <button
-                    key={profile.id}
-                    className={`${styles.profileCard} ${
-                      isSelected
-                        ? styles.profileCardSelected
-                        : ''
-                    }`}
-                    type="button"
-                    onClick={() =>
-                      setSelectedProfileId(profile.id)
-                    }
-                    aria-pressed={isSelected}
-                  >
-                    <img
-                      src={profile.imageUrl}
-                      alt=""
-                      width="72"
-                      height="72"
-                    />
-                    <span>{profile.username}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {selectedProfile && (
-          <section className={styles.profileDetails}>
-            <img
-              src={selectedProfile.imageUrl}
-              alt=""
-              width="108"
-              height="108"
-            />
-
-            <div>
-              <p className={styles.eyebrow}>Текущий профиль</p>
-              <h2>{selectedProfile.username}</h2>
-              <p>
-                ID пользователя: {selectedProfile.id}. Итоги за{' '}
-                {RECAP_YEAR} год.
-              </p>
-
-              <GenerateRecapButton
-                userId={selectedProfile.id}
-                year={RECAP_YEAR}
-                onGenerated={setRecap}
+            {error && (
+              <ErrorMessage
+                message={getApiErrorMessage(error)}
+                onRetry={refetch}
               />
-            </div>
+            )}
+
+            {data && (
+              <div className={styles.profileList}>
+                {data.items.map((profile) => {
+                  const isSelected =
+                    profile.id === selectedProfile?.id;
+
+                  return (
+                    <button
+                      key={profile.id}
+                      className={`${styles.profileCard} ${
+                        isSelected
+                          ? styles.profileCardSelected
+                          : ''
+                      }`}
+                      type="button"
+                      onClick={() =>
+                        setSelectedProfileId(profile.id)
+                      }
+                      aria-pressed={isSelected}
+                    >
+                      <img
+                        src={profile.imageUrl}
+                        alt=""
+                        width="64"
+                        height="64"
+                      />
+                      <span title={profile.username}>
+                        {profile.username}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </aside>
+
+          <section className={styles.contentColumn}>
+            {selectedProfile && (
+              <div className={styles.profileDetails}>
+                <img
+                  src={selectedProfile.imageUrl}
+                  alt=""
+                  width="108"
+                  height="108"
+                />
+
+                <div>
+                  <p className={styles.eyebrow}>Текущий профиль</p>
+                  <h2>{selectedProfile.username}</h2>
+                  <p>
+                    ID пользователя: {selectedProfile.id}. Итоги за{' '}
+                    {RECAP_YEAR} год.
+                  </p>
+
+                  <GenerateRecapButton
+                    userId={selectedProfile.id}
+                    year={RECAP_YEAR}
+                    onGenerated={setRecap}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div
+              className={styles.emptyPanel}
+              aria-label="Область содержимого"
+            />
           </section>
-        )}
+        </div>
       </main>
 
       {recap && (
