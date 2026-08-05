@@ -27,7 +27,6 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 
 	r.Route("/api", func(r chi.Router) {
