@@ -6,23 +6,23 @@ type YearMetrics struct {
 	UserID           int64
 	RegistrationDate time.Time
 
-	ViewsCount           int
-	SearchesCount        int
-	FavoritesCount       int
-	MessagesPeopleCount  int // Количество начатых диалогов
-	ListingsCreatedCount int
-	BuysCount            int
-	SellsCount           int
+	ViewsCount           int64
+	SearchesCount        int64
+	FavoritesCount       int64
+	MessagesPeopleCount  int64 // count new conversations
+	ListingsCreatedCount int64
+	BuysCount            int64
+	SellsCount           int64
 
-	SpentAmount  *int
-	EarnedAmount *int
+	SpentAmount  *int64
+	EarnedAmount *int64
 
-	MaxStreakDays int
-	ActiveDays    int
-	YearsOnAvito  int
+	MaxStreakDays int64
+	ActiveDays    int64
+	YearsOnAvito  int64
 
-	PriceMin *int
-	PriceMax *int
+	PriceMin *int64
+	PriceMax *int64
 
 	SellerRating *float64
 
@@ -84,7 +84,7 @@ type YearMetricsListingCount struct {
 }
 
 type YearMetricsOwnListing struct {
-	ID         int64
+	ID         int64 // ListingID
 	CategoryID int64
 	Status     string
 	UpdatedAt  time.Time
