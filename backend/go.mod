@@ -3,6 +3,7 @@ module v1
 go 1.25.1
 
 require (
+	github.com/go-chi/chi/v5 v5.3.1
 	github.com/shopspring/decimal v1.4.0
 	gorm.io/datatypes v1.2.7
 	gorm.io/driver/postgres v1.5.0
