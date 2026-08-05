@@ -1,41 +1,45 @@
-import type {Metric} from './types';
-
-import styles from './MetricCard.module.css';
+import type {CardVariant} from './cardVariants';
+import {getPayloadString} from './payloadHelper';
+import type {RecapMetric} from './types';
+import styles from './RecapCard.module.css';
+import logoSrc from '../../assets/logo.svg.webp';
 
 
 type MetricCardProps = {
-    metric: Metric;
+  metric: RecapMetric;
+  variant: CardVariant;
 };
 
-export function MetricCard({ metric }: MetricCardProps) {
-    return (
-    <article
-      className={`${styles.card} ${styles[metric.variant]}`}
-    >
-      {/* Верхняя часть карточки. */}
+export function MetricCard({metric, variant}: MetricCardProps) {
+
+  const mainHighlight = metric.highlights[0] ?? '—';
+  const isLongValue = mainHighlight.length > 11;
+
+  const imageUrl = getPayloadString(metric.payload, 'imageUrl');
+  return (
+    <article className={`${styles.card} ${styles[variant]}`}>
       <header className={styles.header}>
-        {/* Временная текстовая имитация логотипа. */}
-        <span className={styles.logo}>
-          <span
-            className={styles.logoDots}
-            aria-hidden="true"
-          >
-            ● ● ●
-          </span>
-
-          Avito
-        </span>
-
-        <h2>{metric.title}</h2>
+        <img src={logoSrc} alt="Avito" className={styles.logoImage} />
+        <h2 className={styles.title}>{metric.title}</h2>
       </header>
 
-      <strong className={styles.value}>
-        {metric.value}
+      {imageUrl && (
+        <img
+          className={styles.image}
+          src={imageUrl}
+          alt=""
+          loading="lazy"
+        />
+      )}
+      <strong
+        className={`${styles.value} ${
+          isLongValue ? styles.valueLong : ''
+        }`}
+      >
+        {mainHighlight}
       </strong>
 
-      <p className={styles.text}>
-        {metric.text}
-      </p>
+      <p className={styles.text}>{metric.text}</p>
     </article>
   );
 }

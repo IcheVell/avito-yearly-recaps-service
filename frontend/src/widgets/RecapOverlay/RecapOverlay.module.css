@@ -1,31 +1,38 @@
 
 .overlay {
- 
   position: fixed;
-
-  /*
-   * inset: 0  одновременно:
-   * top: 0;
-   * right: 0;
-   * bottom: 0;
-   * left: 0;
-   *
-   */
   inset: 0;
   z-index: 1000;
+
   display: flex;
-  align-items: center;
+  flex-direction: column;
+
   background: rgb(0 0 0 / 78%);
   backdrop-filter: blur(2px);
+
+  overflow: hidden;
 }
 
 
 .track {
+  /*
+   * Верхний отступ оставляет место
+   * для прогресса и кнопки закрытия.
+   */
+  flex: 1;
   width: 100%;
-  padding: 0 16px;
+  padding:
+    86px
+    16px
+    24px;
+
   display: flex;
-  gap: 16px;
+  align-items: center;
+  gap: 18px;
+
   overflow-x: auto;
+  overflow-y: hidden;
+
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
 }
@@ -34,15 +41,21 @@
   display: none;
 }
 
+.track::-webkit-scrollbar {
+  display: none;
+}
 
 .progress {
-
   position: absolute;
   top: 28px;
   left: 50%;
+  z-index: 20;
+
   width: min(310px, 48vw);
+
   display: flex;
   gap: 6px;
+
   transform: translateX(-50%);
 }
 

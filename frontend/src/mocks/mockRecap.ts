@@ -1,49 +1,78 @@
 import type { Recap } from '../entities/recap/types';
 
 
-
-// export type Metric = {
-//     id: number;
-//     title: string;
-//     value: string;
-//     text: string;
-//     variant: MetricVariant;
-// }
-
-// export type Recap = {
-//     year: number;
-//     metrics: Metric[];
-// }
 export const mockRecap: Recap = {
-    year: 2026,
-    metrics: [
-        {
-      id: 1,
+  id: 101,
+  userId: 1,
+  year: 2025,
+  createdAt: '2026-01-15T12:00:00Z',
+
+  role: {
+    code: 'seller',
+    title: 'В этом году ты крутой продавец!',
+    subtitle: 'Ты продал 9 товаров.',
+    why: '67% активности — создание объявлений и продажа товаров',
+    activitySharePercent: 67,
+  },
+
+  metrics: [
+    {
+      type: 'spent_amount',
       title: 'Потраченная сумма',
-      value: '48 500 ₽',
       text: 'Столько стоило твоё любопытство в этом году.',
-      variant: 'red',
-    }, 
-   {
-      id: 2,
-      title: 'Твои объявления заметили',
-      value: '48 500 000',
-      text: 'Каждая тысяча искала хозяина. Вместе они нашли тебя.',
-      variant: 'blue',
+      highlights: ['48 500 ₽'],
+      payload: {
+        spentAmount: 48_500,
+      },
     },
     {
-      id: 3,
-      title: 'Объявления в избранном',
-      value: '125',
-      text: 'Столько раз пользователи захотели вернуться к твоим товарам.',
-      variant: 'green',
-    },
-    {
-      id: 4,
+      type: 'max_streak_days',
       title: 'Максимальный стрик',
-      value: '125',
-      text: 'Был момент, когда Авито стало привычкой.',
-      variant: 'purple',
-    }
+      text: 'Так выглядит твой рекорд постоянства.',
+      highlights: ['14 дней'],
+      payload: {
+        maxStreakDays: 14,
+      },
+    },
+    {
+      type: 'most_viewed_listing',
+      title: 'Товар, к которому ты возвращался',
+      text: 'Один лот не давал тебе покоя — iPhone 13 128GB.',
+      highlights: ['iPhone 13'],
+      payload: {
+        listingId: 2,
+        name: 'iPhone 13 128GB',
+        imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=900&q=80',
+        viewsCount: 42,
+      },
+    },
   ],
+
+  achievements: [
+    {
+      code: 'clean_sale',
+      name: 'Чистая продажа',
+      description: 'У тебя есть завершённые продажи в этом году.',
+    },
+    {
+      code: 'diplomat',
+      name: 'Дипломат',
+      description: 'Ты вёл много диалогов относительно просмотров.',
+    },
+  ],
+
+  action: {
+    type: 'boost_listings',
+    label: 'Обновить объявления',
+    reason: 'Есть активные объявления с низким откликом.',
+    target: {
+      listingIds: [11],
+      categoryId: 3,
+    },
+  },
+
+  debug: {
+    generatorVersion: 'v1',
+    seedProfile: 'seller_1',
+  },
 };
