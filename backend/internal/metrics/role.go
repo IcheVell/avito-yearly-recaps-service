@@ -51,12 +51,13 @@ func chooseText(role string, percent int, metrics domain.YearMetrics) (string, s
 		return "", "", "", errors.New("role does not exist in json file")
 	}
 
-	var title string
 	titlesNum := len(stats.Titles)
-	if titlesNum != 0 {
-		randomIndex := rand.IntN(titlesNum)
-		title = stats.Titles[randomIndex]
+	if titlesNum == 0 {
+		return "", "", "", errors.New("role has no titles")
 	}
+
+	randomIndex := rand.IntN(titlesNum)
+	title := stats.Titles[randomIndex]
 
 	var metric int
 
