@@ -9,9 +9,8 @@ import (
 )
 
 type RecapService interface {
-	GenerateRecap(ctx context.Context, profileID int64, year int) (domain.Recap, bool, error)
-	GetRecapByProfile(ctx context.Context, profileID int64, year int) (domain.Recap, error)
-	GetShareRecap(ctx context.Context, recapID int64) (domain.Recap, error)
+	GenerateRecap(ctx context.Context, userID int64, year int) (domain.Recap, bool, error)
+	GetRecap(ctx context.Context, recapID int64) (domain.Recap, error)
 }
 
 type RecapsHandler struct {
@@ -36,13 +35,13 @@ func (h *RecapsHandler) Generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	profileID, ok := parsePositiveInt64PathParam(w, r, "profile_id")
-	if !ok {
+	var req dto.GenerateRecapRequest
+	if !decodeJSONBody(w, r, &req) {
 		return
 	}
 
-	var req dto.GenerateRecapRequest
-	if !decodeJSONBody(w, r, &req) {
+	if req.UserID <= 0 {
+		writeValidationError(w, "userId must be positive", map[string]string{"field": "userId"})
 		return
 	}
 
@@ -51,10 +50,10 @@ func (h *RecapsHandler) Generate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recap, created, err := h.recaps.GenerateRecap(r.Context(), profileID, req.Year)
+	recap, created, err := h.recaps.GenerateRecap(r.Context(), req.UserID, req.Year)
 	if err != nil {
 		if shouldLogServiceError(err) {
-			h.logger.ErrorContext(r.Context(), "generate recap failed", "profile_id", profileID, "err", err, "operation", "generate_recap")
+			h.logger.ErrorContext(r.Context(), "generate recap failed", "user_id", req.UserID, "err", err, "operation", "generate_recap")
 		}
 		writeServiceError(w, err)
 		return
@@ -68,49 +67,21 @@ func (h *RecapsHandler) Generate(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, status, dto.NewRecapResponse(recap))
 }
 
-func (h *RecapsHandler) GetByProfile(w http.ResponseWriter, r *http.Request) {
+func (h *RecapsHandler) Get(w http.ResponseWriter, r *http.Request) {
 	if h.recaps == nil {
 		writeError(w, http.StatusInternalServerError, errorCodeInternal, "internal error", nil)
 		return
 	}
 
-	profileID, ok := parsePositiveInt64PathParam(w, r, "profile_id")
+	recapID, ok := parsePositiveInt64PathParam(w, r, "recapId")
 	if !ok {
 		return
 	}
 
-	year, ok := parseOptionalYearQuery(w, r)
-	if !ok {
-		return
-	}
-
-	recap, err := h.recaps.GetRecapByProfile(r.Context(), profileID, year)
+	recap, err := h.recaps.GetRecap(r.Context(), recapID)
 	if err != nil {
 		if shouldLogServiceError(err) {
-			h.logger.ErrorContext(r.Context(), "get recap by profile failed", "profile_id", profileID, "err", err, "operation", "get_recap_by_profile")
-		}
-		writeServiceError(w, err)
-		return
-	}
-
-	writeJSON(w, http.StatusOK, dto.NewRecapResponse(recap))
-}
-
-func (h *RecapsHandler) GetShare(w http.ResponseWriter, r *http.Request) {
-	if h.recaps == nil {
-		writeError(w, http.StatusInternalServerError, errorCodeInternal, "internal error", nil)
-		return
-	}
-
-	recapID, ok := parsePositiveInt64PathParam(w, r, "recap_id")
-	if !ok {
-		return
-	}
-
-	recap, err := h.recaps.GetShareRecap(r.Context(), recapID)
-	if err != nil {
-		if shouldLogServiceError(err) {
-			h.logger.ErrorContext(r.Context(), "get share recap failed", "recap_id", recapID, "err", err, "operation", "get_share_recap")
+			h.logger.ErrorContext(r.Context(), "get recap failed", "recap_id", recapID, "err", err, "operation", "get_recap")
 		}
 		writeServiceError(w, err)
 		return

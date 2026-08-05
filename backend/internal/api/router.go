@@ -27,16 +27,13 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 
-	r.Get("/health", healthHandler.Check)
-
-	r.Route("/api/v1", func(r chi.Router) {
+	r.Route("/api", func(r chi.Router) {
+		r.Get("/health", healthHandler.Check)
 		r.Get("/profiles", profilesHandler.List)
-		r.Post("/profiles/{profile_id}/recaps", recapsHandler.Generate)
-		r.Get("/profiles/{profile_id}/recaps", recapsHandler.GetByProfile)
-		r.Get("/recaps/{recap_id}/share", recapsHandler.GetShare)
+		r.Post("/recaps/generate", recapsHandler.Generate)
+		r.Get("/recaps/{recapId}", recapsHandler.Get)
 	})
 
 	return r

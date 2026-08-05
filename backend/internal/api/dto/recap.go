@@ -6,7 +6,8 @@ import (
 )
 
 type GenerateRecapRequest struct {
-	Year int `json:"year"`
+	UserID int64 `json:"userId"`
+	Year   int   `json:"year"`
 }
 
 type RecapResponse struct {

@@ -27,33 +27,23 @@ type fakeRecaps struct {
 	recap   domain.Recap
 	created bool
 
-	generateProfileID int64
-	generateYear      int
-	generateErr       error
+	generateUserID int64
+	generateYear   int
+	generateErr    error
 
-	getProfileID int64
-	getYear      int
-	getErr       error
-
-	shareID  int64
-	shareErr error
+	getID  int64
+	getErr error
 }
 
-func (f *fakeRecaps) GenerateRecap(ctx context.Context, profileID int64, year int) (domain.Recap, bool, error) {
-	f.generateProfileID = profileID
+func (f *fakeRecaps) GenerateRecap(ctx context.Context, userID int64, year int) (domain.Recap, bool, error) {
+	f.generateUserID = userID
 	f.generateYear = year
 	return f.recap, f.created, f.generateErr
 }
 
-func (f *fakeRecaps) GetRecapByProfile(ctx context.Context, profileID int64, year int) (domain.Recap, error) {
-	f.getProfileID = profileID
-	f.getYear = year
+func (f *fakeRecaps) GetRecap(ctx context.Context, recapID int64) (domain.Recap, error) {
+	f.getID = recapID
 	return f.recap, f.getErr
-}
-
-func (f *fakeRecaps) GetShareRecap(ctx context.Context, recapID int64) (domain.Recap, error) {
-	f.shareID = recapID
-	return f.recap, f.shareErr
 }
 
 type testHTTPError struct {
@@ -88,7 +78,7 @@ func TestRouter(t *testing.T) {
 		{
 			name:       "health ok",
 			method:     http.MethodGet,
-			target:     "/health",
+			target:     "/api/health",
 			profiles:   fakeProfiles{},
 			recaps:     nil,
 			wantStatus: http.StatusOK,
@@ -106,7 +96,7 @@ func TestRouter(t *testing.T) {
 		{
 			name:   "list profiles",
 			method: http.MethodGet,
-			target: "/api/v1/profiles",
+			target: "/api/profiles",
 			profiles: fakeProfiles{
 				users: []domain.User{
 					{ID: 1, Username: "seller_anna", ImageURL: "https://example.com/anna.png"},
@@ -133,14 +123,14 @@ func TestRouter(t *testing.T) {
 		{
 			name:       "generate recap created",
 			method:     http.MethodPost,
-			target:     "/api/v1/profiles/1/recaps",
-			body:       `{"year":2025}`,
+			target:     "/api/recaps/generate",
+			body:       `{"userId":1,"year":2025}`,
 			profiles:   fakeProfiles{},
 			recaps:     &fakeRecaps{recap: sampleRecap(), created: true},
 			wantStatus: http.StatusCreated,
 			assert: func(t *testing.T, rr *httptest.ResponseRecorder, recaps *fakeRecaps) {
-				if recaps.generateProfileID != 1 {
-					t.Fatalf("profileID = %d, want 1", recaps.generateProfileID)
+				if recaps.generateUserID != 1 {
+					t.Fatalf("userID = %d, want 1", recaps.generateUserID)
 				}
 				if recaps.generateYear != 2025 {
 					t.Fatalf("year = %d, want 2025", recaps.generateYear)
@@ -171,22 +161,22 @@ func TestRouter(t *testing.T) {
 			},
 		},
 		{
-			name:       "generate recap invalid profile id",
+			name:       "generate recap invalid user id",
 			method:     http.MethodPost,
-			target:     "/api/v1/profiles/abc/recaps",
-			body:       `{"year":2025}`,
+			target:     "/api/recaps/generate",
+			body:       `{"userId":0,"year":2025}`,
 			profiles:   fakeProfiles{},
 			recaps:     &fakeRecaps{},
 			wantStatus: http.StatusBadRequest,
 			assert: func(t *testing.T, rr *httptest.ResponseRecorder, recaps *fakeRecaps) {
-				assertValidationError(t, rr, "profile_id")
+				assertValidationError(t, rr, "userId")
 			},
 		},
 		{
 			name:       "generate recap invalid year",
 			method:     http.MethodPost,
-			target:     "/api/v1/profiles/1/recaps",
-			body:       `{"year":1999}`,
+			target:     "/api/recaps/generate",
+			body:       `{"userId":1,"year":1999}`,
 			profiles:   fakeProfiles{},
 			recaps:     &fakeRecaps{},
 			wantStatus: http.StatusBadRequest,
@@ -195,28 +185,25 @@ func TestRouter(t *testing.T) {
 			},
 		},
 		{
-			name:       "get recap by profile passes year query",
+			name:       "get recap by id",
 			method:     http.MethodGet,
-			target:     "/api/v1/profiles/1/recaps?year=2025",
+			target:     "/api/recaps/10",
 			profiles:   fakeProfiles{},
 			recaps:     &fakeRecaps{recap: sampleRecap()},
 			wantStatus: http.StatusOK,
 			assert: func(t *testing.T, rr *httptest.ResponseRecorder, recaps *fakeRecaps) {
-				if recaps.getProfileID != 1 {
-					t.Fatalf("profileID = %d, want 1", recaps.getProfileID)
-				}
-				if recaps.getYear != 2025 {
-					t.Fatalf("year = %d, want 2025", recaps.getYear)
+				if recaps.getID != 10 {
+					t.Fatalf("recapID = %d, want 10", recaps.getID)
 				}
 			},
 		},
 		{
-			name:     "share recap maps service not found",
+			name:     "get recap maps service not found",
 			method:   http.MethodGet,
-			target:   "/api/v1/recaps/404/share",
+			target:   "/api/recaps/404",
 			profiles: fakeProfiles{},
 			recaps: &fakeRecaps{
-				shareErr: testHTTPError{
+				getErr: testHTTPError{
 					status: http.StatusNotFound,
 					code:   "RECAP_NOT_FOUND",
 					msg:    "recap not found",
