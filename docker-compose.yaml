@@ -15,14 +15,14 @@ services:
       db:
         condition: service_healthy
 
-#  frontend:
-#    image: yearly-recaps-frontend
-#    build:
-#      context: ./frontend
-#    ports:
-#      - "80:80"
-#    depends_on:
-#      - backend
+  frontend:
+    image: yearly-recaps-frontend
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 
   db:
     image: postgres:16-alpine
