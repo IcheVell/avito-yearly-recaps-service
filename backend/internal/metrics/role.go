@@ -1,11 +1,12 @@
 package metrics
 
 import (
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
-	"os"
+	"sync"
 	"v1/internal/domain"
 )
 
@@ -13,35 +14,49 @@ const (
 	seller  = "seller"
 	buyer   = "buyer"
 	watcher = "watcher"
+
+	weightListingCreated = 5
+	weightSell           = 10
+	weightFavorite       = 3
+	weightBuy            = 10
+	weightView           = 1
+	weightSearch         = 1
 )
 
-func ResolveRole(metrics domain.YearMetrics, path string) (error, domain.RecapRole) {
-	role, percent := choseCode(metrics)
-	err, title, subtitle, why := choseText(role, percent, metrics, path)
+func ResolveRole(metrics domain.YearMetrics) (domain.RecapRole, error) {
+	role, percent := chooseCode(metrics)
+
+	title, subtitle, why, err := chooseText(role, percent, metrics)
 	if err != nil {
-		return err, domain.RecapRole{}
+		return domain.RecapRole{}, err
 	}
-	return nil, domain.RecapRole{
+
+	return domain.RecapRole{
 		Code:                 role,
 		Title:                title,
 		Subtitle:             subtitle,
 		Why:                  why,
 		ActivitySharePercent: percent,
-	}
+	}, nil
 }
 
-func choseText(role string, percent int, metrics domain.YearMetrics, path string) (error, string, string, string) {
-	err, roleStats := getRoleStats(path)
+func chooseText(role string, percent int, metrics domain.YearMetrics) (string, string, string, error) {
+	roleStats, err := loadRoleCopies()
 	if err != nil {
-		return err, "", "", ""
+		return "", "", "", err
 	}
-	stats, exist := roleStats[role]
-	if !exist {
-		return errors.New("role does not exist in json file"), "", "", ""
+
+	stats, ok := roleStats[role]
+	if !ok {
+		return "", "", "", errors.New("role does not exist in json file")
 	}
+
+	var title string
 	titlesNum := len(stats.Titles)
-	randomIndex := rand.IntN(titlesNum)
-	title := stats.Titles[randomIndex]
+	if titlesNum != 0 {
+		randomIndex := rand.IntN(titlesNum)
+		title = stats.Titles[randomIndex]
+	}
 
 	var metric int
 
@@ -56,49 +71,50 @@ func choseText(role string, percent int, metrics domain.YearMetrics, path string
 
 	subtitle := fmt.Sprintf(stats.Subtitle, metric)
 	why := fmt.Sprintf(stats.Why, percent)
-	return nil, title, subtitle, why
+
+	return title, subtitle, why, nil
 }
 
-func choseCode(metrics domain.YearMetrics) (string, int) {
-	sellerScore := metrics.ListingsCreatedCount*5 + metrics.SellsCount*10
-	buyerScore := metrics.FavoritesCount*3 + metrics.BuysCount*10
-	watcherScore := metrics.ViewsCount + metrics.SearchesCount
+func chooseCode(metrics domain.YearMetrics) (string, int) {
+	sellerScore := metrics.ListingsCreatedCount*weightListingCreated + metrics.SellsCount*weightSell
+	buyerScore := metrics.FavoritesCount*weightFavorite + metrics.BuysCount*weightBuy
+	watcherScore := metrics.ViewsCount*weightView + metrics.SearchesCount*weightSearch
 
 	maxScore := max(sellerScore, buyerScore, watcherScore)
 
 	if maxScore == 0 {
-		return "", 100
+		return watcher, 100
 	}
 
 	sum := sellerScore + buyerScore + watcherScore
 
 	if maxScore == sellerScore {
-		return seller, int((float32(sellerScore) / float32(sum)) * 100)
+		return seller, (sellerScore * 100) / sum
 	} else if maxScore == buyerScore {
-		return buyer, int((float32(buyerScore) / float32(sum)) * 100)
+		return buyer, (buyerScore * 100) / sum
 	}
 
-	return watcher, int((float32(watcherScore) / float32(sum)) * 100)
+	return watcher, (watcherScore * 100) / sum
 }
 
-func getRoleStats(path string) (error, map[string]RoleStats) {
-	file, err := os.Open(path)
-	if err != nil {
-		return err, nil
-	}
-	defer file.Close()
-
-	var roles map[string]RoleStats
-	err = json.NewDecoder(file).Decode(&roles)
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, roles
-}
-
-type RoleStats struct {
+type roleStats struct {
 	Titles   []string `json:"titles"`
 	Subtitle string   `json:"subtitle"`
 	Why      string   `json:"why"`
+}
+
+//go:embed roles.json
+var rolesJSON []byte
+
+var (
+	roleCopies     map[string]roleStats
+	roleCopiesErr  error
+	roleCopiesOnce sync.Once
+)
+
+func loadRoleCopies() (map[string]roleStats, error) {
+	roleCopiesOnce.Do(func() {
+		roleCopiesErr = json.Unmarshal(rolesJSON, &roleCopies)
+	})
+	return roleCopies, roleCopiesErr
 }
