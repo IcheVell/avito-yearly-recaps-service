@@ -20,7 +20,6 @@ const (
 	compareTop       = "compare_top"
 
 	minAbandonedViews           = 5
-	minCancelledListings        = 3
 	minFavoriteCategoryListings = 5
 	minFavoriteListings         = 10
 	staleDays                   = 14
