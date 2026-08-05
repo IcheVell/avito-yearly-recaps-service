@@ -4,8 +4,8 @@ services:
     build:
       context: ./backend
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
@@ -15,14 +15,14 @@ services:
       db:
         condition: service_healthy
 
-  frontend:
-    image: yearly-recaps-frontend
-    build:
-      context: ./frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
+#  frontend:
+#    image: yearly-recaps-frontend
+#    build:
+#      context: ./frontend
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - backend
 
   db:
     image: postgres:16-alpine
