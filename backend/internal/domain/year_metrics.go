@@ -9,7 +9,7 @@ type YearMetrics struct {
 	ViewsCount           int
 	SearchesCount        int
 	FavoritesCount       int
-	MessagesPeopleCount  int
+	MessagesPeopleCount  int // Количество начатых диалогов
 	ListingsCreatedCount int
 	BuysCount            int
 	SellsCount           int
