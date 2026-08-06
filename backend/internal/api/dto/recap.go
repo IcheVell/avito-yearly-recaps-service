@@ -1,163 +1,144 @@
 package dto
 
 import (
-	"encoding/json"
+	"time"
 	"v1/internal/domain"
 )
 
 type GenerateRecapRequest struct {
 	UserID int64 `json:"userId"`
-	Year   int   `json:"year"`
 }
 
 type RecapResponse struct {
-	ID        int64       `json:"id,omitempty"`
-	ProfileID int64       `json:"profile_id"`
-	Year      int         `json:"year,omitempty"`
-	Cards     []RecapCard `json:"cards"`
+	ID           int64                      `json:"id"`
+	UserID       int64                      `json:"userId"`
+	Year         int                        `json:"year"`
+	CreatedAt    time.Time                  `json:"createdAt"`
+	Role         RecapRoleResponse          `json:"role"`
+	Metrics      []RecapMetricResponse      `json:"metrics"`
+	Achievements []RecapAchievementResponse `json:"achievements"`
+	Action       RecapActionResponse        `json:"action"`
+	Debug        RecapDebugResponse         `json:"debug"`
 }
 
-type RecapCard struct {
-	Type   string   `json:"type"`
-	Title  string   `json:"title,omitempty"`
-	Value  any      `json:"value,omitempty"`
-	Text   string   `json:"text,omitempty"`
-	Items  []string `json:"items,omitempty"`
-	Action string   `json:"action,omitempty"`
+type RecapRoleResponse struct {
+	Code                 string `json:"code"`
+	Title                string `json:"title"`
+	Subtitle             string `json:"subtitle"`
+	Why                  string `json:"why"`
+	ActivitySharePercent int    `json:"activitySharePercent"`
+}
+
+type RecapMetricResponse struct {
+	Type       string         `json:"type"`
+	Title      string         `json:"title"`
+	Text       string         `json:"text"`
+	Highlights []string       `json:"highlights"`
+	Payload    map[string]any `json:"payload"`
+}
+
+type RecapAchievementResponse struct {
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+type RecapActionResponse struct {
+	Type   string                    `json:"type"`
+	Label  string                    `json:"label"`
+	Reason string                    `json:"reason"`
+	Target RecapActionTargetResponse `json:"target"`
+}
+
+type RecapActionTargetResponse struct {
+	ListingIDs []int64 `json:"listingIds"`
+	CategoryID int64   `json:"categoryId"`
+}
+
+type RecapDebugResponse struct {
+	GeneratorVersion string `json:"generatorVersion"`
+	SeedProfile      string `json:"seedProfile"`
 }
 
 func NewRecapResponse(recap domain.Recap) RecapResponse {
-	cards := []RecapCard{
-		{
-			Type:  "intro",
-			Title: "Привет! Вот твои итоги года",
-		},
-	}
-
-	for _, metric := range recap.Metrics {
-		cards = append(cards, newMetricCard(metric))
-	}
-
-	if recap.Role.Code != "" || recap.Role.Title != "" {
-		cards = append(cards, RecapCard{
-			Type:  "role",
-			Value: recap.Role.Code,
-			Title: recap.Role.Title,
-			Text:  firstNonEmpty(recap.Role.Subtitle, recap.Role.Why),
-		})
-	}
-
-	if len(recap.Achievements) > 0 {
-		items := make([]string, 0, len(recap.Achievements))
-		for _, achievement := range recap.Achievements {
-			items = append(items, achievement.Name)
-		}
-
-		cards = append(cards, RecapCard{
-			Type:  "achievements",
-			Items: items,
-		})
-	}
-
-	if recap.Action.Type != "" || recap.Action.Label != "" {
-		cards = append(cards, RecapCard{
-			Type:   "recommendation",
-			Title:  recap.Action.Label,
-			Text:   firstNonEmpty(recap.Action.Reason, recap.Action.Label),
-			Action: recap.Action.Type,
-		})
-	}
-
 	return RecapResponse{
 		ID:        recap.ID,
-		ProfileID: recap.UserID,
+		UserID:    recap.UserID,
 		Year:      recap.Year,
-		Cards:     cards,
+		CreatedAt: recap.CreatedAt,
+		Role: RecapRoleResponse{
+			Code:                 recap.Role.Code,
+			Title:                recap.Role.Title,
+			Subtitle:             recap.Role.Subtitle,
+			Why:                  recap.Role.Why,
+			ActivitySharePercent: recap.Role.ActivitySharePercent,
+		},
+		Metrics:      newRecapMetricResponses(recap.Metrics),
+		Achievements: newRecapAchievementResponses(recap.Achievements),
+		Action: RecapActionResponse{
+			Type:   recap.Action.Type,
+			Label:  recap.Action.Label,
+			Reason: recap.Action.Reason,
+			Target: RecapActionTargetResponse{
+				ListingIDs: emptyInt64SliceIfNil(recap.Action.Target.ListingIDs),
+				CategoryID: recap.Action.Target.CategoryID,
+			},
+		},
+		Debug: RecapDebugResponse{
+			GeneratorVersion: recap.Debug.GeneratorVersion,
+			SeedProfile:      recap.Debug.SeedProfile,
+		},
 	}
 }
 
-func newMetricCard(metric domain.RecapMetric) RecapCard {
-	if metric.Type == "comparison" {
-		return RecapCard{
-			Type:  "comparison",
-			Title: metric.Title,
-			Text:  metric.Text,
-		}
+func newRecapMetricResponses(metrics []domain.RecapMetric) []RecapMetricResponse {
+	items := make([]RecapMetricResponse, 0, len(metrics))
+	for _, metric := range metrics {
+		items = append(items, RecapMetricResponse{
+			Type:       metric.Type,
+			Title:      metric.Title,
+			Text:       metric.Text,
+			Highlights: emptyStringSliceIfNil(metric.Highlights),
+			Payload:    emptyMapIfNil(metric.Payload),
+		})
 	}
 
-	if value, ok := numericMetricValue(metric.Payload); ok {
-		return RecapCard{
-			Type:  "number",
-			Title: metric.Title,
-			Value: value,
-			Text:  metric.Text,
-		}
-	}
-
-	return RecapCard{
-		Type:  "text",
-		Title: metric.Title,
-		Text:  metric.Text,
-	}
+	return items
 }
 
-func numericMetricValue(payload map[string]any) (any, bool) {
-	for _, key := range []string{
-		"value",
-		"earnedAmount",
-		"spentAmount",
-		"activeDays",
-		"viewsCount",
-		"favoritesCount",
-		"searchesCount",
-		"sellsCount",
-		"buysCount",
-		"maxStreakDays",
-	} {
-		value, ok := payload[key]
-		if !ok {
-			continue
-		}
-
-		switch typed := value.(type) {
-		case int:
-			return typed, true
-		case int8:
-			return typed, true
-		case int16:
-			return typed, true
-		case int32:
-			return typed, true
-		case int64:
-			return typed, true
-		case uint:
-			return typed, true
-		case uint8:
-			return typed, true
-		case uint16:
-			return typed, true
-		case uint32:
-			return typed, true
-		case uint64:
-			return typed, true
-		case float32:
-			return typed, true
-		case float64:
-			return typed, true
-		case json.Number:
-			return typed, true
-		}
+func newRecapAchievementResponses(achievements []domain.RecapAchievement) []RecapAchievementResponse {
+	items := make([]RecapAchievementResponse, 0, len(achievements))
+	for _, achievement := range achievements {
+		items = append(items, RecapAchievementResponse{
+			Code:        achievement.Code,
+			Name:        achievement.Name,
+			Description: achievement.Description,
+		})
 	}
 
-	return nil, false
+	return items
 }
 
-func firstNonEmpty(values ...string) string {
-	for _, value := range values {
-		if value != "" {
-			return value
-		}
+func emptyStringSliceIfNil(values []string) []string {
+	if values == nil {
+		return []string{}
 	}
 
-	return ""
+	return values
+}
+
+func emptyInt64SliceIfNil(values []int64) []int64 {
+	if values == nil {
+		return []int64{}
+	}
+
+	return values
+}
+
+func emptyMapIfNil(values map[string]any) map[string]any {
+	if values == nil {
+		return map[string]any{}
+	}
+
+	return values
 }

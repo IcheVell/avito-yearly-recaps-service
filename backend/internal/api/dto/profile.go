@@ -9,10 +9,11 @@ type Profile struct {
 }
 
 type ProfilesResponse struct {
-	Items []Profile `json:"items"`
+	CurrentYear int       `json:"currentYear"`
+	Items       []Profile `json:"items"`
 }
 
-func NewProfilesResponse(users []domain.User) ProfilesResponse {
+func NewProfilesResponse(users []domain.User, currentYear int) ProfilesResponse {
 	items := make([]Profile, 0, len(users))
 	for _, user := range users {
 		items = append(items, Profile{
@@ -22,5 +23,8 @@ func NewProfilesResponse(users []domain.User) ProfilesResponse {
 		})
 	}
 
-	return ProfilesResponse{Items: items}
+	return ProfilesResponse{
+		CurrentYear: currentYear,
+		Items:       items,
+	}
 }

@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -116,16 +115,11 @@ func parsePositiveInt64PathParam(w http.ResponseWriter, r *http.Request, name st
 	raw := chi.URLParam(r, name)
 	value, err := strconv.ParseInt(raw, 10, 64)
 	if err != nil || value <= 0 {
-		writeValidationError(w, "invalid path parameter", map[string]string{"field": name})
+		writeValidationError(w, name+" must be a positive integer", map[string]string{"field": name})
 		return 0, false
 	}
 
 	return value, true
-}
-
-func validYear(year int) bool {
-	currentYear := time.Now().Year()
-	return year >= 2000 && year <= currentYear
 }
 
 func codeByStatus(status int) string {

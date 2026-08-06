@@ -244,9 +244,9 @@ func buildBuyCategoryComparison(m domain.YearMetrics, copy metricStats) (domain.
 		Text:       text,
 		Highlights: []string{highlight},
 		Payload: map[string]any{
-			"leftCategoryName":  left.name,
-			"leftCategoryCount": left.count,
-			"rightCategoryName": right.name,
+			"leftCategoryName":   left.name,
+			"leftCategoryCount":  left.count,
+			"rightCategoryName":  right.name,
 			"rightCategoryCount": right.count,
 		},
 	}, nil
