@@ -1,20 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
 import { App } from './app/App';
+import { AppProviders } from './app/providers';
+
 import './index.css';
 
-const rootElement =
-  document.getElementById('root');
+const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  throw new Error(
-    'Не найден HTML-элемент с id="root"',
-  );
+  throw new Error('Не найден HTML-элемент с id="root".');
 }
-const root =
-  ReactDOM.createRoot(rootElement);
-root.render(
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
+    <AppProviders>
+      <App />
+    </AppProviders>
   </React.StrictMode>,
 );

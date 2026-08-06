@@ -15,25 +15,26 @@ type Recap struct {
 }
 
 type RecapRole struct {
-	Code                 string
-	Title                string
-	Subtitle             string
-	Why                  string
-	ActivitySharePercent int
+	Code                 string `json:"code"`
+	Title                string `json:"title"`
+	Subtitle             string `json:"subtitle"`
+	Why                  string `json:"why"`
+	ActivitySharePercent int    `json:"activitySharePercent"`
 }
 
 type RecapMetric struct {
-	Type       string
-	Title      string
-	Text       string
-	Highlights []string
-	Payload    map[string]any
+	Type       string         `json:"type"`
+	Title      string         `json:"title"`
+	Text       string         `json:"text"`
+	Highlights []string       `json:"highlights"`
+	Payload    map[string]any `json:"payload`
 }
 
 type RecapAchievement struct {
-	Code        string
-	Name        string
-	Description string
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	ImageURL    string `json:"image_url"`
 }
 
 type RecapAction struct {

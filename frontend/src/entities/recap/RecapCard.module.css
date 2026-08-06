@@ -1,0 +1,263 @@
+.card {
+  flex: 0 0 min(390px, calc(100vw - 40px));
+  min-width: 360px;
+
+  height: min(620px, calc(100vh - 190px));
+  height: min(620px, calc(100dvh - 190px));
+  min-height: min(570px, calc(100dvh - 190px));
+
+  padding: 26px 30px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+
+  border: 1px solid rgb(255 255 255 / 50%);
+  border-radius: 32px;
+
+  color: #111;
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 24px 60px rgb(0 0 0 / 24%),
+    inset 0 1px 0 rgb(255 255 255 / 65%);
+
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+.card::-webkit-scrollbar {
+  display: none;
+}
+
+.logoImage {
+  height: 24px;
+  width: auto;
+}
+
+.card::before {
+  content: '';
+
+  position: absolute;
+  top: -28%;
+  left: -28%;
+
+  width: 78%;
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgb(255 255 255 / 52%) 0%,
+    rgb(255 255 255 / 0%) 70%
+  );
+
+  pointer-events: none;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+
+.title {
+  min-width: 0;
+  margin: 0;
+
+  font-size: clamp(24px, 2.2vw, 34px);
+  line-height: 1.03;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+
+  overflow-wrap: anywhere;
+}
+
+.value {
+  max-width: 100%;
+  margin: auto 0;
+
+  font-size: clamp(62px, 5.8vw, 104px);
+  line-height: 0.92;
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  text-align: center;
+
+  overflow-wrap: anywhere;
+
+  filter: drop-shadow(0 4px 7px rgb(0 0 0 / 18%));
+}
+
+.valueLong {
+  font-size: clamp(42px, 4.3vw, 72px);
+  letter-spacing: -0.04em;
+}
+
+.highlightValue {
+  font-size: clamp(68px, 7vw, 128px);
+}
+
+.highlightValue.valueLong {
+  font-size: clamp(40px, 5vw, 84px);
+}
+
+.text {
+  max-width: 330px;
+  margin: 0 auto;
+
+  text-align: center;
+
+  font-size: clamp(20px, 1.9vw, 28px);
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+
+  overflow-wrap: anywhere;
+}
+
+.image {
+  width: 100%;
+  max-height: 190px;
+  object-fit: cover;
+
+  border-radius: 20px;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 18%);
+}
+
+.badge {
+  align-self: center;
+
+  padding: 10px 16px;
+  border-radius: 999px;
+
+  background: rgb(255 255 255 / 45%);
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.actionButton {
+  align-self: center;
+
+  padding: 14px 22px;
+  border: 0;
+  border-radius: 14px;
+
+  background: #111;
+  color: white;
+
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  opacity: 0.84;
+}
+
+.red {
+  background: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 96%) 0%,
+    rgb(255 225 228 / 92%) 30%,
+    rgb(255 150 160 / 90%) 70%,
+    rgb(255 83 97 / 92%) 100%
+  );
+}
+
+.blue {
+  background: linear-gradient(
+    135deg,
+    rgb(50 140 255 / 94%) 0%,
+    rgb(100 180 255 / 90%) 34%,
+    rgb(222 241 255 / 92%) 75%,
+    rgb(255 255 255 / 96%) 100%
+  );
+}
+
+.green {
+  background: linear-gradient(
+    135deg,
+    rgb(31 184 91 / 94%) 0%,
+    rgb(119 239 115 / 90%) 34%,
+    rgb(210 240 203 / 92%) 75%,
+    rgb(255 255 255 / 96%) 100%
+  );
+}
+
+.purple {
+  background: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 96%) 0%,
+    rgb(235 216 243 / 92%) 30%,
+    rgb(167 124 194 / 90%) 70%,
+    rgb(150 94 235 / 94%) 100%
+  );
+}
+
+/* Градиент текста зависит от цвета карточки. */
+.red .value {
+  background: linear-gradient(135deg, #bd3737, #65101e 65%, #1d0005);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.blue .value {
+  background: linear-gradient(135deg, #002f4f, #006ba6 55%, #008fdb);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.green .value {
+  background: linear-gradient(135deg, #073c21, #087a3a 55%, #10a95b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.purple .value {
+  background: linear-gradient(135deg, #421458, #732b9d 55%, #a94de3);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+@media (max-width: 640px) {
+  .card {
+    flex-basis: calc(100vw - 28px);
+    min-width: min(360px, calc(100vw - 28px));
+    min-height: min(430px, calc(100dvh - 190px));
+    padding: 22px;
+    border-radius: 26px;
+  }
+
+  .header {
+    gap: 14px;
+  }
+
+}

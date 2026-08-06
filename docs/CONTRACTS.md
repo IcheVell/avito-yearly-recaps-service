@@ -190,12 +190,16 @@ BE2 не пишет SQL.
 Frontend не считает роли/метрики/ачивки/действие — только рендерит объект `Recap` (Contract B).
 Base URL (в браузере):
 - `http://localhost/api` (через nginx proxy)
+
+Год итогов определяет backend. Frontend не передаёт `year` в запросах генерации, получения recap и статистики. Все эти endpoint используют единый активный год, заданный конфигурацией backend, например `RECAP_YEAR`.
 ### 1) `GET /api/profiles`
 *Для `GET /api/profiles` оставить прямой вызов repo*
 Список тестовых пользователей для выбора на первом экране.
+Поле `currentYear` передаётся один раз на верхнем уровне ответа и содержит активный год итогов, определённый backend. Frontend использует его только для отображения и не отправляет обратно в запросах.
 #### Response `200`
 ```
 {
+  "currentYear": 2026,
   "items": [
     {
       "id": 1,
@@ -215,13 +219,13 @@ Base URL (в браузере):
 #### Request body
 ```
 {
-  "userId": 1,
-  "year": 2025
+  "userId": 1
 }
 ```
+Год не принимается от frontend. Backend использует активный год итогов из своей конфигурации.
 #### Поведение
-- Если для пары `(userId, year)` recap ещё не существует — создаётся новый recap.
-- Если recap уже существует — выполняется перегенерация и обновление существующего recap.
+- Если для пары `(userId, currentYear)` recap ещё не существует — создаётся новый recap.
+- Если recap за активный год уже существует — выполняется перегенерация и обновление существующего recap.
 #### Response
 - `201 Created` — создан новый recap.
 - `200 OK` — выполнена перегенерация существующего recap.
@@ -299,35 +303,83 @@ Base URL (в браузере):
   }
 }
 ```
-### 3) `GET /api/recaps/{recapId}`
-Получить уже сгенерированные итоги.
+### 3) `GET /api/users/{userId}/recap`
+Получить уже сгенерированные итоги пользователя за активный год.
 #### Path params
-- `recapId` (`int64`)
-#### Response `200`
-Тело = Contract B `Recap`.
-### 4) `GET /api/health`
+- `userId` (`int64`) — идентификатор пользователя
+#### Example
+```text
+GET /api/users/1/recap
+```
+Год не передаётся в path или query params. Backend использует тот же активный год, что и при генерации recap.
+#### Response `200`
+Тело ответа = Contract B `Recap`.
+
+Если recap пользователя за активный год ещё не был сгенерирован, возвращается `404 Not Found`.
+
+### 4) `GET /api/users/{userId}/achievements`
+Получить все ачивки пользователя, включая ачивки, полученные в прошлые годы.
+#### Path params
+- `userId` (`int64`)
+#### Response `200`
+```
+{
+  "items": [
+    {
+      "code": "streak_survivor",
+      "name": "Несгибаемый",
+      "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
+      "earnedAt": "2025-08-12T12:00:00Z"
+    },
+    {
+      "code": "plot_twist",
+      "name": "Неожиданный поворот",
+      "description": "После паузы ты вернулся на площадку — сюжет года сделал виток.",
+      "earnedAt": "2023-10-05T12:00:00Z"
+    }
+  ]
+}
+```
+Ачивки сортируются по `earnedAt` от новых к старым.
+Если у пользователя нет ачивок, возвращается пустой массив `items`.
+
+### 5) `GET /api/users/{userId}/stats`
+Получить все агрегированные статы пользователя за активный год.
+#### Path params
+- `userId` (`int64`)
+#### Example
+```text
+GET /api/users/1/stats
+```
+Год не передаётся в query params. Backend использует единый активный год итогов.
+#### Response `200`
+Тело ответа = Contract A `YearMetrics` для указанного пользователя и активного года.
+
+### 6) `GET /api/health`
 Проверка живости сервиса.
 #### Response `200`
 ```
 {
-"status": "ok"
+  "status": "ok"
 }
 ```
+Frontend не может выбрать прошлый год через публичный API: параметр `year` отсутствует во всех endpoint, связанных с recap и статистикой.
+
 ## Ошибки (единый формат)
 Для всех endpoint:
 ```
 {
   "error": {
     "code": "VALIDATION_ERROR",
-    "message": "year must be between 2000 and current year",
+    "message": "userId must be a positive integer",
     "details": {
-      "field": "year"
+      "field": "userId"
     }
   }
 }
 ```
 ### Рекомендуемые коды
 - `400 Bad Request` — невалидный body/params
-- `404 Not Found` — пользователь или recap не найден
+- `404 Not Found` — пользователь или запрошенные данные не найдены
 - `409 Conflict` — конфликт состояния (опционально)
 - `500 Internal Server Error` — внутренняя ошибка

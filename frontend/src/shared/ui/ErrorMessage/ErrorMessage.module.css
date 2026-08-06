@@ -1,0 +1,25 @@
+.box {
+  padding: 18px;
+  border: 1px solid rgb(190 30 45 / 24%);
+  border-radius: 14px;
+
+  background: rgb(255 238 240);
+  color: #8f1423;
+}
+
+.box p {
+  margin: 0 0 12px;
+}
+
+.box button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+
+  background: #8f1423;
+  color: white;
+
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -1,61 +1,59 @@
-import { useState } from 'react';
 import type { Recap } from '../../entities/recap/types';
-import { mockRecap } from '../../mocks/mockRecap';
+import { getApiErrorMessage } from '../../shared/api/apiError';
+import { useGenerateRecapMutation } from '../../shared/api/recapApi';
+
 import styles from './GenerateRecapButton.module.css';
 
 type GenerateRecapButtonProps = {
+  userId: number;
+  year: number;
   onGenerated: (recap: Recap) => void;
 };
-// заглушка просто
-const wait = (milliseconds: number) =>
-  new Promise<void>((resolve) => {
-    window.setTimeout(resolve, milliseconds);
-  });
-
 
 export function GenerateRecapButton({
+  userId,
+  year,
   onGenerated,
 }: GenerateRecapButtonProps) {
-  /*
-   * состояние загрузки:
-   *
-   * isLoading — текущее значение.
-   * setIsLoading — функция изменения значения.
-   * false — начальное значение.
-   */
-  const [isLoading, setIsLoading] =
-    useState(false);
+  const [
+    generateRecap,
+    { isLoading, error, reset },
+  ] = useGenerateRecapMutation();
+
 
   const handleClick = async () => {
-    if (isLoading) {
-      return;
+    reset(); 
+    try{
+      const recap = await generateRecap({ userId, year }).unwrap();
+      onGenerated(recap);
+    } 
+    catch {
+       // Ошибка уже находится в переменной error и показывается ниже.
     }
-    setIsLoading(true);
+  }
 
-    try {
-      await wait(1500);
-      onGenerated(mockRecap);
-    } finally {
-      setIsLoading(false);// тут ошибки надо перекинуть дальше
-    }
-  };
   return (
-    <button
-      className={styles.button}
-      type="button"
-      onClick={handleClick}
-      disabled={isLoading}
-    >
-      {isLoading && (
-        <span
-          className={styles.spinner}
-          aria-hidden="true"
-        />
-      )}
+    <div className={styles.wrapper}>
+      <button
+        className={styles.button}
+        type="button"
+        onClick={handleClick}
+        disabled={isLoading}
+      >
+        {isLoading && (
+          <span className={styles.spinner} aria-hidden="true" />
+        )}
 
-      {isLoading
-        ? 'Генерируем итоги...' //можно придумать прикольные загрузки
-        : 'Посмотреть итоги года'}
-    </button>
+        {isLoading
+          ? 'Генерируем итоги…'
+          : 'Посмотреть итоги года'}
+      </button>
+
+      {error && (
+        <p className={styles.error} role="alert">
+          {getApiErrorMessage(error)}
+        </p>
+      )}
+    </div>
   );
 }
