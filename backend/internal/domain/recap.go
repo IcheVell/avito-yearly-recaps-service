@@ -27,7 +27,7 @@ type RecapMetric struct {
 	Title      string         `json:"title"`
 	Text       string         `json:"text"`
 	Highlights []string       `json:"highlights"`
-	Payload    map[string]any `json:"payload""`
+	Payload    map[string]any `json:"payload"`
 }
 
 type RecapAchievement struct {
