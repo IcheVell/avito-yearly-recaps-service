@@ -17,7 +17,7 @@ type YearMetrics struct {
 	SpentAmount  *int64
 	EarnedAmount *int64
 
-	MaxStreakDays int64
+	MaxStreakDays int64 // add achievements
 	ActiveDays    int64
 	YearsOnAvito  int64
 
@@ -39,8 +39,16 @@ type YearMetrics struct {
 	ListingViewCounts  []YearMetricsListingCount
 	MessagedListingIDs []int64
 	OwnListings        []YearMetricsOwnListing
+	YearAchievements   []YearAchievement
 }
 
+type YearAchievement struct {
+	ID          int64
+	Code        string
+	Name        string
+	Description string
+	ImageURL    string
+}
 type YearMetricsCategory struct {
 	ID   int64
 	Name string

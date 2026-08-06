@@ -28,77 +28,56 @@ func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user domain.
 	yearMetrics.UserID = user.ID
 	yearMetrics.RegistrationDate = user.CreatedAt
 
-	yearMetrics.ViewsCount, err = r.getUserViewsCount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.ViewsCount, err = r.getUserViewsCount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.SearchesCount, err = r.getUserSearchesCount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.SearchesCount, err = r.getUserSearchesCount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.FavoritesCount, err = r.getUserFavoritesCount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.FavoritesCount, err = r.getUserFavoritesCount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.MessagesPeopleCount, err = r.getUserMessagesCount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.MessagesPeopleCount, err = r.getUserMessagesCount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.ListingsCreatedCount, err = r.getUserCreatedListingsCount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.ListingsCreatedCount, err = r.getUserCreatedListingsCount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.BuysCount, err = r.getUserBuysCount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.BuysCount, err = r.getUserBuysCount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.SellsCount, err = r.getUserSellsCount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.SellsCount, err = r.getUserSellsCount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.SpentAmount, err = r.getUserSpentAmount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.SpentAmount, err = r.getUserSpentAmount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.EarnedAmount, err = r.getUserEarnedAmount(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.EarnedAmount, err = r.getUserEarnedAmount(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.MaxStreakDays, err = r.getUserMaxStreak(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.MaxStreakDays, err = r.getUserMaxStreak(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
-	yearMetrics.ActiveDays, err = r.getUserActiveDays(ctx, user, maxDate, minDate)
-
-	if err != nil {
+	if yearMetrics.ActiveDays, err = r.getUserActiveDays(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
 	yearMetrics.YearsOnAvito = int64(year - user.CreatedAt.Year())
 
-	maxPrice, minPrice, err := r.getUserMaxAndMinPrice(ctx, user, maxDate, minDate)
+	var maxPrice *int64
+	var minPrice *int64
 
-	if err != nil {
+	if maxPrice, minPrice, err = r.getUserMaxAndMinPrice(ctx, user, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
@@ -171,9 +150,11 @@ func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user domain.
 		return nil, err
 	}
 
-	yearMetrics.OwnListings, err = r.getUserOwnListings(ctx, user, maxDate, minDate)
+	if yearMetrics.OwnListings, err = r.getUserOwnListings(ctx, user, maxDate, minDate); err != nil {
+		return nil, err
+	}
 
-	if err != nil {
+	if yearMetrics.YearAchievements, err = r.getUserAchievements(ctx, user.ID, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
@@ -734,4 +715,24 @@ func (r *MetricsRepository) getUserOwnListings(ctx context.Context, user domain.
 	}
 
 	return listings, nil
+}
+
+func (r *MetricsRepository) getUserAchievementsByIDAndYear(ctx context.Context, userID int64, maxDate time.Time, minDate time.Time) ([]domain.YearAchievement, error) {
+	var achievements []domain.YearAchievement
+
+	res := r.db.
+		WithContext(ctx).
+		Table("achievements").
+		Joins("JOIN user_achievements ON user_achievements.achievement_id = achievements.id").
+		Select("achievements.*").
+		Where("user_achievements.user_id = ?", userID).
+		Where("user_achievements.created_at < ?", maxDate).
+		Where("user_achievements.created_at >= ?", minDate).
+		Scan(&achievements)
+
+	if res.Error != nil {
+		return nil, fmt.Errorf("get achievements: %w", res.Error)
+	}
+
+	return achievements, nil
 }

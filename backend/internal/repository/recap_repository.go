@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 	"v1/internal/domain"
 
 	"gorm.io/datatypes"
@@ -81,11 +80,8 @@ func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID in
 	return &recap, nil
 }
 
-func (r *RecapRepository) getUserAchievements(ctx context.Context, userID int64, year int) ([]domain.Achievement, error) {
-	var achievements []domain.Achievement
-
-	maxDate := time.Date(year+1, 1, 1, 0, 0, 0, 0, time.UTC)
-	minDate := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+func (r *MetricsRepository) GetUserAchievements(ctx context.Context, userID int64) ([]domain.YearAchievement, error) {
+	var achievements []domain.YearAchievement
 
 	res := r.db.
 		WithContext(ctx).
@@ -93,8 +89,6 @@ func (r *RecapRepository) getUserAchievements(ctx context.Context, userID int64,
 		Joins("JOIN user_achievements ON user_achievements.achievement_id = achievements.id").
 		Select("achievements.*").
 		Where("user_achievements.user_id = ?", userID).
-		Where("user_achievements.created_at < ?", maxDate).
-		Where("user_achievements.created_at >= ?", minDate).
 		Scan(&achievements)
 
 	if res.Error != nil {
