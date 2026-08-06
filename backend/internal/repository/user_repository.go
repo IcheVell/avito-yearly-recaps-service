@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os/user"
+	"v1/internal/domain"
 
 	"gorm.io/gorm"
 )
@@ -19,8 +19,8 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (r *UserRepository) GetByID(ctx context.Context, id int64) (*user.User, error) {
-	var user user.User
+func (r *UserRepository) GetByID(ctx context.Context, id int64) (*domain.User, error) {
+	var user domain.User
 
 	err := r.db.WithContext(ctx).First(&user, id).Error
 
@@ -35,10 +35,14 @@ func (r *UserRepository) GetByID(ctx context.Context, id int64) (*user.User, err
 	return &user, nil
 }
 
-func (r *UserRepository) List(ctx context.Context) ([]*user.User, error) {
-	var users []*user.User
+func (r *UserRepository) ListProfiles(ctx context.Context) ([]domain.User, error) {
+	var users []domain.User
 
-	err := r.db.WithContext(ctx).Order("username asc").Find(&users).Error
+	err := r.db.
+		WithContext(ctx).
+		Order("username ASC").
+		Find(&users).
+		Error
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get users: %w", err)

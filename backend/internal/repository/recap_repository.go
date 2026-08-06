@@ -80,7 +80,7 @@ func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID in
 	return &recap, nil
 }
 
-func (r *MetricsRepository) GetUserAchievements(ctx context.Context, userID int64) ([]domain.YearAchievement, error) {
+func (r *RecapRepository) GetUserAchievements(ctx context.Context, userID int64) ([]domain.YearAchievement, error) {
 	var achievements []domain.YearAchievement
 
 	res := r.db.

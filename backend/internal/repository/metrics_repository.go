@@ -154,7 +154,7 @@ func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user domain.
 		return nil, err
 	}
 
-	if yearMetrics.YearAchievements, err = r.getUserAchievements(ctx, user.ID, maxDate, minDate); err != nil {
+	if yearMetrics.YearAchievements, err = r.getUserAchievementsByID(ctx, user.ID, maxDate, minDate); err != nil {
 		return nil, err
 	}
 
@@ -298,9 +298,7 @@ func (r *MetricsRepository) getUserSellsCount(ctx context.Context, user domain.U
 }
 
 func (r *MetricsRepository) getUserSpentAmount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*int64, error) {
-	var res struct {
-		Amount *int64 `gorm:"column:amount"`
-	}
+	var amount *int64
 
 	err := r.db.
 		WithContext(ctx).
@@ -310,14 +308,14 @@ func (r *MetricsRepository) getUserSpentAmount(ctx context.Context, user domain.
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
 		Where("deals.status = ?", domain.DealStatusCompleted).
-		Scan(&res).
+		Scan(amount).
 		Error
 
 	if err != nil {
 		return nil, fmt.Errorf("get user spent amount: %w", err)
 	}
 
-	return res.Amount, nil
+	return amount, nil
 }
 
 func (r *MetricsRepository) getUserEarnedAmount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*int64, error) {
@@ -717,7 +715,7 @@ func (r *MetricsRepository) getUserOwnListings(ctx context.Context, user domain.
 	return listings, nil
 }
 
-func (r *MetricsRepository) getUserAchievementsByIDAndYear(ctx context.Context, userID int64, maxDate time.Time, minDate time.Time) ([]domain.YearAchievement, error) {
+func (r *MetricsRepository) getUserAchievementsByID(ctx context.Context, userID int64, maxDate time.Time, minDate time.Time) ([]domain.YearAchievement, error) {
 	var achievements []domain.YearAchievement
 
 	res := r.db.
