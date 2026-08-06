@@ -43,6 +43,9 @@ func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int
 	}
 
 	yearMetrics, err := s.metricRepo.GetByUserIDAndYear(ctx, *user, year)
+	if err != nil {
+		return domain.Recap{}, false, err
+	}
 
 	recap, err := engine.Generate(*yearMetrics)
 
