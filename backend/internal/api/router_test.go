@@ -187,14 +187,16 @@ func TestRouter(t *testing.T) {
 			},
 		},
 		{
-			name:       "generate recap rejects year from frontend",
+			name:       "generate recap ignores frontend year",
 			method:     http.MethodPost,
 			target:     "/api/recaps/generate",
 			body:       `{"userId":1,"year":2025}`,
-			recaps:     &fakeRecaps{},
-			wantStatus: http.StatusBadRequest,
+			recaps:     &fakeRecaps{recap: sampleRecap()},
+			wantStatus: http.StatusOK,
 			assert: func(t *testing.T, rr *httptest.ResponseRecorder, recaps *fakeRecaps, achievements *fakeAchievements, stats *fakeStats) {
-				assertErrorCode(t, rr, "VALIDATION_ERROR")
+				if recaps.generateYear != testCurrentYear {
+					t.Fatalf("year = %d, want %d", recaps.generateYear, testCurrentYear)
+				}
 			},
 		},
 		{
