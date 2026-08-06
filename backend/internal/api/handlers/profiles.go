@@ -13,18 +13,20 @@ type ProfileProvider interface {
 }
 
 type ProfilesHandler struct {
-	profiles ProfileProvider
-	logger   *slog.Logger
+	profiles    ProfileProvider
+	currentYear int
+	logger      *slog.Logger
 }
 
-func NewProfilesHandler(profiles ProfileProvider, logger *slog.Logger) *ProfilesHandler {
+func NewProfilesHandler(profiles ProfileProvider, currentYear int, logger *slog.Logger) *ProfilesHandler {
 	if logger == nil {
 		logger = slog.Default()
 	}
 
 	return &ProfilesHandler{
-		profiles: profiles,
-		logger:   logger.With("component", "profiles_handler"),
+		profiles:    profiles,
+		currentYear: currentYear,
+		logger:      logger.With("component", "profiles_handler"),
 	}
 }
 
@@ -43,5 +45,5 @@ func (h *ProfilesHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, dto.NewProfilesResponse(profiles))
+	writeJSON(w, http.StatusOK, dto.NewProfilesResponse(profiles, h.currentYear))
 }
