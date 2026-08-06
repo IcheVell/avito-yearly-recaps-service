@@ -7,12 +7,21 @@ import styles from './RecapCard.module.css';
 type RoleCardProps = {
   role: RecapRole;
   variant: CardVariant;
+  isActive: boolean;
 };
 
 
-export function RoleCard({ role, variant }: RoleCardProps) {
+export function RoleCard({
+  role,
+  variant,
+  isActive,
+}: RoleCardProps) {
   return (
-    <article className={`${styles.card} ${styles[variant]}`}>
+    <article
+      className={`${styles.card} ${styles[variant]} ${
+        isActive ? styles.cardActive : styles.cardInactive
+      }`}
+    >
       <header className={styles.header}>
         <img
           src={logoSrc}

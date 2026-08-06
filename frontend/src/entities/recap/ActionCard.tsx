@@ -7,6 +7,7 @@ import styles from './RecapCard.module.css';
 type ActionCardProps = {
   action: RecapAction;
   variant: CardVariant;
+  isActive: boolean;
   onAction?: (action: RecapAction) => void;
 };
 
@@ -14,10 +15,15 @@ type ActionCardProps = {
 export function ActionCard({
   action,
   variant,
+  isActive,
   onAction,
 }: ActionCardProps) {
   return (
-    <article className={`${styles.card} ${styles[variant]}`}>
+    <article
+      className={`${styles.card} ${styles[variant]} ${
+        isActive ? styles.cardActive : styles.cardInactive
+      }`}
+    >
       <header className={styles.header}>
         <img
           src={logoSrc}
@@ -35,6 +41,7 @@ export function ActionCard({
       <button
         className={styles.actionButton}
         type="button"
+        tabIndex={isActive ? 0 : -1}
         onClick={() => onAction?.(action)}
       >
         {action.label}

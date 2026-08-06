@@ -33,6 +33,173 @@
 
   scroll-snap-align: center;
   scroll-snap-stop: always;
+
+  transform-origin: center;
+  will-change: transform, opacity, filter;
+
+  transition:
+    transform 420ms cubic-bezier(0.2, 0.75, 0.2, 1),
+    opacity 320ms ease,
+    filter 320ms ease,
+    box-shadow 420ms ease;
+}
+
+.cardActive {
+  z-index: 2;
+
+  opacity: 1;
+  filter: none;
+  transform: scale(1.02);
+
+  animation: cardActivate 420ms cubic-bezier(0.2, 0.75, 0.2, 1);
+}
+
+.cardInactive {
+  z-index: 1;
+
+  opacity: 0.2;
+  filter: blur(1.5px) saturate(0.72);
+  transform: scale(0.76);
+
+  box-shadow:
+    0 12px 28px rgb(0 0 0 / 12%),
+    inset 0 1px 0 rgb(255 255 255 / 45%);
+}
+
+.introCard {
+  padding: 38px 30px 34px;
+}
+
+.card > .introDecor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.introDecor span {
+  position: absolute;
+  display: block;
+}
+
+.snowflakeTop,
+.snowflakeBottom {
+  color: rgb(255 255 255 / 88%);
+  line-height: 1;
+  text-shadow: 0 0 10px rgb(255 255 255 / 55%);
+}
+
+.snowflakeTop {
+  top: 22px;
+  right: 12px;
+
+  font-size: 150px;
+  transform: rotate(8deg);
+}
+
+.snowflakeBottom {
+  left: 2px;
+  bottom: 92px;
+
+  font-size: 112px;
+  transform: rotate(-12deg);
+}
+
+.glowTop,
+.glowMiddle,
+.glowBottom {
+  width: 20px;
+  aspect-ratio: 1;
+
+  border-radius: 50%;
+  background: rgb(255 255 255 / 85%);
+  filter: blur(5px);
+  box-shadow: 0 0 18px 8px rgb(255 255 255 / 38%);
+}
+
+.glowTop {
+  top: 30px;
+  left: 88px;
+}
+
+.glowMiddle {
+  top: 48%;
+  right: 34px;
+}
+
+.glowBottom {
+  right: 16px;
+  bottom: 86px;
+
+  width: 14px;
+}
+
+.introMain {
+  margin: 12px 0 auto;
+
+  display: grid;
+  justify-items: center;
+
+  text-align: center;
+}
+
+.introKicker,
+.introTitle,
+.introThanks {
+  margin: 0;
+  color: #050505;
+  font-weight: 900;
+}
+
+.introKicker {
+  font-size: clamp(42px, 4vw, 58px);
+  line-height: 0.9;
+}
+
+.introYear {
+  margin: 14px 0 10px;
+
+  font-size: clamp(96px, 11vw, 156px);
+  line-height: 0.74;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  transform: scaleX(0.9);
+  transform-origin: center;
+}
+
+.introTitle {
+  font-size: clamp(34px, 3.8vw, 52px);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+}
+
+.introTitle span {
+  font-size: 1.24em;
+}
+
+.introThanks {
+  align-self: center;
+
+  font-size: clamp(18px, 1.8vw, 24px);
+  line-height: 1.1;
+  text-align: center;
+}
+
+@keyframes cardActivate {
+  from {
+    opacity: 0.2;
+    filter: blur(1.5px) saturate(0.72);
+    transform: scale(0.76);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+    transform: scale(1.02);
+  }
 }
 
 .card::-webkit-scrollbar {
@@ -214,7 +381,7 @@
   );
 }
 
-/* Градиент текста зависит от цвета карточки. */
+
 .red .value {
   background: linear-gradient(135deg, #bd3737, #65101e 65%, #1d0005);
   background-clip: text;
@@ -258,6 +425,28 @@
 
   .header {
     gap: 14px;
+  }
+
+  .introCard {
+    padding: 32px 22px 28px;
+  }
+
+  .snowflakeTop {
+    font-size: 120px;
+  }
+
+  .snowflakeBottom {
+    bottom: 72px;
+    font-size: 92px;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .cardActive {
+    animation: none;
+    transition: none;
   }
 
 }

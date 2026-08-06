@@ -7,15 +7,21 @@ import styles from './RecapCard.module.css';
 type AchievementCardProps = {
   achievement: Achievement;
   variant: CardVariant;
+  isActive: boolean;
 };
 
 
 export function AchievementCard({
   achievement,
   variant,
+  isActive,
 }: AchievementCardProps) {
   return (
-    <article className={`${styles.card} ${styles[variant]}`}>
+    <article
+      className={`${styles.card} ${styles[variant]} ${
+        isActive ? styles.cardActive : styles.cardInactive
+      }`}
+    >
       <header className={styles.header}>
         <img
           src={logoSrc}

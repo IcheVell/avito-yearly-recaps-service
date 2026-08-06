@@ -1,13 +1,16 @@
 import {
+  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
+import type { WheelEvent } from 'react';
 
 import { AchievementCard } from '../../entities/recap/AchievementCard';
 import { ActionCard } from '../../entities/recap/ActionCard';
 import { createCardVariants } from '../../entities/recap/createCardVariants';
+import { IntroCard } from '../../entities/recap/IntroCard';
 import { MetricCard } from '../../entities/recap/MetricCard';
 import { RoleCard } from '../../entities/recap/RoleCard';
 import type {
@@ -23,34 +26,36 @@ type RecapOverlayProps = {
   onClose: () => void;
 };
 
-/**
- * Полноэкранный overlay поверх страницы профиля.
- *
- * Он отвечает за:
- * - горизонтальную ленту карточек;
- * - прогресс и навигацию;
- * - закрытие по Escape;
- * - блокировку прокрутки страницы под overlay;
- * - стабильное случайное распределение цветов.
- */
+const FIREWORK_PARTICLES = Array.from({ length: 12 });
+
+function OverlayFirework({ className }: { className: string }) {
+  return (
+    <span className={`${styles.overlayFirework} ${className}`}>
+      {FIREWORK_PARTICLES.map((_, index) => (
+        <i key={index} />
+      ))}
+    </span>
+  );
+}
+
 export function RecapOverlay({
   recap,
   onClose,
 }: RecapOverlayProps) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const currentSlideRef = useRef(0);
+  const programmaticSlideRef = useRef<number | null>(null);
+  const scrollEndTimerRef = useRef<number | null>(null);
+  const wheelUnlockTimerRef = useRef<number | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slidesCount =
+    1 +
     1 +
     recap.metrics.length +
     recap.achievements.length +
     1;
 
-  /**
-   * useMemo сохраняет результат до тех пор,
-   * пока зависимости не изменились.
-   * Поэтому цвета не пересчитываются на каждый render.
-   */
   const variants = useMemo(
     () =>
       createCardVariants(
@@ -58,6 +63,40 @@ export function RecapOverlay({
         slidesCount,
       ),
     [recap.id, recap.createdAt, slidesCount],
+  );
+
+  const scrollToSlide = useCallback(
+    (index: number) => {
+      const track = trackRef.current;
+
+      if (!track) {
+        return;
+      }
+
+      const safeIndex = Math.max(
+        0,
+        Math.min(index, slidesCount - 1),
+      );
+
+      const target = track.children.item(
+        safeIndex,
+      ) as HTMLElement | null;
+
+      if (safeIndex === currentSlideRef.current) {
+        return;
+      }
+
+      programmaticSlideRef.current = safeIndex;
+      currentSlideRef.current = safeIndex;
+      setCurrentSlide(safeIndex);
+
+      target?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    },
+    [slidesCount],
   );
 
   useEffect(() => {
@@ -68,6 +107,16 @@ export function RecapOverlay({
       if (event.key === 'Escape') {
         onClose();
       }
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        scrollToSlide(currentSlideRef.current - 1);
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        scrollToSlide(currentSlideRef.current + 1);
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown);
@@ -75,40 +124,18 @@ export function RecapOverlay({
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
+
+      if (wheelUnlockTimerRef.current !== null) {
+        window.clearTimeout(wheelUnlockTimerRef.current);
+      }
+
+      if (scrollEndTimerRef.current !== null) {
+        window.clearTimeout(scrollEndTimerRef.current);
+      }
     };
-  }, [onClose]);
+  }, [onClose, scrollToSlide]);
 
-  /**
-   * Прокручивает track к конкретной карточке.
-   */
-  function scrollToSlide(index: number) {
-    const track = trackRef.current;
-
-    if (!track) {
-      return;
-    }
-
-    const safeIndex = Math.max(
-      0,
-      Math.min(index, slidesCount - 1),
-    );
-
-    const target = track.children.item(
-      safeIndex,
-    ) as HTMLElement | null;
-
-    target?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center',
-    });
-  }
-
-  /**
-   * После ручного scroll определяем,
-   * какая карточка ближе всего к центру контейнера.
-   */
-  function handleTrackScroll() {
+  function updateCurrentSlideFromTrack() {
     const track = trackRef.current;
 
     if (!track) {
@@ -137,18 +164,57 @@ export function RecapOverlay({
       },
     );
 
+    currentSlideRef.current = nearestIndex;
     setCurrentSlide(nearestIndex);
+  }
+
+  function handleTrackScroll() {
+    if (programmaticSlideRef.current === null) {
+      updateCurrentSlideFromTrack();
+      return;
+    }
+
+    if (scrollEndTimerRef.current !== null) {
+      window.clearTimeout(scrollEndTimerRef.current);
+    }
+
+    scrollEndTimerRef.current = window.setTimeout(() => {
+      scrollEndTimerRef.current = null;
+      programmaticSlideRef.current = null;
+      updateCurrentSlideFromTrack();
+    }, 120);
+  }
+
+  function handleTrackWheel(event: WheelEvent<HTMLDivElement>) {
+    const delta =
+      Math.abs(event.deltaX) > Math.abs(event.deltaY)
+        ? event.deltaX
+        : event.deltaY;
+
+    if (Math.abs(delta) < 8) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (wheelUnlockTimerRef.current !== null) {
+      return;
+    }
+
+    const direction = delta > 0 ? 1 : -1;
+    scrollToSlide(currentSlideRef.current + direction);
+
+    wheelUnlockTimerRef.current = window.setTimeout(() => {
+      wheelUnlockTimerRef.current = null;
+    }, 480);
   }
 
   function handleAction(action: RecapAction) {
     /**
-     * Точное поведение action.type пока не закреплено.
-     * Здесь оставлена безопасная временная точка интеграции.
+     * заглушка
      */
     console.info('Recap action:', action);
   }
-
-  let variantIndex = 0;
 
   return (
     <div
@@ -167,7 +233,6 @@ export function RecapOverlay({
           {Array.from({ length: slidesCount }).map(
             (_, index) => (
               <button
-                // Здесь index допустим как key: порядок статичен.
                 key={index}
                 className={`${
                   styles.progressItem
@@ -189,37 +254,66 @@ export function RecapOverlay({
         <CloseRecapButton onClose={onClose} />
       </header>
 
+      {currentSlide === 0 && (
+        <div className={styles.fireworksLayer} aria-hidden="true">
+          <OverlayFirework className={styles.fireworkUpperLeft} />
+          <OverlayFirework className={styles.fireworkUpperRight} />
+          <OverlayFirework className={styles.fireworkLowerLeft} />
+          <OverlayFirework className={styles.fireworkLowerRight} />
+        </div>
+      )}
+
       <div
         ref={trackRef}
         className={styles.track}
         onScroll={handleTrackScroll}
+        onWheel={handleTrackWheel}
       >
-        <RoleCard
-          role={recap.role}
-          variant={variants[variantIndex++]}
+        <IntroCard
+          year={recap.year}
+          variant={variants[0]}
+          isActive={currentSlide === 0}
         />
 
-        {recap.metrics.map((metric, index) => (
-          <MetricCard
-            key={`${metric.type}-${index}`}
-            metric={metric}
-            variant={variants[variantIndex++]}
-          />
-        ))}
+        <RoleCard
+          role={recap.role}
+          variant={variants[1]}
+          isActive={currentSlide === 1}
+        />
+
+        {recap.metrics.map((metric, index) => {
+          const slideIndex = index + 2;
+
+          return (
+            <MetricCard
+              key={`${metric.type}-${index}`}
+              metric={metric}
+              variant={variants[slideIndex]}
+              isActive={currentSlide === slideIndex}
+            />
+          );
+        })}
 
         {recap.achievements.map(
-          (achievement, index) => (
-            <AchievementCard
-              key={`${achievement.code}-${index}`}
-              achievement={achievement}
-              variant={variants[variantIndex++]}
-            />
-          ),
+          (achievement, index) => {
+            const slideIndex =
+              recap.metrics.length + index + 2;
+
+            return (
+              <AchievementCard
+                key={`${achievement.code}-${index}`}
+                achievement={achievement}
+                variant={variants[slideIndex]}
+                isActive={currentSlide === slideIndex}
+              />
+            );
+          },
         )}
 
         <ActionCard
           action={recap.action}
-          variant={variants[variantIndex]}
+          variant={variants[slidesCount - 1]}
+          isActive={currentSlide === slidesCount - 1}
           onAction={handleAction}
         />
       </div>

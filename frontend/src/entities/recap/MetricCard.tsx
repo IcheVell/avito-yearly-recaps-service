@@ -8,16 +8,25 @@ import logoSrc from '../../assets/logo.svg.webp';
 type MetricCardProps = {
   metric: RecapMetric;
   variant: CardVariant;
+  isActive: boolean;
 };
 
-export function MetricCard({metric, variant}: MetricCardProps) {
+export function MetricCard({
+  metric,
+  variant,
+  isActive,
+}: MetricCardProps) {
 
   const mainHighlight = metric.highlights[0] ?? '—';
   const isLongValue = mainHighlight.length > 11;
 
   const imageUrl = getPayloadString(metric.payload, 'imageUrl');
   return (
-    <article className={`${styles.card} ${styles[variant]}`}>
+    <article
+      className={`${styles.card} ${styles[variant]} ${
+        isActive ? styles.cardActive : styles.cardInactive
+      }`}
+    >
       <header className={styles.header}>
         <img src={logoSrc} alt="Avito" className={styles.logoImage} />
         <h2 className={styles.title}>{metric.title}</h2>
