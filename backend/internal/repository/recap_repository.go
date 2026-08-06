@@ -2,9 +2,13 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"time"
 	"v1/internal/domain"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +20,46 @@ func NewRecapRepository(db *gorm.DB) *RecapRepository {
 	return &RecapRepository{db: db}
 }
 
-func (r *RecapRepository) GetUserRecapByID(ctx context.Context, userID int64, year int) (*domain.YearlyRecap, error) {
+func (r *RecapRepository) Create(ctx context.Context, recap *domain.Recap) error {
+	if recap == nil {
+		return errors.New("create recap: recap is nil")
+	}
+
+	payload := domain.YearlyRecapPayload{
+		Role:         recap.Role,
+		Metrics:      recap.Metrics,
+		Achievements: recap.Achievements,
+		Action:       recap.Action,
+		Debug:        recap.Debug,
+	}
+
+	payloadJSON, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("marshal recap payload: %w", err)
+	}
+
+	yearlyRecap := domain.YearlyRecap{
+		UserID:  recap.UserID,
+		Year:    recap.Year,
+		Payload: datatypes.JSON(payloadJSON),
+	}
+
+	if err := r.db.
+		WithContext(ctx).
+		Table("yearly_recaps").
+		Omit("User").
+		Create(&yearlyRecap).
+		Error; err != nil {
+		return fmt.Errorf("create yearly recap: %w", err)
+	}
+
+	recap.ID = yearlyRecap.ID
+	recap.CreatedAt = yearlyRecap.CreatedAt
+
+	return nil
+}
+
+func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*domain.YearlyRecap, error) {
 	var recap domain.YearlyRecap
 
 	res := r.db.
@@ -41,14 +84,17 @@ func (r *RecapRepository) GetUserRecapByID(ctx context.Context, userID int64, ye
 func (r *RecapRepository) getUserAchievements(ctx context.Context, userID int64, year int) ([]domain.Achievement, error) {
 	var achievements []domain.Achievement
 
+	maxDate := time.Date(year+1, 1, 1, 0, 0, 0, 0, time.UTC)
+	minDate := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+
 	res := r.db.
 		WithContext(ctx).
 		Table("achievements").
-		Joins("JOIN yearly_recap_achievements ON yearly_recap_achievements.achievement_id = achievements.id").
-		Joins("JOIN yearly_recaps ON yearly_recap_achievements.yearly_recap_id = yearly_recaps.id").
+		Joins("JOIN user_achievements ON user_achievements.achievement_id = achievements.id").
 		Select("achievements.*").
-		Where("yearly_recaps.user_id = ?", userID).
-		Where("yearly_recaps.year = ?", year).
+		Where("user_achievements.user_id = ?", userID).
+		Where("user_achievements.created_at < ?", maxDate).
+		Where("user_achievements.created_at >= ?", minDate).
 		Scan(&achievements)
 
 	if res.Error != nil {
