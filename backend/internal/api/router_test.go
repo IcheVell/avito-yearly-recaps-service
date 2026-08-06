@@ -340,6 +340,19 @@ func TestRouter(t *testing.T) {
 	}
 }
 
+func TestNewRouterRequiresCurrentYear(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("NewRouter must panic when current year is not configured")
+		}
+	}()
+
+	_ = api.NewRouter(api.Dependencies{
+		Profiles: fakeProfiles{},
+		Logger:   slog.New(slog.NewTextHandler(io.Discard, nil)),
+	})
+}
+
 func newTestRouter(
 	profiles fakeProfiles,
 	recaps *fakeRecaps,
