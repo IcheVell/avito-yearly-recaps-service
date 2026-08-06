@@ -282,7 +282,7 @@ func (r *MetricsRepository) getUserSellsCount(ctx context.Context, user domain.U
 	err := r.db.
 		WithContext(ctx).
 		Table("listings").
-		Joins("JOIN deals ON listings.ID = deals.listing_id").
+		Joins("JOIN deals ON listings.id = deals.listing_id").
 		Where("listings.seller_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
@@ -305,7 +305,7 @@ func (r *MetricsRepository) getUserSpentAmount(ctx context.Context, user domain.
 	err := r.db.
 		WithContext(ctx).
 		Table("deals").
-		Select("SUM(deals.price)").
+		Select("ROUND(SUM(deals.price))::BIGINT AS amount").
 		Where("deals.buyer_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
@@ -328,8 +328,8 @@ func (r *MetricsRepository) getUserEarnedAmount(ctx context.Context, user domain
 	err := r.db.
 		WithContext(ctx).
 		Table("listings").
-		Joins("JOIN deals ON listings.ID = deals.listing_id").
-		Select("SUM(deals.price)").
+		Joins("JOIN deals ON listings.id = deals.listing_id").
+		Select("ROUND(SUM(deals.price))::BIGINT AS amount").
 		Where("listings.seller_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
@@ -407,7 +407,7 @@ func (r *MetricsRepository) getUserMaxAndMinPrice(ctx context.Context, user doma
 	err := r.db.
 		WithContext(ctx).
 		Table("deals").
-		Select("MAX(price) AS max_price, MIN(price) AS min_price").
+		Select("ROUND(MAX(price))::BIGINT AS max_price, ROUND(MIN(price))::BIGINT AS min_price").
 		Where("deals.buyer_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
@@ -450,15 +450,15 @@ func (r *MetricsRepository) getUserFavoriteBuyCategory(ctx context.Context, user
 	res := r.db.
 		WithContext(ctx).
 		Table("categories").
-		Joins("JOIN listings ON categories.ID = listings.category_id").
-		Joins("JOIN deals ON listings.ID = deals.listing_id").
-		Select("categories.ID, categories.name").
+		Joins("JOIN listings ON categories.id = listings.category_id").
+		Joins("JOIN deals ON listings.id = deals.listing_id").
+		Select("categories.id, categories.name").
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
 		Where("deals.status = ?", domain.DealStatusCompleted).
 		Where("deals.buyer_id = ?", user.ID).
-		Group("categories.ID, categories.name").
-		Order("COUNT(deals.ID) DESC").
+		Group("categories.id, categories.name").
+		Order("COUNT(deals.id) DESC").
 		Limit(1).
 		Scan(&favoriteBuyCategory)
 
@@ -508,13 +508,13 @@ func (r *MetricsRepository) getUserMostViewedListing(ctx context.Context, user d
 	res := r.db.
 		WithContext(ctx).
 		Table("listing_views").
-		Joins("JOIN listings ON listings.ID = listing_views.listing_id").
-		Select("listings.ID, listings.name, listings.city, listings.image_url, COUNT(listing_views.ID) AS views_count").
+		Joins("JOIN listings ON listings.id = listing_views.listing_id").
+		Select("listings.id, listings.name, listings.city, listings.image_url, COUNT(listing_views.id) AS views_count").
 		Where("listing_views.user_id = ?", user.ID).
 		Where("listing_views.created_at < ?", maxDate).
 		Where("listing_views.created_at >= ?", minDate).
-		Group("listings.ID").
-		Order("COUNT(listing_views.ID) DESC").
+		Group("listings.id").
+		Order("COUNT(listing_views.id) DESC").
 		Limit(1).
 		Scan(&mostViewedListing)
 
@@ -583,14 +583,14 @@ func (r *MetricsRepository) getUserViewsByCategory(ctx context.Context, user dom
 	err := r.db.
 		WithContext(ctx).
 		Table("listing_views").
-		Joins("JOIN listings ON listings.ID = listing_views.listing_id").
-		Joins("JOIN categories ON categories.ID = listings.category_id").
-		Select("categories.ID AS category_id, categories.name AS category_name, COUNT(listing_views.ID) AS views").
+		Joins("JOIN listings ON listings.id = listing_views.listing_id").
+		Joins("JOIN categories ON categories.id = listings.category_id").
+		Select("categories.id AS category_id, categories.name AS category_name, COUNT(listing_views.id) AS views").
 		Where("listing_views.user_id = ?", user.ID).
 		Where("listing_views.created_at < ?", maxDate).
 		Where("listing_views.created_at >= ?", minDate).
-		Group("categories.ID, categories.name").
-		Order("COUNT(listing_views.ID) DESC").
+		Group("categories.id, categories.name").
+		Order("COUNT(listing_views.id) DESC").
 		Scan(&categories). // mb add limit
 		Error
 
@@ -607,13 +607,13 @@ func (r *MetricsRepository) getUserSearchesByCategory(ctx context.Context, user 
 	err := r.db.
 		WithContext(ctx).
 		Table("user_searches").
-		Joins("JOIN categories ON user_searches.category_id = categories.ID").
-		Select("categories.ID AS category_id, categories.name AS category_name, COUNT(user_searches.ID) AS searches").
+		Joins("JOIN categories ON user_searches.category_id = categories.id").
+		Select("categories.id AS category_id, categories.name AS category_name, COUNT(user_searches.id) AS searches").
 		Where("user_searches.user_id = ?", user.ID).
 		Where("user_searches.created_at < ?", maxDate).
 		Where("user_searches.created_at >= ?", minDate).
-		Group("categories.ID, categories.name"). // mb limit
-		Order("COUNT(user_searches.ID) DESC").
+		Group("categories.id, categories.name"). // mb limit
+		Order("COUNT(user_searches.id) DESC").
 		Scan(&categories).
 		Error
 
@@ -630,13 +630,13 @@ func (r *MetricsRepository) getUserFavorites(ctx context.Context, user domain.Us
 	err := r.db.
 		WithContext(ctx).
 		Table("favorite_listings").
-		Joins("JOIN listings ON listings.ID = favorite_listings.listing_id").
-		Joins("JOIN categories ON categories.ID = listings.category_id").
-		Select("favorite_listings.listing_id, categories.ID AS category_id").
+		Joins("JOIN listings ON listings.id = favorite_listings.listing_id").
+		Joins("JOIN categories ON categories.id = listings.category_id").
+		Select("favorite_listings.listing_id, categories.id AS category_id").
 		Where("favorite_listings.user_id = ?", user.ID).
 		Where("favorite_listings.created_at < ?", maxDate).
 		Where("favorite_listings.created_at >= ?", minDate).
-		Group("favorite_listings.listing_id, categories.ID").
+		Group("favorite_listings.listing_id, categories.id").
 		Scan(&categories).
 		Error
 
@@ -653,14 +653,14 @@ func (r *MetricsRepository) getUserListingCount(ctx context.Context, user domain
 	err := r.db.
 		WithContext(ctx).
 		Table("listing_views").
-		Joins("JOIN listings ON listings.ID = listing_views.listing_id").
-		Joins("JOIN categories ON categories.ID = listings.category_id").
-		Select("listing_views.listing_id, categories.ID AS category_id, COUNT(listing_views.ID) AS views").
+		Joins("JOIN listings ON listings.id = listing_views.listing_id").
+		Joins("JOIN categories ON categories.id = listings.category_id").
+		Select("listing_views.listing_id, categories.id AS category_id, COUNT(listing_views.id) AS views").
 		Where("listing_views.created_at < ?", maxDate).
 		Where("listing_views.created_at >= ?", minDate).
 		Where("listing_views.user_id = ?", user.ID).
-		Group("listing_views.listing_id, categories.ID").
-		Order("COUNT(listing_views.ID) DESC"). // mb limit
+		Group("listing_views.listing_id, categories.id").
+		Order("COUNT(listing_views.id) DESC"). // mb limit
 		Scan(&listingCount).
 		Error
 
@@ -677,13 +677,13 @@ func (r *MetricsRepository) getUserMessagedListingIDs(ctx context.Context, user 
 	err := r.db.
 		WithContext(ctx).
 		Table("conversations").
-		Joins("JOIN listings ON listings.ID = conversations.listing_id").
-		Select("listings.ID").
+		Joins("JOIN listings ON listings.id = conversations.listing_id").
+		Select("listings.id").
 		Where("conversations.initiator_id = ?", user.ID).
 		Where("conversations.created_at < ?", maxDate).
 		Where("conversations.created_at >= ?", minDate).
 		Where("listings.status = ?", domain.ListingStatusActive).
-		Group("listings.ID").
+		Group("listings.id").
 		Scan(&ids).
 		Error
 
@@ -700,13 +700,13 @@ func (r *MetricsRepository) getUserOwnListings(ctx context.Context, user domain.
 	err := r.db.
 		WithContext(ctx).
 		Table("listings").
-		Joins("JOIN categories ON categories.ID = listings.category_id").
-		Joins("LEFT JOIN listing_views ON listing_views.listing_id = listings.ID AND listing_views.created_at >= ? AND listing_views.created_at < ?", minDate, maxDate).
-		Select("listings.ID, categories.ID AS category_id, listings.status, listings.updated_at, COUNT(listing_views.ID) AS views_count").
+		Joins("JOIN categories ON categories.id = listings.category_id").
+		Joins("LEFT JOIN listing_views ON listing_views.listing_id = listings.id AND listing_views.created_at >= ? AND listing_views.created_at < ?", minDate, maxDate).
+		Select("listings.id, categories.id AS category_id, listings.status, listings.updated_at, COUNT(listing_views.id) AS views_count").
 		Where("listings.created_at < ?", maxDate).
 		Where("listings.created_at >= ?", minDate).
 		Where("listings.seller_id = ?", user.ID).
-		Group("listings.ID, categories.ID, listings.status, listings.updated_at").
+		Group("listings.id, categories.id, listings.status, listings.updated_at").
 		Scan(&listings).
 		Error
 

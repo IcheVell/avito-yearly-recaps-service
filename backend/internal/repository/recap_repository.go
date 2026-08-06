@@ -24,17 +24,9 @@ func (r *RecapRepository) Create(ctx context.Context, recap *domain.Recap) error
 		return errors.New("create recap: recap is nil")
 	}
 
-	payload := domain.YearlyRecapPayload{
-		Role:         recap.Role,
-		Metrics:      recap.Metrics,
-		Achievements: recap.Achievements,
-		Action:       recap.Action,
-		Debug:        recap.Debug,
-	}
-
-	payloadJSON, err := json.Marshal(payload)
+	payloadJSON, err := marshalRecapPayload(recap)
 	if err != nil {
-		return fmt.Errorf("marshal recap payload: %w", err)
+		return err
 	}
 
 	yearlyRecap := domain.YearlyRecap{
@@ -54,6 +46,35 @@ func (r *RecapRepository) Create(ctx context.Context, recap *domain.Recap) error
 
 	recap.ID = yearlyRecap.ID
 	recap.CreatedAt = yearlyRecap.CreatedAt
+
+	return nil
+}
+
+func (r *RecapRepository) Update(ctx context.Context, recap *domain.Recap) error {
+	if recap == nil {
+		return errors.New("update recap: recap is nil")
+	}
+
+	payloadJSON, err := marshalRecapPayload(recap)
+	if err != nil {
+		return err
+	}
+
+	res := r.db.
+		WithContext(ctx).
+		Table("yearly_recaps").
+		Where("id = ?", recap.ID).
+		Updates(map[string]any{
+			"payload": datatypes.JSON(payloadJSON),
+		})
+
+	if res.Error != nil {
+		return fmt.Errorf("update yearly recap: %w", res.Error)
+	}
+
+	if res.RowsAffected == 0 {
+		return fmt.Errorf("update yearly recap: not found")
+	}
 
 	return nil
 }
@@ -80,20 +101,37 @@ func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID in
 	return &recap, nil
 }
 
-func (r *MetricsRepository) GetUserAchievements(ctx context.Context, userID int64) ([]domain.YearAchievement, error) {
-	var achievements []domain.YearAchievement
+func (r *RecapRepository) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, error) {
+	var achievements []domain.UserAchievement
 
-	res := r.db.
+	err := r.db.
 		WithContext(ctx).
-		Table("achievements").
-		Joins("JOIN user_achievements ON user_achievements.achievement_id = achievements.id").
-		Select("achievements.*").
-		Where("user_achievements.user_id = ?", userID).
-		Scan(&achievements)
+		Preload("Achievement").
+		Where("user_id = ?", userID).
+		Order("created_at DESC").
+		Find(&achievements).
+		Error
 
-	if res.Error != nil {
-		return nil, fmt.Errorf("get achievements: %w", res.Error)
+	if err != nil {
+		return nil, fmt.Errorf("list user achievements: %w", err)
 	}
 
 	return achievements, nil
+}
+
+func marshalRecapPayload(recap *domain.Recap) ([]byte, error) {
+	payload := domain.YearlyRecapPayload{
+		Role:         recap.Role,
+		Metrics:      recap.Metrics,
+		Achievements: recap.Achievements,
+		Action:       recap.Action,
+		Debug:        recap.Debug,
+	}
+
+	payloadJSON, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal recap payload: %w", err)
+	}
+
+	return payloadJSON, nil
 }
