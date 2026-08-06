@@ -5,7 +5,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { WheelEvent } from 'react';
 
 import { AchievementCard } from '../../entities/recap/AchievementCard';
 import { ActionCard } from '../../entities/recap/ActionCard';
@@ -46,7 +45,6 @@ export function RecapOverlay({
   const currentSlideRef = useRef(0);
   const programmaticSlideRef = useRef<number | null>(null);
   const scrollEndTimerRef = useRef<number | null>(null);
-  const wheelUnlockTimerRef = useRef<number | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slidesCount =
@@ -125,10 +123,6 @@ export function RecapOverlay({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
 
-      if (wheelUnlockTimerRef.current !== null) {
-        window.clearTimeout(wheelUnlockTimerRef.current);
-      }
-
       if (scrollEndTimerRef.current !== null) {
         window.clearTimeout(scrollEndTimerRef.current);
       }
@@ -183,30 +177,6 @@ export function RecapOverlay({
       programmaticSlideRef.current = null;
       updateCurrentSlideFromTrack();
     }, 120);
-  }
-
-  function handleTrackWheel(event: WheelEvent<HTMLDivElement>) {
-    const delta =
-      Math.abs(event.deltaX) > Math.abs(event.deltaY)
-        ? event.deltaX
-        : event.deltaY;
-
-    if (Math.abs(delta) < 8) {
-      return;
-    }
-
-    event.preventDefault();
-
-    if (wheelUnlockTimerRef.current !== null) {
-      return;
-    }
-
-    const direction = delta > 0 ? 1 : -1;
-    scrollToSlide(currentSlideRef.current + direction);
-
-    wheelUnlockTimerRef.current = window.setTimeout(() => {
-      wheelUnlockTimerRef.current = null;
-    }, 480);
   }
 
   function handleAction(action: RecapAction) {
@@ -267,7 +237,6 @@ export function RecapOverlay({
         ref={trackRef}
         className={styles.track}
         onScroll={handleTrackScroll}
-        onWheel={handleTrackWheel}
       >
         <IntroCard
           year={recap.year}
