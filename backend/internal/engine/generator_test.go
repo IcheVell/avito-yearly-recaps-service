@@ -14,6 +14,12 @@ func TestGenerate_OK(t *testing.T) {
 		ActiveDays:    50,
 		ViewsCount:    100,
 		SellsCount:    2,
+		YearAchievements: []domain.YearAchievement{
+			{Code: "diplomat", Name: "Дипломат", Description: "Торг удался", ImageURL: "diplomat.png"},
+			{Code: "unbending", Name: "Несгибаемый", Description: "Держишь цену", ImageURL: "unbending.png"},
+			{Code: "both_sides", Name: "Две стороны рынка", Description: "И покупаешь, и продаёшь", ImageURL: "both.png"},
+			{Code: "extra", Name: "Лишняя", Description: "Не должна попасть", ImageURL: "extra.png"},
+		},
 	}
 
 	recap, err := Generate(m)
@@ -32,5 +38,20 @@ func TestGenerate_OK(t *testing.T) {
 	}
 	if recap.Action.Type == "" {
 		t.Fatal("empty action")
+	}
+
+	if len(recap.Achievements) != achievementsNum {
+		t.Fatalf("achievements len = %d, want %d", len(recap.Achievements), achievementsNum)
+	}
+	if recap.Achievements[0].Code != "diplomat" {
+		t.Fatalf("first achievement = %q, want diplomat", recap.Achievements[0].Code)
+	}
+	if recap.Achievements[0].Name == "" || recap.Achievements[0].Description == "" {
+		t.Fatal("achievement name/description empty")
+	}
+	for _, a := range recap.Achievements {
+		if a.Code == "extra" {
+			t.Fatal("4th achievement should be truncated")
+		}
 	}
 }
