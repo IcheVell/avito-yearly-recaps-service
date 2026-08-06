@@ -6,11 +6,22 @@ import (
 	"errors"
 	"fmt"
 	"math/rand/v2"
+	"sort"
 	"sync"
 	"v1/internal/domain"
 )
 
 type metricBuilder func(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error)
+
+const (
+	metricKindNumber      = "number"
+	metricKindQualitative = "qualitative"
+	metricKindComparison  = "comparison"
+
+	desiredNumberMetrics      = 2
+	desiredQualitativeMetrics = 1
+	desiredComparisonMetrics  = 1
+)
 
 var builders = map[string]metricBuilder{
 	"earned_amount":            buildEarnedAmount,
@@ -18,6 +29,8 @@ var builders = map[string]metricBuilder{
 	"max_streak_days":          buildMaxStreak,
 	"active_days_number":       buildActiveDaysNumber,
 	"viewed_listenings_number": buildViewedListeningsNumber,
+	"favorite_buy_category":    buildFavoriteBuyCategory,
+	"buy_category_comparison":  buildBuyCategoryComparison,
 }
 
 func ResolveMetrics(m domain.YearMetrics) ([]domain.RecapMetric, error) {
@@ -42,12 +55,43 @@ func ResolveMetrics(m domain.YearMetrics) ([]domain.RecapMetric, error) {
 	if m.ViewsCount > 0 {
 		allowedBuilders = append(allowedBuilders, "viewed_listenings_number")
 	}
+	if m.FavoriteBuyCategory != nil {
+		allowedBuilders = append(allowedBuilders, "favorite_buy_category")
+	}
+	if len(m.SearchesByCategory) >= 2 || len(m.ViewsByCategory) >= 2 {
+		allowedBuilders = append(allowedBuilders, "buy_category_comparison")
+	}
 
-	selected := pickThree(allowedBuilders)
+	typeBuckets := map[string][]string{
+		metricKindNumber:      {},
+		metricKindQualitative: {},
+		metricKindComparison:  {},
+	}
+	for _, metricType := range allowedBuilders {
+		copyStat, ok := copies[metricType]
+		if !ok {
+			continue
+		}
+		typeBuckets[copyStat.Kind] = append(typeBuckets[copyStat.Kind], metricType)
+	}
+
+	selected := make([]string, 0, desiredNumberMetrics+desiredQualitativeMetrics+desiredComparisonMetrics)
+	selected = append(selected, pickN(typeBuckets[metricKindNumber], desiredNumberMetrics)...)
+	selected = append(selected, pickN(typeBuckets[metricKindQualitative], desiredQualitativeMetrics)...)
+	selected = append(selected, pickN(typeBuckets[metricKindComparison], desiredComparisonMetrics)...)
 
 	metrics := make([]domain.RecapMetric, 0)
-	for _, builder := range selected {
-		metric, err := (builders[builder])(m, copies[builder])
+	for _, metricType := range selected {
+		buildFn, ok := builders[metricType]
+		if !ok {
+			return nil, fmt.Errorf("builder for metric type %q not found", metricType)
+		}
+		metricCopy, ok := copies[metricType]
+		if !ok {
+			return nil, fmt.Errorf("copy for metric type %q not found", metricType)
+		}
+
+		metric, err := buildFn(m, metricCopy)
 		if err != nil {
 			return nil, err
 		}
@@ -57,8 +101,11 @@ func ResolveMetrics(m domain.YearMetrics) ([]domain.RecapMetric, error) {
 	return metrics, nil
 }
 
-func pickThree[T any](slice []T) []T {
-	if len(slice) <= 3 {
+func pickN[T any](slice []T, n int) []T {
+	if n <= 0 || len(slice) == 0 {
+		return []T{}
+	}
+	if len(slice) <= n {
 		return slice
 	}
 
@@ -69,7 +116,7 @@ func pickThree[T any](slice []T) []T {
 		cp[i], cp[j] = cp[j], cp[i]
 	})
 
-	return cp[:3]
+	return cp[:n]
 }
 
 func buildMetric(
@@ -143,7 +190,70 @@ func buildViewedListeningsNumber(m domain.YearMetrics, copy metricStats) (domain
 	})
 }
 
+func buildFavoriteBuyCategory(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.FavoriteBuyCategory == nil {
+		return domain.RecapMetric{}, errors.New("favorite buy category is nil")
+	}
+	return buildMetric("favorite_buy_category", copy, m.FavoriteBuyCategory.Name, map[string]any{
+		"categoryId":   m.FavoriteBuyCategory.ID,
+		"categoryName": m.FavoriteBuyCategory.Name,
+	})
+}
+
+func buildBuyCategoryComparison(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if len(copy.Texts) == 0 {
+		return domain.RecapMetric{}, errors.New("no texts")
+	}
+	if len(copy.Highlights) == 0 {
+		return domain.RecapMetric{}, errors.New("no highlights")
+	}
+
+	type categoryPair struct {
+		name  string
+		count int
+	}
+
+	var pairs []categoryPair
+	if len(m.SearchesByCategory) >= 2 {
+		for _, c := range m.SearchesByCategory {
+			pairs = append(pairs, categoryPair{name: c.CategoryName, count: c.Searches})
+		}
+	} else {
+		for _, c := range m.ViewsByCategory {
+			pairs = append(pairs, categoryPair{name: c.CategoryName, count: c.Views})
+		}
+	}
+
+	if len(pairs) < 2 {
+		return domain.RecapMetric{}, errors.New("not enough categories for comparison")
+	}
+
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i].count > pairs[j].count
+	})
+
+	left := pairs[0]
+	right := pairs[1]
+	highlight := fmt.Sprintf(copy.Highlights[0], left.name, right.name)
+	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
+	text := fmt.Sprintf(randomText, highlight)
+
+	return domain.RecapMetric{
+		Type:       "buy_category_comparison",
+		Title:      copy.Title,
+		Text:       text,
+		Highlights: []string{highlight},
+		Payload: map[string]any{
+			"leftCategoryName":  left.name,
+			"leftCategoryCount": left.count,
+			"rightCategoryName": right.name,
+			"rightCategoryCount": right.count,
+		},
+	}, nil
+}
+
 type metricStats struct {
+	Kind       string         `json:"kind"`
 	Title      string         `json:"title"`
 	Texts      []string       `json:"text"`
 	Highlights []string       `json:"highlights"`
