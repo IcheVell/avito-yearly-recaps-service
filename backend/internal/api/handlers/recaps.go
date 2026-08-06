@@ -14,7 +14,7 @@ type RecapService interface {
 }
 
 type AchievementProvider interface {
-	ListUserAchievements(ctx context.Context, userID int64) ([]domain.YearlyRecapAchievement, error)
+	ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, error)
 }
 
 type StatsProvider interface {

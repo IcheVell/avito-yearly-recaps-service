@@ -53,11 +53,11 @@ func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (
 
 type fakeAchievements struct {
 	userID int64
-	items  []domain.YearlyRecapAchievement
+	items  []domain.UserAchievement
 	err    error
 }
 
-func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]domain.YearlyRecapAchievement, error) {
+func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, error) {
 	f.userID = userID
 	return f.items, f.err
 }
@@ -244,17 +244,19 @@ func TestRouter(t *testing.T) {
 			method: http.MethodGet,
 			target: "/api/users/1/achievements",
 			achievements: &fakeAchievements{
-				items: []domain.YearlyRecapAchievement{
+				items: []domain.UserAchievement{
 					{
-						ReceivedDate: time.Date(2023, 10, 5, 12, 0, 0, 0, time.UTC),
+						CreatedAt: time.Date(2023, 10, 5, 12, 0, 0, 0, time.UTC),
 						Achievement: domain.Achievement{
+							Code:        "plot_twist",
 							Name:        "Неожиданный поворот",
 							Description: "После паузы ты вернулся на площадку.",
 						},
 					},
 					{
-						ReceivedDate: time.Date(2025, 8, 12, 12, 0, 0, 0, time.UTC),
+						CreatedAt: time.Date(2025, 8, 12, 0, 0, 0, 0, time.UTC),
 						Achievement: domain.Achievement{
+							Code:        "streak_survivor",
 							Name:        "Несгибаемый",
 							Description: "Серия без пропусков.",
 						},
@@ -273,8 +275,8 @@ func TestRouter(t *testing.T) {
 				if len(response.Items) != 2 {
 					t.Fatalf("items len = %d, want 2", len(response.Items))
 				}
-				if response.Items[0].Name != "Несгибаемый" {
-					t.Fatalf("first achievement = %q, want Несгибаемый", response.Items[0].Name)
+				if response.Items[0].Code != "streak_survivor" {
+					t.Fatalf("first achievement = %q, want streak_survivor", response.Items[0].Code)
 				}
 			},
 		},
@@ -401,10 +403,10 @@ func sampleRecap() domain.Recap {
 }
 
 func sampleYearMetrics() domain.YearMetrics {
-	spentAmount := 48000
-	earnedAmount := 120000
-	priceMin := 500
-	priceMax := 150000
+	spentAmount := int64(48000)
+	earnedAmount := int64(120000)
+	priceMin := int64(500)
+	priceMax := int64(150000)
 	sellerRating := 4.9
 
 	return domain.YearMetrics{

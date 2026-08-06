@@ -89,9 +89,10 @@ func chooseCode(metrics domain.YearMetrics) (string, int64) {
 
 	sum := sellerScore + buyerScore + watcherScore
 
-	if maxScore == sellerScore {
+	switch maxScore {
+	case sellerScore:
 		return seller, (sellerScore * 100) / sum
-	} else if maxScore == buyerScore {
+	case buyerScore:
 		return buyer, (buyerScore * 100) / sum
 	}
 

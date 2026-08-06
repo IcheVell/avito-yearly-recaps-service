@@ -9,23 +9,23 @@ type YearMetricsResponse struct {
 	UserID           int64     `json:"userId"`
 	RegistrationDate time.Time `json:"registrationDate"`
 
-	ViewsCount           int `json:"viewsCount"`
-	SearchesCount        int `json:"searchesCount"`
-	FavoritesCount       int `json:"favoritesCount"`
-	MessagesPeopleCount  int `json:"messagesPeopleCount"`
-	ListingsCreatedCount int `json:"listingsCreatedCount"`
-	BuysCount            int `json:"buysCount"`
-	SellsCount           int `json:"sellsCount"`
+	ViewsCount           int64 `json:"viewsCount"`
+	SearchesCount        int64 `json:"searchesCount"`
+	FavoritesCount       int64 `json:"favoritesCount"`
+	MessagesPeopleCount  int64 `json:"messagesPeopleCount"`
+	ListingsCreatedCount int64 `json:"listingsCreatedCount"`
+	BuysCount            int64 `json:"buysCount"`
+	SellsCount           int64 `json:"sellsCount"`
 
-	SpentAmount  *int `json:"spentAmount"`
-	EarnedAmount *int `json:"earnedAmount"`
+	SpentAmount  *int64 `json:"spentAmount"`
+	EarnedAmount *int64 `json:"earnedAmount"`
 
-	MaxStreakDays int `json:"maxStreakDays"`
-	ActiveDays    int `json:"activeDays"`
-	YearsOnAvito  int `json:"yearsOnAvito"`
+	MaxStreakDays int64 `json:"maxStreakDays"`
+	ActiveDays    int64 `json:"activeDays"`
+	YearsOnAvito  int64 `json:"yearsOnAvito"`
 
-	PriceMin *int `json:"priceMin"`
-	PriceMax *int `json:"priceMax"`
+	PriceMin *int64 `json:"priceMin"`
+	PriceMax *int64 `json:"priceMax"`
 
 	SellerRating *float64 `json:"sellerRating"`
 

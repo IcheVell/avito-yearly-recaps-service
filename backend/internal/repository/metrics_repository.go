@@ -154,7 +154,7 @@ func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user domain.
 		return nil, err
 	}
 
-	if yearMetrics.YearAchievements, err = r.getUserAchievements(ctx, user.ID, maxDate, minDate); err != nil {
+	if yearMetrics.YearAchievements, err = r.getUserAchievementsByIDAndYear(ctx, user.ID, maxDate, minDate); err != nil {
 		return nil, err
 	}
 

@@ -17,18 +17,19 @@ type UserAchievementResponse struct {
 	EarnedAt    time.Time `json:"earnedAt"`
 }
 
-func NewUserAchievementsResponse(achievements []domain.YearlyRecapAchievement) UserAchievementsResponse {
-	sorted := append([]domain.YearlyRecapAchievement(nil), achievements...)
+func NewUserAchievementsResponse(achievements []domain.UserAchievement) UserAchievementsResponse {
+	sorted := append([]domain.UserAchievement(nil), achievements...)
 	sort.SliceStable(sorted, func(i, j int) bool {
-		return sorted[i].ReceivedDate.After(sorted[j].ReceivedDate)
+		return sorted[i].CreatedAt.After(sorted[j].CreatedAt)
 	})
 
 	items := make([]UserAchievementResponse, 0, len(sorted))
 	for _, achievement := range sorted {
 		items = append(items, UserAchievementResponse{
+			Code:        achievement.Achievement.Code,
 			Name:        achievement.Achievement.Name,
 			Description: achievement.Achievement.Description,
-			EarnedAt:    achievement.ReceivedDate,
+			EarnedAt:    achievement.CreatedAt,
 		})
 	}
 
