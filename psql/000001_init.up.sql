@@ -11,6 +11,7 @@ CREATE TABLE users(
 
 CREATE TABLE achievements(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    code non_empty_varchar_255 NOT NULL UNIQUE,
     name non_empty_varchar_255 NOT NULL,
     description non_empty_varchar_255 NOT NULL,
     image_url non_empty_varchar_255 NOT NULL
@@ -32,20 +33,20 @@ CREATE TABLE yearly_recaps(
         UNIQUE (user_id, year)
 );
 
-CREATE TABLE yearly_recap_achievements(
-    yearly_recap_id BIGINT NOT NULL,
+CREATE TABLE user_achievements(
+    user_id BIGINT NOT NULL,
     achievement_id BIGINT NOT NULL,
-    received_date TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
-    CONSTRAINT pk_yearly_recap_achievements
-        PRIMARY KEY(yearly_recap_id, achievement_id),
+    CONSTRAINT pk_user_achievements
+        PRIMARY KEY(user_id, achievement_id),
 
-    CONSTRAINT fk_yearly_recap_achievements_yearly_recap_id
-        FOREIGN KEY(yearly_recap_id)
-        REFERENCES yearly_recaps(id)
+    CONSTRAINT fk_user_achievements_user_id
+        FOREIGN KEY(user_id)
+        REFERENCES users(id)
         ON DELETE CASCADE,
 
-    CONSTRAINT fk_yearly_recap_achievements_achievement_id
+    CONSTRAINT fk_user_achievements_achievement_id
         FOREIGN KEY(achievement_id)
         REFERENCES achievements(id)
         ON DELETE CASCADE
