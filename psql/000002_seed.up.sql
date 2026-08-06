@@ -3,37 +3,38 @@ BEGIN;
 INSERT INTO users (id, username, image_url, created_at, updated_at)
 OVERRIDING SYSTEM VALUE
 VALUES
-    (910001, 'seller_anna', 'https://images.example.test/profiles/seller_anna.jpg', '2018-04-12 09:00:00+00', '2025-12-31 18:00:00+00'),
-    (910002, 'buyer_igor', 'https://images.example.test/profiles/buyer_igor.jpg', '2020-09-21 11:30:00+00', '2025-12-30 16:20:00+00'),
-    (910003, 'watcher_olga', 'https://images.example.test/profiles/watcher_olga.jpg', '2022-02-08 08:15:00+00', '2025-12-29 14:10:00+00'),
-    (910004, 'balanced_kirill', 'https://images.example.test/profiles/balanced_kirill.jpg', '2019-07-03 13:45:00+00', '2025-12-31 20:40:00+00');
+    (910001, 'aferist_alina', 'https://images.example.test/profiles/aferist_alina.jpg', '2018-04-12 09:00:00+00', '2025-12-31 18:00:00+00'),
+    (910002, 'temshik_kirill', 'https://images.example.test/profiles/temshik_kirill.jpg', '2020-09-21 11:30:00+00', '2025-12-30 16:20:00+00'),
+    (910003, 'sonnaya_katya', 'https://images.example.test/profiles/sonnaya_katya.jpg', '2022-02-08 08:15:00+00', '2025-12-29 14:10:00+00'),
+    (910004, 'rabotyaga_ilya', 'https://images.example.test/profiles/rabotyaga_ilya.jpg', '2019-07-03 13:45:00+00', '2025-12-31 20:40:00+00');
 
 INSERT INTO achievements (id, code, name, description, image_url)
 OVERRIDING SYSTEM VALUE
 VALUES
-    (995001, 'explorer', 'Исследователь', 'Просматривал объявления в нескольких категориях.', 'https://images.example.test/achievements/explorer.png'),
-    (995002, 'seller_pro', 'Продавец года', 'Успешно завершил несколько продаж.', 'https://images.example.test/achievements/seller-pro.png'),
-    (995003, 'buyer_pro', 'Покупатель года', 'Совершил несколько покупок за год.', 'https://images.example.test/achievements/buyer-pro.png'),
-    (995004, 'streak_7', 'Серия 7 дней', 'Заходил в сервис не менее семи дней подряд.', 'https://images.example.test/achievements/streak-7.png'),
-    (995005, 'deal_master', 'Мастер сделок', 'Успешно выступал и покупателем, и продавцом.', 'https://images.example.test/achievements/deal-master.png'),
-    (995006, 'trusted', 'Надёжный пользователь', 'Получил высокие оценки после сделок.', 'https://images.example.test/achievements/trusted.png'),
-    (995007, 'favorite_collector', 'Коллекционер', 'Добавлял много объявлений в избранное.', 'https://images.example.test/achievements/favorite-collector.png'),
-    (995008, 'conversationalist', 'Дипломат', 'Активно начинал диалоги по объявлениям.', 'https://images.example.test/achievements/conversationalist.png');
+    (995001, 'streak_survivor', 'Несгибаемый', 'Были дни, когда Avito тебя не отпускал — серия без пропусков.', 'https://images.example.test/achievements/streak-survivor.png'),
+    (995002, 'two_faced_market', 'Две стороны рынка', 'За год ты успел и купить, и продать — побывал по обе стороны сделки.', 'https://images.example.test/achievements/two-faced-market.png'),
+    (995003, 'shortlist_hoarder', 'Коллекционер', 'Избранное разрослось: ты собирал варианты, прежде чем выбрать.', 'https://images.example.test/achievements/shortlist-hoarder.png'),
+    (995004, 'wallet_whisperer', 'Шёпот кошелька', 'Покупки года сложились в заметную сумму — любопытство явно не дремало.', 'https://images.example.test/achievements/wallet-whisperer.png'),
+    (995005, 'trust_badge', 'Знак доверия', 'Высокий рейтинг продавца: с тобой имеют дело охотно и спокойно.', 'https://images.example.test/achievements/trust-badge.png'),
+    (995006, 'diplomat', 'Дипломат', 'Кажется ты перепутал Avito с мессенджером.', 'https://images.example.test/achievements/diplomat.png'),
+    (995007, 'plot_twist', 'Неожиданный поворот', 'После паузы ты вернулся на площадку — сюжет года сделал виток.', 'https://images.example.test/achievements/plot-twist.png');
 
 INSERT INTO user_achievements (user_id, achievement_id, created_at)
 VALUES
-    (910001, 995002, '2025-06-30 12:00:00+00'),
-    (910001, 995005, '2025-09-21 12:00:00+00'),
+    (910001, 995007, '2023-05-18 12:00:00+00'),
+    (910001, 995005, '2024-11-22 12:00:00+00'),
+    (910001, 995002, '2025-09-21 12:00:00+00'),
     (910001, 995006, '2025-12-20 12:00:00+00'),
-    (910002, 995003, '2025-07-01 12:00:00+00'),
-    (910002, 995007, '2025-10-10 12:00:00+00'),
-    (910002, 995008, '2025-12-01 12:00:00+00'),
-    (910003, 995001, '2025-05-15 12:00:00+00'),
-    (910003, 995004, '2025-08-12 12:00:00+00'),
-    (910003, 995007, '2025-11-11 12:00:00+00'),
-    (910004, 995004, '2025-03-07 12:00:00+00'),
-    (910004, 995005, '2025-10-12 12:00:00+00'),
-    (910004, 995006, '2025-12-18 12:00:00+00');
+    (910002, 995003, '2024-08-14 12:00:00+00'),
+    (910002, 995004, '2025-07-01 12:00:00+00'),
+    (910002, 995006, '2025-12-01 12:00:00+00'),
+    (910003, 995007, '2023-10-05 12:00:00+00'),
+    (910003, 995003, '2024-04-19 12:00:00+00'),
+    (910003, 995001, '2025-08-12 12:00:00+00'),
+    (910004, 995005, '2023-12-11 12:00:00+00'),
+    (910004, 995002, '2024-09-28 12:00:00+00'),
+    (910004, 995001, '2025-03-07 12:00:00+00'),
+    (910004, 995004, '2025-10-12 12:00:00+00');
 
 INSERT INTO categories (id, name, parent_id)
 OVERRIDING SYSTEM VALUE
