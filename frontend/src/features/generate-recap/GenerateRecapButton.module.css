@@ -1,20 +1,42 @@
+.wrapper {
+  width: 100%;
+  max-width: 100%;
+
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
 .button {
-  min-width: 250px;
+  min-width: min(260px, 100%);
+  max-width: 100%;
   padding: 16px 24px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+
   border: 0;
   border-radius: 14px;
+
   background: #00aaff;
   color: white;
+
+  font: inherit;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
+  text-align: center;
+  overflow-wrap: anywhere;
+
   cursor: pointer;
-  transition:
-    background-color 150ms ease,
-    opacity 150ms ease;
+}
+
+@media (max-width: 720px) {
+  .button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .button:hover:not(:disabled) {
@@ -22,19 +44,27 @@
 }
 
 .button:disabled {
-  opacity: 0.75;
+  opacity: 0.72;
   cursor: wait;
 }
 
 .spinner {
   width: 18px;
   height: 18px;
+
   border: 3px solid rgb(255 255 255 / 35%);
   border-top-color: white;
   border-radius: 50%;
+
   animation: spin 700ms linear infinite;
 }
 
+.error {
+  max-width: 480px;
+  margin: 0;
+  color: #b11f31;
+  font-weight: 700;
+}
 
 @keyframes spin {
   to {

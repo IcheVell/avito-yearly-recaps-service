@@ -1,59 +1,159 @@
-
 .overlay {
- 
   position: fixed;
-
-  /*
-   * inset: 0  одновременно:
-   * top: 0;
-   * right: 0;
-   * bottom: 0;
-   * left: 0;
-   *
-   */
   inset: 0;
   z-index: 1000;
+
+  display: grid;
+  grid-template-rows: 76px minmax(0, 1fr) 66px;
+
+  background:
+    radial-gradient(
+      circle at 18% 20%,
+      rgb(255 82 96 / 18%),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 82% 72%,
+      rgb(0 170 255 / 18%),
+      transparent 38%
+    ),
+    rgb(0 0 0 / 78%);
+
+  backdrop-filter: blur(3px);
+  overflow: hidden;
+}
+
+.topBar {
+  position: relative;
+  z-index: 20;
+
   display: flex;
   align-items: center;
-  background: rgb(0 0 0 / 78%);
-  backdrop-filter: blur(2px);
+  justify-content: flex-end;
+
+  padding: 8px 16px;
 }
-
-
-.track {
-  width: 100%;
-  padding: 0 16px;
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-}
-
-.track::-webkit-scrollbar {
-  display: none;
-}
-
 
 .progress {
-
   position: absolute;
-  top: 28px;
   left: 50%;
-  width: min(310px, 48vw);
+  top: 28px;
+
+  width: min(420px, 52vw);
+
   display: flex;
   gap: 6px;
+
   transform: translateX(-50%);
 }
 
 .progressItem {
   flex: 1;
   height: 6px;
+  padding: 0;
+
+  border: 0;
   border-radius: 999px;
-  background: rgb(255 255 255 / 45%);
+
+  background: rgb(255 255 255 / 38%);
+  cursor: pointer;
 }
 
-/*свяжи потом со слайдом*/
-.progressItem:first-child {
+.progressItemActive {
   background: white;
+}
+
+.track {
+  width: 100%;
+  min-height: 0;
+
+  padding: 10px 16px 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.track::before,
+.track::after {
+  content: '';
+  flex: 0 0 max(0px, calc((100vw - 390px) / 2 - 24px));
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.controls {
+  z-index: 20;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  color: white;
+  font-weight: 800;
+}
+
+.controls button {
+  padding: 8px 12px;
+
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+
+  background: transparent;
+  color: white;
+
+  font: inherit;
+  cursor: pointer;
+}
+
+.controlIcon {
+  font-size: 32px;
+  line-height: 0.8;
+}
+
+.controlLabel {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.controls button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .overlay {
+    grid-template-rows: 70px minmax(0, 1fr) 60px;
+  }
+
+  .progress {
+    left: 14px;
+    width: calc(100vw - 104px);
+    transform: none;
+  }
+
+  .track {
+    padding-inline: 14px;
+    gap: 14px;
+  }
+
+  .track::before,
+  .track::after {
+    display: none;
+  }
 }
