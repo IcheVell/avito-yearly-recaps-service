@@ -3,7 +3,6 @@ package api
 import (
 	"log/slog"
 	"net/http"
-	"time"
 	"v1/internal/api/handlers"
 
 	"github.com/go-chi/chi/v5"
@@ -25,13 +24,12 @@ func NewRouter(deps Dependencies) http.Handler {
 		logger = slog.Default()
 	}
 
-	currentYear := deps.CurrentYear
-	if currentYear == 0 {
-		currentYear = time.Now().Year()
+	if deps.CurrentYear <= 0 {
+		panic("api current year is required")
 	}
 
-	profilesHandler := handlers.NewProfilesHandler(deps.Profiles, currentYear, logger)
-	recapsHandler := handlers.NewRecapsHandler(deps.Recaps, deps.Achievements, deps.Stats, currentYear, logger)
+	profilesHandler := handlers.NewProfilesHandler(deps.Profiles, deps.CurrentYear, logger)
+	recapsHandler := handlers.NewRecapsHandler(deps.Recaps, deps.Achievements, deps.Stats, deps.CurrentYear, logger)
 	healthHandler := handlers.NewHealthHandler()
 
 	r := chi.NewRouter()
