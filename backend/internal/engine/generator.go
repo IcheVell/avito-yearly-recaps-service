@@ -21,18 +21,21 @@ func Generate(yearMetrics domain.YearMetrics) (domain.Recap, error) {
 		return domain.Recap{}, err
 	}
 
+	achievements := ResolveAchievements(yearMetrics)
+
 	now := time.Now()
 	past := now.AddDate(0, -1, 0)
 	year := past.Year()
 
 	recap := domain.Recap{
-		UserID:    yearMetrics.UserID,
-		Year:      year,
-		CreatedAt: time.Now().UTC(),
-		Role:      role,
-		Metrics:   metrics,
-		Action:    action,
+		UserID:       yearMetrics.UserID,
+		Year:         year,
+		CreatedAt:    time.Now().UTC(),
+		Role:         role,
+		Metrics:      metrics,
+		Action:       action,
+		Achievements: achievements,
 	}
-	
+
 	return recap, nil
 }
