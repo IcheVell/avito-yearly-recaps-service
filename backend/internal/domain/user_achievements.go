@@ -7,6 +7,6 @@ type UserAchievement struct {
 	AchievementID int64 `gorm:"primaryKey;autoIncrement:false"`
 	CreatedAt     time.Time
 
-	YearlyRecap YearlyRecap
+	User        User
 	Achievement Achievement
 }
