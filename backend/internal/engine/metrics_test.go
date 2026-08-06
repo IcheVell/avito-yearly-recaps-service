@@ -23,7 +23,7 @@ func TestResolveMetrics_OK(t *testing.T) {
 		t.Fatalf("ResolveMetrics() error = %v", err)
 	}
 
-	if len(got) == 0 || len(got) > 3 {
+	if len(got) == 0 || len(got) > desiredNumberMetrics+desiredComparisonMetrics+desiredQualitativeMetrics {
 		t.Fatalf("len(metrics) = %d, want 1..3", len(got))
 	}
 
