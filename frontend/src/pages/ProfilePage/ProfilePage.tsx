@@ -11,14 +11,23 @@ import { Loader } from '../../shared/ui/Loader/Loader';
 import { RecapOverlay } from '../../widgets/RecapOverlay/RecapOverlay';
 
 import styles from './ProfilePage.module.css';
+import {
+  ProfileTabs,
+  type ProfileTab,
+} from './ProfileTabs';
 
 const RECAP_YEAR = 2026;
 
+type RecapsByProfileId = Partial<Record<number, Recap>>;
 
 export function ProfilePage() {
   const [selectedProfileId, setSelectedProfileId] =
     useState<number | null>(null);
-  const [recap, setRecap] = useState<Recap | null>(null);
+  const [activeTab, setActiveTab] =
+    useState<ProfileTab>('statistics');
+  const [recapsByProfileId, setRecapsByProfileId] =
+    useState<RecapsByProfileId>({});
+  const [openRecap, setOpenRecap] = useState<Recap | null>(null);
 
   const {
     data,
@@ -32,6 +41,18 @@ export function ProfilePage() {
     data?.items.find(
       (profile) => profile.id === selectedProfileId,
     ) ?? data?.items[0];
+
+  const selectedProfileRecap = selectedProfile
+    ? recapsByProfileId[selectedProfile.id]
+    : undefined;
+
+  function handleRecapGenerated(generatedRecap: Recap) {
+    setRecapsByProfileId((currentRecaps) => ({
+      ...currentRecaps,
+      [generatedRecap.userId]: generatedRecap,
+    }));
+    setOpenRecap(generatedRecap);
+  }
 
   return (
     <>
@@ -116,31 +137,33 @@ export function ProfilePage() {
                 <div>
                   <p className={styles.eyebrow}>Текущий профиль</p>
                   <h2>{selectedProfile.username}</h2>
-                  <p>
-                    Итоги за {RECAP_YEAR} год.
-                  </p>
 
                   <GenerateRecapButton
                     userId={selectedProfile.id}
                     year={RECAP_YEAR}
-                    onGenerated={setRecap}
+                    onGenerated={handleRecapGenerated}
                   />
                 </div>
               </div>
             )}
 
-            <div
-              className={styles.emptyPanel}
-              aria-label="Область содержимого"
-            />
+            <div className={styles.profileContentPanel}>
+              <ProfileTabs
+                activeTab={activeTab}
+                achievements={
+                  selectedProfileRecap?.achievements ?? null
+                }
+                onTabChange={setActiveTab}
+              />
+            </div>
           </section>
         </div>
       </main>
 
-      {recap && (
+      {openRecap && (
         <RecapOverlay
-          recap={recap}
-          onClose={() => setRecap(null)}
+          recap={openRecap}
+          onClose={() => setOpenRecap(null)}
         />
       )}
     </>

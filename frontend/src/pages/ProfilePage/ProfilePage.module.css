@@ -55,7 +55,7 @@
 
 .profilesPanel,
 .profileDetails,
-.emptyPanel {
+.profileContentPanel {
   border-radius: 24px;
   background: white;
   box-shadow: 0 14px 36px rgb(0 0 0 / 6%);
@@ -88,7 +88,7 @@
   padding: 32px;
 }
 
-.emptyPanel {
+.profileContentPanel {
   min-height: 0;
   flex: 1 1 auto;
   padding: 24px;
@@ -193,7 +193,7 @@
     max-height: 320px;
   }
 
-  .emptyPanel {
+  .profileContentPanel {
     min-height: 320px;
   }
 }
@@ -226,7 +226,7 @@
     align-self: center;
   }
 
-  .emptyPanel {
+  .profileContentPanel {
     padding: 22px;
   }
 }
