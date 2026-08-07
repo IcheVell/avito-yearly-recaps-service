@@ -24,10 +24,10 @@ type RecapRepository interface {
 	Create(ctx context.Context, recap *domain.Recap) error
 	Update(ctx context.Context, recap *domain.Recap) error
 	GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*domain.YearlyRecap, error)
-	ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, error)
+	ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error)
 }
 
-const recapMetricsLimit = 3
+const recapMetricsLimit = 4
 
 type RecapService struct {
 	users   UserRepository
@@ -116,9 +116,9 @@ func (s *RecapService) GetUserRecap(ctx context.Context, userID int64, year int)
 	return newRecapFromYearlyRecap(*recap)
 }
 
-func (s *RecapService) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, error) {
+func (s *RecapService) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error) {
 	if _, err := s.users.GetByID(ctx, userID); err != nil {
-		return nil, mapUserError(err)
+		return nil, nil, mapUserError(err)
 	}
 
 	return s.recaps.ListUserAchievements(ctx, userID)

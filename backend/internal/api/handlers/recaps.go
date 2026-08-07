@@ -14,7 +14,7 @@ type RecapService interface {
 }
 
 type AchievementProvider interface {
-	ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, error)
+	ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error)
 }
 
 type StatsProvider interface {
@@ -130,7 +130,7 @@ func (h *RecapsHandler) ListAchievements(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	achievements, err := h.achievements.ListUserAchievements(r.Context(), userID)
+	earned, locked, err := h.achievements.ListUserAchievements(r.Context(), userID)
 	if err != nil {
 		if shouldLogServiceError(err) {
 			h.logger.ErrorContext(
@@ -145,7 +145,7 @@ func (h *RecapsHandler) ListAchievements(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	writeJSON(w, http.StatusOK, dto.NewUserAchievementsResponse(achievements))
+	writeJSON(w, http.StatusOK, dto.NewUserAchievementsResponse(earned, locked))
 }
 
 func (h *RecapsHandler) GetStats(w http.ResponseWriter, r *http.Request) {

@@ -53,13 +53,14 @@ func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (
 
 type fakeAchievements struct {
 	userID int64
-	items  []domain.UserAchievement
+	earned []domain.UserAchievement
+	locked []domain.Achievement
 	err    error
 }
 
-func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, error) {
+func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error) {
 	f.userID = userID
-	return f.items, f.err
+	return f.earned, f.locked, f.err
 }
 
 type fakeStats struct {
@@ -246,13 +247,14 @@ func TestRouter(t *testing.T) {
 			method: http.MethodGet,
 			target: "/api/users/1/achievements",
 			achievements: &fakeAchievements{
-				items: []domain.UserAchievement{
+				earned: []domain.UserAchievement{
 					{
 						CreatedAt: time.Date(2023, 10, 5, 12, 0, 0, 0, time.UTC),
 						Achievement: domain.Achievement{
 							Code:        "plot_twist",
 							Name:        "Неожиданный поворот",
 							Description: "После паузы ты вернулся на площадку.",
+							ImageURL:    "https://images.example.test/achievements/plot-twist.png",
 						},
 					},
 					{
@@ -261,7 +263,16 @@ func TestRouter(t *testing.T) {
 							Code:        "streak_survivor",
 							Name:        "Несгибаемый",
 							Description: "Серия без пропусков.",
+							ImageURL:    "https://images.example.test/achievements/streak-survivor.png",
 						},
+					},
+				},
+				locked: []domain.Achievement{
+					{
+						Code:        "diplomat",
+						Name:        "Дипломат",
+						Description: "Кажется ты перепутал Avito с мессенджером.",
+						ImageURL:    "https://images.example.test/achievements/diplomat.png",
 					},
 				},
 			},
@@ -274,11 +285,23 @@ func TestRouter(t *testing.T) {
 				var response dto.UserAchievementsResponse
 				decodeResponse(t, rr, &response)
 
-				if len(response.Items) != 2 {
-					t.Fatalf("items len = %d, want 2", len(response.Items))
+				if len(response.Earned) != 2 {
+					t.Fatalf("earned len = %d, want 2", len(response.Earned))
 				}
-				if response.Items[0].Code != "streak_survivor" {
-					t.Fatalf("first achievement = %q, want streak_survivor", response.Items[0].Code)
+				if response.Earned[0].Code != "streak_survivor" {
+					t.Fatalf("first earned = %q, want streak_survivor", response.Earned[0].Code)
+				}
+				if response.Earned[0].ImageURL == "" {
+					t.Fatal("earned imageUrl is empty")
+				}
+				if len(response.Locked) != 1 {
+					t.Fatalf("locked len = %d, want 1", len(response.Locked))
+				}
+				if response.Locked[0].Code != "diplomat" {
+					t.Fatalf("locked = %q, want diplomat", response.Locked[0].Code)
+				}
+				if response.Locked[0].ImageURL == "" {
+					t.Fatal("locked imageUrl is empty")
 				}
 			},
 		},

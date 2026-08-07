@@ -43,6 +43,7 @@ type RecapAchievementResponse struct {
 	Code        string `json:"code"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	ImageURL    string `json:"imageUrl"`
 }
 
 type RecapActionResponse struct {
@@ -116,6 +117,7 @@ func newRecapAchievementResponses(achievements []domain.RecapAchievement) []Reca
 			Code:        achievement.Code,
 			Name:        achievement.Name,
 			Description: achievement.Description,
+			ImageURL:    achievement.ImageURL,
 		})
 	}
 
