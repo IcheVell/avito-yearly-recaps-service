@@ -31,6 +31,21 @@ var builders = map[string]metricBuilder{
 	"viewed_listenings_number": buildViewedListeningsNumber,
 	"favorite_buy_category":    buildFavoriteBuyCategory,
 	"buy_category_comparison":  buildBuyCategoryComparison,
+	"chats_people":             buildChatsPeople,
+	"years_together":           buildYearsTogether,
+	"seller_rating":            buildSellerRating,
+	"best_received_review":     buildBestReceivedReview,
+	"best_left_review":         buildBestLeftReview,
+	"favorite_sell_category":   buildFavoriteSellCategory,
+	"sells_count":              buildSellsCount,
+	"buys_count":               buildBuysCount,
+	"listings_created":         buildListingsCreated,
+	"favorites_count":          buildFavoritesCount,
+	"searches_count":           buildSearchesCount,
+	"most_viewed_listing":      buildMostViewedListing,
+	"price_range":              buildPriceRange,
+	"buy_vs_sell":              buildBuyVsSell,
+	"views_vs_favorites":       buildViewsVsFavorites,
 }
 
 func ResolveMetrics(m domain.YearMetrics) ([]domain.RecapMetric, error) {
@@ -60,6 +75,51 @@ func ResolveMetrics(m domain.YearMetrics) ([]domain.RecapMetric, error) {
 	}
 	if len(m.SearchesByCategory) >= 2 || len(m.ViewsByCategory) >= 2 {
 		allowedBuilders = append(allowedBuilders, "buy_category_comparison")
+	}
+	if m.MessagesPeopleCount > 0 {
+		allowedBuilders = append(allowedBuilders, "chats_people")
+	}
+	if m.YearsOnAvito > 0 {
+		allowedBuilders = append(allowedBuilders, "years_together")
+	}
+	if m.SellerRating != nil {
+		allowedBuilders = append(allowedBuilders, "seller_rating")
+	}
+	if m.BestReviewReceived != nil {
+		allowedBuilders = append(allowedBuilders, "best_received_review")
+	}
+	if m.BestReviewLeft != nil {
+		allowedBuilders = append(allowedBuilders, "best_left_review")
+	}
+	if m.FavoriteSellCategory != nil {
+		allowedBuilders = append(allowedBuilders, "favorite_sell_category")
+	}
+	if m.SellsCount > 0 {
+		allowedBuilders = append(allowedBuilders, "sells_count")
+	}
+	if m.BuysCount > 0 {
+		allowedBuilders = append(allowedBuilders, "buys_count")
+	}
+	if m.ListingsCreatedCount > 0 {
+		allowedBuilders = append(allowedBuilders, "listings_created")
+	}
+	if m.FavoritesCount > 0 {
+		allowedBuilders = append(allowedBuilders, "favorites_count")
+	}
+	if m.SearchesCount > 0 {
+		allowedBuilders = append(allowedBuilders, "searches_count")
+	}
+	if m.MostViewedListing != nil {
+		allowedBuilders = append(allowedBuilders, "most_viewed_listing")
+	}
+	if m.PriceMin != nil && m.PriceMax != nil {
+		allowedBuilders = append(allowedBuilders, "price_range")
+	}
+	if m.BuysCount > 0 || m.SellsCount > 0 {
+		allowedBuilders = append(allowedBuilders, "buy_vs_sell")
+	}
+	if m.ViewsCount > 0 && m.FavoritesCount > 0 {
+		allowedBuilders = append(allowedBuilders, "views_vs_favorites")
 	}
 
 	typeBuckets := map[string][]string{
@@ -248,6 +308,214 @@ func buildBuyCategoryComparison(m domain.YearMetrics, copy metricStats) (domain.
 			"leftCategoryCount":  left.count,
 			"rightCategoryName":  right.name,
 			"rightCategoryCount": right.count,
+		},
+	}, nil
+}
+
+func buildChatsPeople(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.MessagesPeopleCount <= 0 {
+		return domain.RecapMetric{}, errors.New("messages people count must be greater than zero")
+	}
+	return buildMetric("chats_people", copy, m.MessagesPeopleCount, map[string]any{
+		"peopleCount": m.MessagesPeopleCount,
+	})
+}
+
+func buildYearsTogether(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.YearsOnAvito <= 0 {
+		return domain.RecapMetric{}, errors.New("years on Avito must be greater than zero")
+	}
+	return buildMetric("years_together", copy, m.YearsOnAvito, map[string]any{
+		"yearsTogether": m.YearsOnAvito,
+	})
+}
+
+func buildSellerRating(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.SellerRating == nil {
+		return domain.RecapMetric{}, errors.New("seller rating is nil")
+	}
+	return buildMetric("seller_rating", copy, *m.SellerRating, map[string]any{
+		"sellerRating": *m.SellerRating,
+	})
+}
+
+func buildBestReceivedReview(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.BestReviewReceived == nil {
+		return domain.RecapMetric{}, errors.New("best review received is nil")
+	}
+	return buildMetric("best_received_review", copy, m.BestReviewReceived.Text, map[string]any{
+		"bestReceivedReview": m.BestReviewReceived.Text,
+	})
+}
+
+func buildBestLeftReview(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.BestReviewLeft == nil {
+		return domain.RecapMetric{}, errors.New("best review left is nil")
+	}
+	return buildMetric("best_left_review", copy, m.BestReviewLeft.Text, map[string]any{
+		"bestLeftReview": m.BestReviewLeft.Text,
+	})
+}
+
+func buildFavoriteSellCategory(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.FavoriteSellCategory == nil {
+		return domain.RecapMetric{}, errors.New("favorite sell category is nil")
+	}
+	return buildMetric("favorite_sell_category", copy, m.FavoriteSellCategory.Name, map[string]any{
+		"categoryId":   m.FavoriteSellCategory.ID,
+		"categoryName": m.FavoriteSellCategory.Name,
+	})
+}
+
+func buildSellsCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.SellsCount <= 0 {
+		return domain.RecapMetric{}, errors.New("sells count must be greater than zero")
+	}
+	return buildMetric("sells_count", copy, m.SellsCount, map[string]any{
+		"sellsCount": m.SellsCount,
+	})
+}
+
+func buildBuysCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.BuysCount <= 0 {
+		return domain.RecapMetric{}, errors.New("buys count must be greater than zero")
+	}
+	return buildMetric("buys_count", copy, m.BuysCount, map[string]any{
+		"buysCount": m.BuysCount,
+	})
+}
+
+func buildListingsCreated(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.ListingsCreatedCount <= 0 {
+		return domain.RecapMetric{}, errors.New("listings created count must be greater than zero")
+	}
+	return buildMetric("listings_created", copy, m.ListingsCreatedCount, map[string]any{
+		"listingsCreatedCount": m.ListingsCreatedCount,
+	})
+}
+
+func buildFavoritesCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.FavoritesCount <= 0 {
+		return domain.RecapMetric{}, errors.New("favorites count must be greater than zero")
+	}
+	return buildMetric("favorites_count", copy, m.FavoritesCount, map[string]any{
+		"favoritesCount": m.FavoritesCount,
+	})
+}
+
+func buildSearchesCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.SearchesCount <= 0 {
+		return domain.RecapMetric{}, errors.New("searches count must be greater than zero")
+	}
+	return buildMetric("searches_count", copy, m.SearchesCount, map[string]any{
+		"searchesCount": m.SearchesCount,
+	})
+}
+
+func buildMostViewedListing(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.MostViewedListing == nil {
+		return domain.RecapMetric{}, errors.New("most viewed listing is nil")
+	}
+	listing := m.MostViewedListing
+	return buildMetric("most_viewed_listing", copy, listing.Name, map[string]any{
+		"listingId":  listing.ID,
+		"name":       listing.Name,
+		"city":       listing.City,
+		"imageUrl":   listing.ImageURL,
+		"viewsCount": listing.ViewsCount,
+	})
+}
+
+func buildPriceRange(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.PriceMin == nil || m.PriceMax == nil {
+		return domain.RecapMetric{}, errors.New("price min/max is nil")
+	}
+	if len(copy.Texts) == 0 {
+		return domain.RecapMetric{}, errors.New("no texts")
+	}
+	if len(copy.Highlights) == 0 {
+		return domain.RecapMetric{}, errors.New("no highlights")
+	}
+
+	highlight := fmt.Sprintf(copy.Highlights[0], *m.PriceMin, *m.PriceMax)
+	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
+	text := fmt.Sprintf(randomText, highlight)
+
+	return domain.RecapMetric{
+		Type:       "price_range",
+		Title:      copy.Title,
+		Text:       text,
+		Highlights: []string{highlight},
+		Payload: map[string]any{
+			"priceMin": *m.PriceMin,
+			"priceMax": *m.PriceMax,
+		},
+	}, nil
+}
+
+func buildBuyVsSell(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.BuysCount <= 0 && m.SellsCount <= 0 {
+		return domain.RecapMetric{}, errors.New("no buys or sells for comparison")
+	}
+	if len(copy.Texts) == 0 {
+		return domain.RecapMetric{}, errors.New("no texts")
+	}
+	if len(copy.Highlights) == 0 {
+		return domain.RecapMetric{}, errors.New("no highlights")
+	}
+
+	var highlight string
+	switch {
+	case m.SellsCount > m.BuysCount:
+		highlight = fmt.Sprintf(copy.Highlights[0], "продавал", "покупал")
+	case m.BuysCount > m.SellsCount:
+		highlight = fmt.Sprintf(copy.Highlights[0], "покупал", "продавал")
+	default:
+		if len(copy.Highlights) > 1 {
+			highlight = copy.Highlights[1]
+		} else {
+			highlight = "покупал и продавал одинаково"
+		}
+	}
+
+	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
+	text := fmt.Sprintf(randomText, highlight)
+
+	return domain.RecapMetric{
+		Type:       "buy_vs_sell",
+		Title:      copy.Title,
+		Text:       text,
+		Highlights: []string{highlight},
+		Payload: map[string]any{
+			"buysCount":  m.BuysCount,
+			"sellsCount": m.SellsCount,
+		},
+	}, nil
+}
+
+func buildViewsVsFavorites(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+	if m.ViewsCount <= 0 || m.FavoritesCount <= 0 {
+		return domain.RecapMetric{}, errors.New("need both views and favorites for comparison")
+	}
+	if len(copy.Texts) == 0 {
+		return domain.RecapMetric{}, errors.New("no texts")
+	}
+	if len(copy.Highlights) == 0 {
+		return domain.RecapMetric{}, errors.New("no highlights")
+	}
+
+	highlight := fmt.Sprintf(copy.Highlights[0], m.ViewsCount, m.FavoritesCount)
+	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
+	text := fmt.Sprintf(randomText, highlight)
+
+	return domain.RecapMetric{
+		Type:       "views_vs_favorites",
+		Title:      copy.Title,
+		Text:       text,
+		Highlights: []string{highlight},
+		Payload: map[string]any{
+			"viewsCount":     m.ViewsCount,
+			"favoritesCount": m.FavoritesCount,
 		},
 	}, nil
 }
