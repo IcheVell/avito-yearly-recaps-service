@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -29,6 +31,12 @@ func (c Config) DSN() string {
 }
 
 func NewConfig() (Config, error) {
+	_ = godotenv.Load(
+		".env",
+		"../.env",
+		"backend/.env",
+	)
+
 	cfg := Config{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
