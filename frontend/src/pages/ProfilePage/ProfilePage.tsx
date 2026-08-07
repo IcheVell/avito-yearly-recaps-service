@@ -117,8 +117,7 @@ export function ProfilePage() {
                   <p className={styles.eyebrow}>Текущий профиль</p>
                   <h2>{selectedProfile.username}</h2>
                   <p>
-                    ID пользователя: {selectedProfile.id}. Итоги за{' '}
-                    {RECAP_YEAR} год.
+                    Итоги за {RECAP_YEAR} год.
                   </p>
 
                   <GenerateRecapButton

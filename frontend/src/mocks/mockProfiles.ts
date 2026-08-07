@@ -4,12 +4,12 @@ export const mockProfiles: ProfilesResponse = {
   items: [
     {
       id: 1,
-      username: 'seller_anna',
+      username: 'Анна Евгеньевна Петрова',
       imageUrl: 'https://i.pravatar.cc/160?img=47',
     },
     {
       id: 2,
-      username: 'buyer_igor',
+      username: 'Игорь Владимирович Сидоров',
       imageUrl: 'https://i.pravatar.cc/160?img=12',
     },
     {
@@ -19,32 +19,32 @@ export const mockProfiles: ProfilesResponse = {
     },
     {
       id: 4,
-      username: 'seller_maxim',
+      username: 'Максим Сергеевич Волков',
       imageUrl: 'https://i.pravatar.cc/160?img=11',
     },
     {
       id: 5,
-      username: 'buyer_elena',
+      username: 'Елена Анатольевна Козлова',
       imageUrl: 'https://i.pravatar.cc/160?img=45',
     },
     {
       id: 6,
-      username: 'collector_roman',
+      username: 'Роман Александрович Морозов',
       imageUrl: 'https://i.pravatar.cc/160?img=15',
     },
     {
       id: 7,
-      username: 'seller_olga',
+      username: 'Ольга Ильинична Соколова',
       imageUrl: 'https://i.pravatar.cc/160?img=49',
     },
     {
       id: 8,
-      username: 'buyer_artem',
+      username: 'Артем Захарович Трегубов',
       imageUrl: 'https://i.pravatar.cc/160?img=8',
     },
     {
       id: 9,
-      username: 'explorer_daria',
+      username: 'Дарья Олеговна Петросян',
       imageUrl: 'https://i.pravatar.cc/160?img=25',
     },
   ],

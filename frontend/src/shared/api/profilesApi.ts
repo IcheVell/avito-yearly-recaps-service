@@ -1,14 +1,9 @@
 import type { ProfilesResponse } from '../../entities/profile/types';
 import { mockProfiles } from '../../mocks/mockProfiles';
 import { env } from '../config/env.ts';
+import { wait } from '../lib/wait';
 
 import { baseApi } from './baseApi.ts';
-
-function wait(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, milliseconds);
-  });
-}
 
 export const profilesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

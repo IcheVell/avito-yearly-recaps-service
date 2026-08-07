@@ -1,5 +1,6 @@
 export type RecapRole = {
   code: string; //напомнить алине сделать универсальную роль!!!
+  name: string;
   title: string;
   subtitle: string;
   why: string;
@@ -22,17 +23,38 @@ export type Achievement = {
   description: string;
 };
 
-export type RecapActionTarget = {
-  listingIds?: number[];
-  categoryId?: number;
-};
-
-export type RecapAction = {
-  type: string;
+type RecapActionBase = {
   label: string;
   reason: string;
-  target: RecapActionTarget;
 };
+
+export type BoostListingsAction = RecapActionBase & {
+  type: 'boost_listings';
+  target: {
+    listingIds: number[];
+    categoryId?: number;
+  };
+};
+
+export type ViewFavoritesAction = RecapActionBase & {
+  type: 'view_favorites';
+  target: {
+    listingIds?: number[];
+    categoryId?: number;
+  };
+};
+
+export type OpenRecommendationsAction = RecapActionBase & {
+  type: 'open_recommendations';
+  target: {
+    categoryId: number;
+  };
+};
+
+export type RecapAction =
+  | BoostListingsAction
+  | ViewFavoritesAction
+  | OpenRecommendationsAction;
 
 export type RecapDebug = {
   generatorVersion: string;

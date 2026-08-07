@@ -1,8 +1,7 @@
 import type { Recap } from '../../entities/recap/types';
-import { getApiErrorMessage } from '../../shared/api/apiError';
-import { useGenerateRecapMutation } from '../../shared/api/recapApi';
 
 import styles from './GenerateRecapButton.module.css';
+import { useGenerateRecap } from './model/useGenerateRecap';
 
 type GenerateRecapButtonProps = {
   userId: number;
@@ -15,43 +14,36 @@ export function GenerateRecapButton({
   year,
   onGenerated,
 }: GenerateRecapButtonProps) {
-  const [
+  const {
     generateRecap,
-    { isLoading, error, reset },
-  ] = useGenerateRecapMutation();
-
-
-  const handleClick = async () => {
-    reset(); 
-    try{
-      const recap = await generateRecap({ userId, year }).unwrap();
-      onGenerated(recap);
-    } 
-    catch {
-       // Ошибка уже находится в переменной error и показывается ниже.
-    }
-  }
+    isGenerating,
+    errorMessage,
+  } = useGenerateRecap({
+    userId,
+    year,
+    onGenerated,
+  });
 
   return (
     <div className={styles.wrapper}>
       <button
         className={styles.button}
         type="button"
-        onClick={handleClick}
-        disabled={isLoading}
+        onClick={generateRecap}
+        disabled={isGenerating}
       >
-        {isLoading && (
+        {isGenerating && (
           <span className={styles.spinner} aria-hidden="true" />
         )}
 
-        {isLoading
+        {isGenerating
           ? 'Генерируем итоги…'
           : 'Посмотреть итоги года'}
       </button>
 
-      {error && (
+      {errorMessage && (
         <p className={styles.error} role="alert">
-          {getApiErrorMessage(error)}
+          {errorMessage}
         </p>
       )}
     </div>

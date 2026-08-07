@@ -21,6 +21,226 @@
 
   backdrop-filter: blur(3px);
   overflow: hidden;
+
+  animation: overlayEnter 280ms ease-out;
+}
+
+@keyframes overlayEnter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fireworksLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.overlayFirework {
+  position: absolute;
+
+  width: 4px;
+  height: 4px;
+}
+
+.fireworkUpperLeft {
+  top: 22%;
+  left: 13%;
+
+  --firework-delay: 0ms;
+  --rocket-start-x: 37vw;
+  --rocket-start-y: 66vh;
+  --rocket-angle: -32deg;
+}
+
+.fireworkUpperRight {
+  top: 18%;
+  left: 87%;
+
+  --firework-delay: 280ms;
+  --rocket-start-x: -37vw;
+  --rocket-start-y: 70vh;
+  --rocket-angle: 32deg;
+}
+
+.fireworkLowerLeft {
+  top: 58%;
+  left: 8%;
+
+  --firework-delay: 620ms;
+  --rocket-start-x: 42vw;
+  --rocket-start-y: 30vh;
+  --rocket-angle: -48deg;
+}
+
+.fireworkLowerRight {
+  top: 54%;
+  left: 92%;
+
+  --firework-delay: 900ms;
+  --rocket-start-x: -42vw;
+  --rocket-start-y: 34vh;
+  --rocket-angle: 48deg;
+}
+
+.overlayFirework::before {
+  content: '';
+
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  width: 5px;
+  height: 18px;
+
+  border-radius: 999px;
+  background: white;
+  box-shadow:
+    0 0 8px 3px rgb(255 255 255 / 82%),
+    0 15px 14px 2px rgb(255 220 110 / 55%);
+
+  animation: overlayRocket 1.9s ease-out var(--firework-delay) both;
+}
+
+.overlayFirework i {
+  position: absolute;
+  left: 0;
+  top: 0;
+
+  display: block;
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 9px 3px currentColor;
+
+  opacity: 0;
+  transform: rotate(var(--particle-angle)) translateY(0);
+
+  animation: overlayBurst 1.9s ease-out var(--firework-delay) both;
+}
+
+.overlayFirework i:nth-child(3n + 1) {
+  color: #ffe99b;
+}
+
+.overlayFirework i:nth-child(3n + 2) {
+  color: #ff77bc;
+}
+
+.overlayFirework i:nth-child(3n) {
+  color: #85e9ff;
+}
+
+.overlayFirework i:nth-child(1) {
+  --particle-angle: 0deg;
+}
+
+.overlayFirework i:nth-child(2) {
+  --particle-angle: 30deg;
+}
+
+.overlayFirework i:nth-child(3) {
+  --particle-angle: 60deg;
+}
+
+.overlayFirework i:nth-child(4) {
+  --particle-angle: 90deg;
+}
+
+.overlayFirework i:nth-child(5) {
+  --particle-angle: 120deg;
+}
+
+.overlayFirework i:nth-child(6) {
+  --particle-angle: 150deg;
+}
+
+.overlayFirework i:nth-child(7) {
+  --particle-angle: 180deg;
+}
+
+.overlayFirework i:nth-child(8) {
+  --particle-angle: 210deg;
+}
+
+.overlayFirework i:nth-child(9) {
+  --particle-angle: 240deg;
+}
+
+.overlayFirework i:nth-child(10) {
+  --particle-angle: 270deg;
+}
+
+.overlayFirework i:nth-child(11) {
+  --particle-angle: 300deg;
+}
+
+.overlayFirework i:nth-child(12) {
+  --particle-angle: 330deg;
+}
+
+@keyframes overlayRocket {
+  0% {
+    opacity: 0;
+    transform:
+      translate(var(--rocket-start-x), var(--rocket-start-y))
+      rotate(var(--rocket-angle))
+      scale(0.65);
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  55% {
+    opacity: 1;
+    transform:
+      translate(0, 0)
+      rotate(var(--rocket-angle))
+      scale(1);
+  }
+
+  57%,
+  100% {
+    opacity: 0;
+    transform:
+      translate(0, 0)
+      rotate(var(--rocket-angle))
+      scale(0.3);
+  }
+}
+
+@keyframes overlayBurst {
+  0%,
+  55% {
+    opacity: 0;
+    transform: rotate(var(--particle-angle)) translateY(0) scale(0.25);
+  }
+
+  58% {
+    opacity: 1;
+    transform: rotate(var(--particle-angle)) translateY(-8px) scale(1);
+  }
+
+  83% {
+    opacity: 0.95;
+    transform: rotate(var(--particle-angle)) translateY(-78px) scale(0.85);
+  }
+
+  100% {
+    opacity: 0;
+    transform: rotate(var(--particle-angle)) translateY(-104px) scale(0.1);
+  }
 }
 
 .topBar {
@@ -64,6 +284,9 @@
 }
 
 .track {
+  position: relative;
+  z-index: 2;
+
   width: 100%;
   min-height: 0;
 
@@ -73,7 +296,7 @@
   align-items: center;
   gap: 18px;
 
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
 
   scroll-snap-type: x mandatory;
@@ -154,6 +377,16 @@
 
   .track::before,
   .track::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    animation: none;
+  }
+
+  .fireworksLayer {
     display: none;
   }
 }
