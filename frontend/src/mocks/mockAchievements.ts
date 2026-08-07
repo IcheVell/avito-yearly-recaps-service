@@ -3,8 +3,9 @@ import type {
   AchievementsResponse,
   EarnedAchievement,
 } from '../entities/achievement/types';
+import { mockProfiles } from './mockProfiles';
 
-const achievementCatalog: Achievement[] = [
+export const mockAchievementCatalog: Achievement[] = [
   {
     code: 'streak_survivor',
     name: 'Несгибаемый',
@@ -53,7 +54,35 @@ const earnedCodesByUserId: Record<number, string[]> = {
   1: ['shortlist_hoarder', 'diplomat'],
   2: ['wallet_whisperer', 'trust_badge'],
   3: ['streak_survivor', 'plot_twist'],
+  4: ['two_faced_market', 'trust_badge', 'diplomat'],
+  5: ['shortlist_hoarder', 'wallet_whisperer', 'plot_twist'],
+  6: ['streak_survivor', 'shortlist_hoarder', 'diplomat'],
+  7: [
+    'streak_survivor',
+    'two_faced_market',
+    'shortlist_hoarder',
+    'wallet_whisperer',
+    'trust_badge',
+    'diplomat',
+    'plot_twist',
+  ],
+  8: ['two_faced_market', 'wallet_whisperer'],
+  9: ['plot_twist', 'diplomat', 'streak_survivor', 'trust_badge'],
 };
+
+const allAchievementsUserId = 7;
+
+function getMockEarnedAt(userId: number, index: number): string {
+  if (userId === allAchievementsUserId) {
+    return new Date(
+      Date.UTC(mockProfiles.currentYear, 6 - index, 13 - index),
+    ).toISOString();
+  }
+
+  return new Date(
+    Date.UTC(mockProfiles.currentYear - 1, 11, 20 - index),
+  ).toISOString();
+}
 
 export function getMockAchievements(
   userId: number,
@@ -62,16 +91,14 @@ export function getMockAchievements(
     earnedCodesByUserId[userId] ?? [],
   );
 
-  const earned: EarnedAchievement[] = achievementCatalog
+  const earned: EarnedAchievement[] = mockAchievementCatalog
     .filter((achievement) => earnedCodes.has(achievement.code))
     .map((achievement, index) => ({
       ...achievement,
-      earnedAt: new Date(
-        Date.UTC(2025, 11, 20 - index),
-      ).toISOString(),
+      earnedAt: getMockEarnedAt(userId, index),
     }));
 
-  const locked = achievementCatalog.filter(
+  const locked = mockAchievementCatalog.filter(
     (achievement) => !earnedCodes.has(achievement.code),
   );
 
