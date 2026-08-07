@@ -420,6 +420,43 @@
   box-shadow: 0 12px 28px rgb(0 0 0 / 18%);
 }
 
+.achievementCard {
+  justify-content: flex-start;
+}
+
+.achievementVisual {
+  width: min(240px, 100%);
+  aspect-ratio: 1;
+  margin: auto;
+
+  display: grid;
+  place-items: center;
+}
+
+.achievementImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  filter: drop-shadow(0 12px 22px rgb(0 0 0 / 16%));
+}
+
+.achievementFallback {
+  margin: 0;
+}
+
+.achievementCopy {
+  margin-top: auto;
+
+  display: grid;
+  gap: 12px;
+}
+
+.achievementName {
+  font-size: clamp(28px, 2.8vw, 38px);
+}
+
 .actionTop {
   display: grid;
   gap: 32px;
