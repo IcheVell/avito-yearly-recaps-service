@@ -103,6 +103,7 @@ BE2 не пишет SQL.
 
   "role": {
     "code": "seller",
+    "name": "Продавец",
     "title": "В этом году ты крутой продавец!",
     "subtitle": "Ты продал 9 товаров.",
     "why": "67% активности — создание объявлений и продажа товаров",
@@ -142,12 +143,14 @@ BE2 не пишет SQL.
     {
       "code": "clean_sale",
       "name": "Чистая продажа",
-      "description": "У тебя есть завершённые продажи в этом году."
+      "description": "У тебя есть завершённые продажи в этом году.",
+      "imageUrl": "/static/achievements/clean-sale.png"
     },
     {
       "code": "diplomat",
       "name": "Дипломат",
-      "description": "Ты вёл много диалогов относительно просмотров."
+      "description": "Ты вёл много диалогов относительно просмотров.",
+      "imageUrl": "/static/achievements/diplomat.png"
     }
   ],
 
@@ -169,19 +172,21 @@ BE2 не пишет SQL.
 ```
 ## Блок 1 — `role`
 
-|           |                                                        |     |
-| --------- | ------------------------------------------------------ | --- |
-| `code`    | Когда                                                  |     |
-| `seller`  | доминируют listings + sells                            |     |
-| `buyer`   | доминируют buys (+ сильный поиск/избранное к покупкам) |     |
-| `watcher` | доминируют views/searches, мало сделок и сообщений     |     |
-|           |                                                        |     |
+| `code`    | `name`         | Когда                                                  |
+| --------- | -------------- | ------------------------------------------------------ |
+| `seller`  | `Продавец`     | доминируют listings + sells                            |
+| `buyer`   | `Покупатель`   | доминируют buys (+ сильный поиск/избранное к покупкам) |
+| `watcher` | `Наблюдатель`  | доминируют views/searches, мало сделок и сообщений     |
+
+Поля блока: `code`, `name`, `title`, `subtitle`, `why`, `activitySharePercent`.
+`name` — короткое человекочитаемое название роли (не путать с `title`).
 
 ## Блок 2 — `metrics[]`
 Ровно **3** элемента.  
 `selector` выбирает случайно среди **доступных** типов.
 ## Блок 3 — `achievements[]`
-0…3 элемента.
+0…3 элемента.  
+Поля: `code`, `name`, `description`, `imageUrl`.
 ## Блок 4 — `action`
 Ровно **одно** действие.
 Действия обговорим позже
@@ -204,12 +209,12 @@ Base URL (в браузере):
     {
       "id": 1,
       "username": "seller_anna",
-      "imageUrl": "https://..."
+      "imageUrl": "/static/users/seller_anna.png"
     },
     {
       "id": 2,
       "username": "buyer_igor",
-      "imageUrl": "https://..."
+      "imageUrl": "/static/users/buyer_igor.png"
     }
   ]
 }
@@ -239,6 +244,7 @@ Base URL (в браузере):
 
   "role": {
     "code": "seller",
+    "name": "Продавец",
     "title": "В этом году ты крутой продавец!",
     "subtitle": "Ты продал 9 товаров.",
     "why": "67% активности — создание объявлений и продажа товаров",
@@ -278,12 +284,14 @@ Base URL (в браузере):
     {
       "code": "clean_sale",
       "name": "Чистая продажа",
-      "description": "У тебя есть завершённые продажи в этом году."
+      "description": "У тебя есть завершённые продажи в этом году.",
+      "imageUrl": "/static/achievements/clean-sale.png"
     },
     {
       "code": "diplomat",
       "name": "Дипломат",
-      "description": "Ты вёл много диалогов относительно просмотров."
+      "description": "Ты вёл много диалогов относительно просмотров.",
+      "imageUrl": "/static/achievements/diplomat.png"
     }
   ],
 
@@ -318,30 +326,42 @@ GET /api/users/1/recap
 Если recap пользователя за активный год ещё не был сгенерирован, возвращается `404 Not Found`.
 
 ### 4) `GET /api/users/{userId}/achievements`
-Получить все ачивки пользователя, включая ачивки, полученные в прошлые годы.
+Получить каталог ачивок пользователя: полученные (включая прошлые годы) и ещё не полученные.
 #### Path params
 - `userId` (`int64`)
 #### Response `200`
 ```
 {
-  "items": [
+  "earned": [
     {
-      "code": "streak_survivor",
-      "name": "Несгибаемый",
-      "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
-      "earnedAt": "2025-08-12T12:00:00Z"
+      "code": "diplomat",
+      "name": "Дипломат",
+      "description": "Кажется ты перепутал Avito с мессенджером.",
+      "earnedAt": "2025-12-20T12:00:00Z",
+      "imageUrl": "/static/achievements/diplomat.png"
     },
     {
       "code": "plot_twist",
       "name": "Неожиданный поворот",
       "description": "После паузы ты вернулся на площадку — сюжет года сделал виток.",
-      "earnedAt": "2023-10-05T12:00:00Z"
+      "earnedAt": "2023-05-18T12:00:00Z",
+      "imageUrl": "/static/achievements/plot-twist.png"
+    }
+  ],
+  "locked": [
+    {
+      "code": "streak_survivor",
+      "name": "Несгибаемый",
+      "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
+      "imageUrl": "/static/achievements/streak-survivor.png"
     }
   ]
 }
 ```
-Ачивки сортируются по `earnedAt` от новых к старым.
-Если у пользователя нет ачивок, возвращается пустой массив `items`.
+- `earned` — ачивки пользователя; сортируются по `earnedAt` от новых к старым; у каждого элемента есть `imageUrl`.
+- `locked` — ачивки из общего каталога, которых у пользователя ещё нет; без `earnedAt`; у каждого элемента есть `imageUrl`.
+- Если у пользователя нет полученных ачивок, `earned` = `[]`.
+- Если получены все ачивки каталога, `locked` = `[]`.
 
 ### 5) `GET /api/users/{userId}/stats`
 Получить все агрегированные статы пользователя за активный год.
@@ -355,7 +375,46 @@ GET /api/users/1/stats
 #### Response `200`
 Тело ответа = Contract A `YearMetrics` для указанного пользователя и активного года.
 
-### 6) `GET /api/health`
+### 6) `GET /static/{path}`
+Получить статический файл изображения. Роут находится вне `/api` и используется браузером для загрузки картинок по значению `imageUrl`.
+
+В MVP через `/static` раздаются:
+
+- `/static/achievements/{filename}` — изображения ачивок;
+- `/static/users/{filename}` — аватарки пользователей.
+
+#### Examples
+```text
+GET /static/achievements/diplomat.png
+GET /static/users/seller_anna.png
+```
+
+#### Response `200`
+В ответ возвращается файл изображения с соответствующим `Content-Type`, например:
+
+```text
+Content-Type: image/png
+```
+
+В JSON-ответах backend поле `imageUrl` содержит HTTP-путь к нужному файлу, например:
+
+```json
+{
+  "imageUrl": "/static/achievements/diplomat.png"
+}
+```
+
+или для аватарки пользователя:
+
+```json
+{
+  "imageUrl": "/static/users/seller_anna.png"
+}
+```
+
+Если файл не найден, возвращается `404 Not Found`.
+
+### 7) `GET /api/health`
 Проверка живости сервиса.
 #### Response `200`
 ```
