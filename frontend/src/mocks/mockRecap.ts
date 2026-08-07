@@ -1,4 +1,5 @@
 import type { Recap } from '../entities/recap/types';
+import { mockProfiles } from './mockProfiles';
 
 
 export const mockRecap: Recap = {
@@ -54,11 +55,13 @@ export const mockRecap: Recap = {
       code: 'clean_sale',
       name: 'Чистая продажа',
       description: 'У тебя есть завершённые продажи в этом году.',
+      imageUrl: '',
     },
     {
       code: 'diplomat',
       name: 'Дипломат',
       description: 'Ты вёл много диалогов относительно просмотров.',
+      imageUrl: '',
     },
   ],
 
@@ -131,11 +134,13 @@ const buyerMockRecap: Recap = {
       code: 'smart_choice',
       name: 'Умный выбор',
       description: 'Ты сравнил десятки вариантов и нашёл свой.',
+      imageUrl: '',
     },
     {
       code: 'quick_deal',
       name: 'Быстрая сделка',
       description: 'Одна из твоих покупок состоялась в день первого сообщения.',
+      imageUrl: '',
     },
   ],
 
@@ -217,16 +222,19 @@ const watcherMockRecap: Recap = {
       code: 'collector',
       name: 'Коллекционер',
       description: 'Твоё избранное похоже на настоящую коллекцию.',
+      imageUrl: '',
     },
     {
       code: 'regular',
       name: 'Завсегдатай',
       description: 'Ты возвращалась на Avito чаще, чем через день.',
+      imageUrl: '',
     },
     {
       code: 'wide_horizon',
       name: 'Широкий кругозор',
       description: 'В твоих поисках было больше десяти разных категорий.',
+      imageUrl: '',
     },
   ],
 
@@ -253,7 +261,6 @@ export const mockRecaps: Recap[] = [
 
 export function getMockRecap(
   userId: number,
-  year: number,
 ): Recap {
   const recap =
     mockRecaps.find((item) => item.userId === userId) ??
@@ -262,7 +269,7 @@ export function getMockRecap(
   return {
     ...recap,
     userId,
-    year,
+    year: mockProfiles.currentYear,
   };
 }
 

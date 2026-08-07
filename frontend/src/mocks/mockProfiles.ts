@@ -1,6 +1,7 @@
 import type { ProfilesResponse } from '../entities/profile/types';
 
 export const mockProfiles: ProfilesResponse = {
+  currentYear: 2026,
   items: [
     {
       id: 1,

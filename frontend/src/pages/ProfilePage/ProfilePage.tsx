@@ -4,6 +4,7 @@ import logoSrc from '../../assets/logo.svg.webp';
 import type { Profile } from '../../entities/profile/types';
 import type { Recap } from '../../entities/recap/types';
 import { GenerateRecapButton } from '../../features/generate-recap/GenerateRecapButton';
+import { useGetAchievementsQuery } from '../../shared/api/achievementsApi';
 import { getApiErrorMessage } from '../../shared/api/apiError';
 import { useGetProfilesQuery } from '../../shared/api/profilesApi';
 import { ErrorMessage } from '../../shared/ui/ErrorMessage/ErrorMessage';
@@ -11,14 +12,17 @@ import { Loader } from '../../shared/ui/Loader/Loader';
 import { RecapOverlay } from '../../widgets/RecapOverlay/RecapOverlay';
 
 import styles from './ProfilePage.module.css';
-
-const RECAP_YEAR = 2026;
-
+import {
+  ProfileTabs,
+  type ProfileTab,
+} from './ProfileTabs';
 
 export function ProfilePage() {
   const [selectedProfileId, setSelectedProfileId] =
     useState<number | null>(null);
-  const [recap, setRecap] = useState<Recap | null>(null);
+  const [activeTab, setActiveTab] =
+    useState<ProfileTab>('statistics');
+  const [openRecap, setOpenRecap] = useState<Recap | null>(null);
 
   const {
     data,
@@ -32,6 +36,18 @@ export function ProfilePage() {
     data?.items.find(
       (profile) => profile.id === selectedProfileId,
     ) ?? data?.items[0];
+
+  const shouldLoadAchievements =
+    activeTab === 'achievements' && selectedProfile !== undefined;
+
+  const {
+    data: achievementsData,
+    isFetching: isAchievementsLoading,
+    error: achievementsError,
+    refetch: refetchAchievements,
+  } = useGetAchievementsQuery(selectedProfile?.id ?? 0, {
+    skip: !shouldLoadAchievements,
+  });
 
   return (
     <>
@@ -116,31 +132,37 @@ export function ProfilePage() {
                 <div>
                   <p className={styles.eyebrow}>Текущий профиль</p>
                   <h2>{selectedProfile.username}</h2>
-                  <p>
-                    Итоги за {RECAP_YEAR} год.
-                  </p>
 
                   <GenerateRecapButton
                     userId={selectedProfile.id}
-                    year={RECAP_YEAR}
-                    onGenerated={setRecap}
+                    onGenerated={setOpenRecap}
                   />
                 </div>
               </div>
             )}
 
-            <div
-              className={styles.emptyPanel}
-              aria-label="Область содержимого"
-            />
+            <div className={styles.profileContentPanel}>
+              <ProfileTabs
+                activeTab={activeTab}
+                achievements={achievementsData?.earned ?? null}
+                isAchievementsLoading={isAchievementsLoading}
+                achievementsErrorMessage={
+                  achievementsError
+                    ? getApiErrorMessage(achievementsError)
+                    : null
+                }
+                onTabChange={setActiveTab}
+                onRetryAchievements={refetchAchievements}
+              />
+            </div>
           </section>
         </div>
       </main>
 
-      {recap && (
+      {openRecap && (
         <RecapOverlay
-          recap={recap}
-          onClose={() => setRecap(null)}
+          recap={openRecap}
+          onClose={() => setOpenRecap(null)}
         />
       )}
     </>

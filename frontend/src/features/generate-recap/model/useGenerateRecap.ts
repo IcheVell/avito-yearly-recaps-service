@@ -6,7 +6,6 @@ import { useGenerateRecapMutation } from '../../../shared/api/recapApi';
 
 type UseGenerateRecapOptions = {
   userId: number;
-  year: number;
   onGenerated: (recap: Recap) => void;
 };
 
@@ -18,7 +17,6 @@ type UseGenerateRecapResult = {
 
 export function useGenerateRecap({
   userId,
-  year,
   onGenerated,
 }: UseGenerateRecapOptions): UseGenerateRecapResult {
   const [triggerGenerateRecap, { isLoading, error, reset }] =
@@ -30,14 +28,13 @@ export function useGenerateRecap({
     try {
       const recap = await triggerGenerateRecap({
         userId,
-        year,
       }).unwrap();
 
       onGenerated(recap);
     } catch {
       // RTK Query сохраняет ошибку mutation в `error`.
     }
-  }, [onGenerated, reset, triggerGenerateRecap, userId, year]);
+  }, [onGenerated, reset, triggerGenerateRecap, userId]);
 
   return {
     generateRecap,

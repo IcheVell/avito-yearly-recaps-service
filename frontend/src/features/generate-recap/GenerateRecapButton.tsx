@@ -5,13 +5,11 @@ import { useGenerateRecap } from './model/useGenerateRecap';
 
 type GenerateRecapButtonProps = {
   userId: number;
-  year: number;
   onGenerated: (recap: Recap) => void;
 };
 
 export function GenerateRecapButton({
   userId,
-  year,
   onGenerated,
 }: GenerateRecapButtonProps) {
   const {
@@ -20,7 +18,6 @@ export function GenerateRecapButton({
     errorMessage,
   } = useGenerateRecap({
     userId,
-    year,
     onGenerated,
   });
 
