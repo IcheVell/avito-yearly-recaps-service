@@ -26,13 +26,14 @@ const (
 func ResolveRole(metrics domain.YearMetrics) (domain.RecapRole, error) {
 	role, percent := chooseCode(metrics)
 
-	title, subtitle, why, err := chooseText(role, percent, metrics)
+	title, subtitle, why, name, err := chooseText(role, percent, metrics)
 	if err != nil {
 		return domain.RecapRole{}, err
 	}
 
 	return domain.RecapRole{
 		Code:                 role,
+		Name:                 name,
 		Title:                title,
 		Subtitle:             subtitle,
 		Why:                  why,
@@ -40,20 +41,20 @@ func ResolveRole(metrics domain.YearMetrics) (domain.RecapRole, error) {
 	}, nil
 }
 
-func chooseText(role string, percent int64, metrics domain.YearMetrics) (string, string, string, error) {
+func chooseText(role string, percent int64, metrics domain.YearMetrics) (string, string, string, string, error) {
 	roleStats, err := loadRoleCopies()
 	if err != nil {
-		return "", "", "", err
+		return "", "", "", "", err
 	}
 
 	stats, ok := roleStats[role]
 	if !ok {
-		return "", "", "", errors.New("role does not exist in json file")
+		return "", "", "", "", errors.New("role does not exist in json file")
 	}
 
 	titlesNum := len(stats.Titles)
 	if titlesNum == 0 {
-		return "", "", "", errors.New("role has no titles")
+		return "", "", "", "", errors.New("role has no titles")
 	}
 
 	randomIndex := rand.IntN(titlesNum)
@@ -73,7 +74,7 @@ func chooseText(role string, percent int64, metrics domain.YearMetrics) (string,
 	subtitle := fmt.Sprintf(stats.Subtitle, metric)
 	why := fmt.Sprintf(stats.Why, percent)
 
-	return title, subtitle, why, nil
+	return title, subtitle, why, stats.Name, nil
 }
 
 func chooseCode(metrics domain.YearMetrics) (string, int64) {
@@ -100,6 +101,7 @@ func chooseCode(metrics domain.YearMetrics) (string, int64) {
 }
 
 type roleStats struct {
+	Name     string   `json:"name"`
 	Titles   []string `json:"titles"`
 	Subtitle string   `json:"subtitle"`
 	Why      string   `json:"why"`

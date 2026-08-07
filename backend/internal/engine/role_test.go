@@ -8,12 +8,14 @@ import (
 func TestResolveRole(t *testing.T) {
 	tests := []struct {
 		name        string
+		wantName    string
 		in          domain.YearMetrics
 		wantCode    string
 		wantPercent *int // nil = любой в 1..100
 	}{
 		{
-			name: "seller",
+			name:     "seller",
+			wantName: "Продавец",
 			in: domain.YearMetrics{
 				ListingsCreatedCount: 20,
 				SellsCount:           15,
@@ -25,7 +27,8 @@ func TestResolveRole(t *testing.T) {
 			wantCode: seller,
 		},
 		{
-			name: "buyer",
+			name:     "buyer",
+			wantName: "Покупатель",
 			in: domain.YearMetrics{
 				ListingsCreatedCount: 3,
 				SellsCount:           2,
@@ -37,7 +40,8 @@ func TestResolveRole(t *testing.T) {
 			wantCode: buyer,
 		},
 		{
-			name: "watcher",
+			name:     "watcher",
+			wantName: "Наблюдатель",
 			in: domain.YearMetrics{
 				ViewsCount:    500,
 				SearchesCount: 100,
@@ -47,6 +51,7 @@ func TestResolveRole(t *testing.T) {
 		{
 			name:        "all zeros",
 			in:          domain.YearMetrics{},
+			wantName:    "Наблюдатель",
 			wantCode:    watcher,
 			wantPercent: intPtr(100),
 		},
@@ -57,6 +62,10 @@ func TestResolveRole(t *testing.T) {
 			role, err := ResolveRole(tt.in)
 			if err != nil {
 				t.Fatalf("ResolveRole() error = %v", err)
+			}
+
+			if role.Name != tt.wantName {
+				t.Errorf("ResolveRole().Name = %v, want %v", role.Name, tt.wantName)
 			}
 
 			if role.Code != tt.wantCode {
