@@ -16,7 +16,7 @@ export const recapApi = baseApi.injectEndpoints({
           await wait(1_200);
 
           return {
-            data: getMockRecap(request.userId, request.year),
+            data: getMockRecap(request.userId),
           };
         }
 

@@ -1,4 +1,5 @@
 import type { Recap } from '../entities/recap/types';
+import { mockProfiles } from './mockProfiles';
 
 
 export const mockRecap: Recap = {
@@ -260,7 +261,6 @@ export const mockRecaps: Recap[] = [
 
 export function getMockRecap(
   userId: number,
-  year: number,
 ): Recap {
   const recap =
     mockRecaps.find((item) => item.userId === userId) ??
@@ -269,7 +269,7 @@ export function getMockRecap(
   return {
     ...recap,
     userId,
-    year,
+    year: mockProfiles.currentYear,
   };
 }
 

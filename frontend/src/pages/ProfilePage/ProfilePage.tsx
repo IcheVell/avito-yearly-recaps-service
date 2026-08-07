@@ -17,8 +17,6 @@ import {
   type ProfileTab,
 } from './ProfileTabs';
 
-const RECAP_YEAR = 2026;
-
 export function ProfilePage() {
   const [selectedProfileId, setSelectedProfileId] =
     useState<number | null>(null);
@@ -137,7 +135,6 @@ export function ProfilePage() {
 
                   <GenerateRecapButton
                     userId={selectedProfile.id}
-                    year={RECAP_YEAR}
                     onGenerated={setOpenRecap}
                   />
                 </div>

@@ -71,5 +71,4 @@ export type Recap = {
 
 export type GenerateRecapRequest = {
   userId: number;
-  year: number;
 };

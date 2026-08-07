@@ -5,5 +5,6 @@ export type Profile = {
 };
 
 export type ProfilesResponse = {
+  currentYear: number;
   items: Profile[];
 };
