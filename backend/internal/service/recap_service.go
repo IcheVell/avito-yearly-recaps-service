@@ -27,7 +27,7 @@ type RecapRepository interface {
 	ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error)
 }
 
-const recapMetricsLimit = 3
+const recapMetricsLimit = 4
 
 type RecapService struct {
 	users   UserRepository
