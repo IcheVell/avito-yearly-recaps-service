@@ -3,7 +3,10 @@ import { wait } from '../lib/wait';
 import type { GenerateRecapRequest, Recap } from '../../entities/recap/types';
 
 import { baseApi } from './baseApi';
-import { getMockRecap } from '../../mocks/mockRecap';
+import {
+  generateMockRecap,
+  getMockRecap,
+} from '../../mocks/mockRecap';
 
 export const recapApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,7 +16,7 @@ export const recapApi = baseApi.injectEndpoints({
           await wait(1_200);
 
           return {
-            data: getMockRecap(request.userId),
+            data: generateMockRecap(request.userId),
           };
         }
 
@@ -39,7 +42,26 @@ export const recapApi = baseApi.injectEndpoints({
       async queryFn(userId, _api, _extraOptions, fetchWithBQ) {
         if (env.useMocks) {
           await wait(400);
-          return { data: getMockRecap(userId) };
+          const recap = getMockRecap(userId);
+
+          if (!recap) {
+            return {
+              error: {
+                status: 404,
+                data: {
+                  error: {
+                    code: 'NOT_FOUND',
+                    message: 'Итоги пользователя ещё не сгенерированы.',
+                    details: {
+                      field: 'userId',
+                    },
+                  },
+                },
+              },
+            };
+          }
+
+          return { data: recap };
         }
 
         const result = await fetchWithBQ(`/users/${userId}/recap`);
