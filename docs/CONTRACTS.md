@@ -144,13 +144,13 @@ BE2 не пишет SQL.
       "code": "clean_sale",
       "name": "Чистая продажа",
       "description": "У тебя есть завершённые продажи в этом году.",
-      "imageUrl": "https://images.example.test/achievements/clean-sale.png"
+      "imageUrl": "/static/achievements/clean-sale.png"
     },
     {
       "code": "diplomat",
       "name": "Дипломат",
       "description": "Ты вёл много диалогов относительно просмотров.",
-      "imageUrl": "https://images.example.test/achievements/diplomat.png"
+      "imageUrl": "/static/achievements/diplomat.png"
     }
   ],
 
@@ -209,12 +209,12 @@ Base URL (в браузере):
     {
       "id": 1,
       "username": "seller_anna",
-      "imageUrl": "https://..."
+      "imageUrl": "/static/users/seller_anna.png"
     },
     {
       "id": 2,
       "username": "buyer_igor",
-      "imageUrl": "https://..."
+      "imageUrl": "/static/users/buyer_igor.png"
     }
   ]
 }
@@ -285,13 +285,13 @@ Base URL (в браузере):
       "code": "clean_sale",
       "name": "Чистая продажа",
       "description": "У тебя есть завершённые продажи в этом году.",
-      "imageUrl": "https://images.example.test/achievements/clean-sale.png"
+      "imageUrl": "/static/achievements/clean-sale.png"
     },
     {
       "code": "diplomat",
       "name": "Дипломат",
       "description": "Ты вёл много диалогов относительно просмотров.",
-      "imageUrl": "https://images.example.test/achievements/diplomat.png"
+      "imageUrl": "/static/achievements/diplomat.png"
     }
   ],
 
@@ -338,14 +338,14 @@ GET /api/users/1/recap
       "name": "Дипломат",
       "description": "Кажется ты перепутал Avito с мессенджером.",
       "earnedAt": "2025-12-20T12:00:00Z",
-      "imageUrl": "https://images.example.test/achievements/diplomat.png"
+      "imageUrl": "/static/achievements/diplomat.png"
     },
     {
       "code": "plot_twist",
       "name": "Неожиданный поворот",
       "description": "После паузы ты вернулся на площадку — сюжет года сделал виток.",
       "earnedAt": "2023-05-18T12:00:00Z",
-      "imageUrl": "https://images.example.test/achievements/plot-twist.png"
+      "imageUrl": "/static/achievements/plot-twist.png"
     }
   ],
   "locked": [
@@ -353,7 +353,7 @@ GET /api/users/1/recap
       "code": "streak_survivor",
       "name": "Несгибаемый",
       "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
-      "imageUrl": "https://images.example.test/achievements/streak-survivor.png"
+      "imageUrl": "/static/achievements/streak-survivor.png"
     }
   ]
 }
@@ -375,7 +375,46 @@ GET /api/users/1/stats
 #### Response `200`
 Тело ответа = Contract A `YearMetrics` для указанного пользователя и активного года.
 
-### 6) `GET /api/health`
+### 6) `GET /static/{path}`
+Получить статический файл изображения. Роут находится вне `/api` и используется браузером для загрузки картинок по значению `imageUrl`.
+
+В MVP через `/static` раздаются:
+
+- `/static/achievements/{filename}` — изображения ачивок;
+- `/static/users/{filename}` — аватарки пользователей.
+
+#### Examples
+```text
+GET /static/achievements/diplomat.png
+GET /static/users/seller_anna.png
+```
+
+#### Response `200`
+В ответ возвращается файл изображения с соответствующим `Content-Type`, например:
+
+```text
+Content-Type: image/png
+```
+
+В JSON-ответах backend поле `imageUrl` содержит HTTP-путь к нужному файлу, например:
+
+```json
+{
+  "imageUrl": "/static/achievements/diplomat.png"
+}
+```
+
+или для аватарки пользователя:
+
+```json
+{
+  "imageUrl": "/static/users/seller_anna.png"
+}
+```
+
+Если файл не найден, возвращается `404 Not Found`.
+
+### 7) `GET /api/health`
 Проверка живости сервиса.
 #### Response `200`
 ```
