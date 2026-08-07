@@ -9,7 +9,8 @@ export const mockRecap: Recap = {
 
   role: {
     code: 'seller',
-    title: 'В этом году ты крутой продавец!',
+    name: 'Продавец',
+    title: 'Продавец!',
     subtitle: 'Ты продал 9 товаров.',
     why: '67% активности — создание объявлений и продажа товаров',
     activitySharePercent: 67,
@@ -85,6 +86,7 @@ const buyerMockRecap: Recap = {
 
   role: {
     code: 'bargain_hunter',
+    name: 'Охотник за выгодой',
     title: 'Охотник за выгодой',
     subtitle: 'Ты знаешь, как найти лучшее предложение.',
     why: '78% активности — поиск, сравнение и покупки',
@@ -105,7 +107,7 @@ const buyerMockRecap: Recap = {
       type: 'searches_count',
       title: 'Поисковый азарт',
       text: 'Ты точно знаешь, что хорошая находка требует терпения.',
-      highlights: ['384'],
+      highlights: ['384 раз'],
       payload: {
         searchesCount: 384,
       },
@@ -113,7 +115,7 @@ const buyerMockRecap: Recap = {
     {
       type: 'most_viewed_listing',
       title: 'Товар, к которому ты возвращался',
-      text: 'Эта PlayStation 5 не выходила у тебя из головы.',
+      text: 'Эта вещь не выходила у тебя из головы.',
       highlights: ['PlayStation 5'],
       payload: {
         listingId: 7,
@@ -161,6 +163,7 @@ const watcherMockRecap: Recap = {
 
   role: {
     code: 'explorer',
+    name: 'Неутомимый исследователь',
     title: 'Неутомимый исследователь',
     subtitle: 'Ты всегда в курсе, что нового появилось на Avito.',
     why: '86% активности — просмотры и избранное',
@@ -189,7 +192,7 @@ const watcherMockRecap: Recap = {
     {
       type: 'max_streak_days',
       title: 'Максимальный стрик',
-      text: 'Целый месяц без единого дня без новых находок.',
+      text: ' Без единого дня без новых находок.',
       highlights: ['31 день'],
       payload: {
         maxStreakDays: 31,
@@ -198,7 +201,7 @@ const watcherMockRecap: Recap = {
     {
       type: 'most_viewed_listing',
       title: 'Товар, к которому ты возвращалась',
-      text: 'Этот велосипед ты просматривала чаще всего.',
+      text: 'Эту вещь ты просматривала чаще всего.',
       highlights: ['42 раза'],
       payload: {
         listingId: 15,

@@ -1,9 +1,10 @@
-import type {CardVariant} from './cardVariants';
-import {getPayloadString} from './payloadHelper';
-import type {RecapMetric} from './types';
-import styles from './RecapCard.module.css';
-import logoSrc from '../../assets/logo.svg.webp';
+import type { CardVariant } from './cardVariants';
+import { getPayloadString } from './payloadHelper';
+import { RecapCardHeader } from './RecapCardHeader';
+import { RecapCardShell } from './RecapCardShell';
+import type { RecapMetric } from './types';
 
+import styles from './RecapCard.module.css';
 
 type MetricCardProps = {
   metric: RecapMetric;
@@ -16,21 +17,17 @@ export function MetricCard({
   variant,
   isActive,
 }: MetricCardProps) {
-
   const mainHighlight = metric.highlights[0] ?? '—';
   const isLongValue = mainHighlight.length > 11;
 
   const imageUrl = getPayloadString(metric.payload, 'imageUrl');
+
   return (
-    <article
-      className={`${styles.card} ${styles[variant]} ${
-        isActive ? styles.cardActive : styles.cardInactive
-      }`}
+    <RecapCardShell
+      variant={variant}
+      isActive={isActive}
     >
-      <header className={styles.header}>
-        <img src={logoSrc} alt="Avito" className={styles.logoImage} />
-        <h2 className={styles.title}>{metric.title}</h2>
-      </header>
+      <RecapCardHeader title={metric.title} />
 
       {imageUrl && (
         <img
@@ -49,6 +46,6 @@ export function MetricCard({
       </strong>
 
       <p className={styles.text}>{metric.text}</p>
-    </article>
+    </RecapCardShell>
   );
 }

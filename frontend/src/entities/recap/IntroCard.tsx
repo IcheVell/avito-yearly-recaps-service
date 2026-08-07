@@ -1,4 +1,5 @@
 import type { CardVariant } from './cardVariants';
+import { RecapCardShell } from './RecapCardShell';
 
 import styles from './RecapCard.module.css';
 
@@ -14,12 +15,10 @@ export function IntroCard({
   isActive,
 }: IntroCardProps) {
   return (
-    <article
-      className={`${styles.card} ${styles.introCard} ${
-        styles[variant]
-      } ${
-        isActive ? styles.cardActive : styles.cardInactive
-      }`}
+    <RecapCardShell
+      variant={variant}
+      isActive={isActive}
+      className={styles.introCard}
     >
       <div className={styles.introDecor} aria-hidden="true">
         <span className={styles.snowflakeTop}>❄</span>
@@ -42,6 +41,6 @@ export function IntroCard({
       <p className={styles.introThanks}>
         Спасибо, что был с нами
       </p>
-    </article>
+    </RecapCardShell>
   );
 }

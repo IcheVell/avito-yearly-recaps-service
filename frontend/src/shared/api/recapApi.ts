@@ -1,4 +1,5 @@
 import { env } from '../config/env.ts';
+import { wait } from '../lib/wait';
 import type {  GenerateRecapRequest, Recap} from '../../entities/recap/types';
 
 import { baseApi } from './baseApi';
@@ -6,14 +7,6 @@ import {
   getMockRecap,
   getMockRecapById,
 } from '../../mocks/mockRecap';
-
-
-function wait(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, milliseconds);
-  });
-}
-
 
 export const recapApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

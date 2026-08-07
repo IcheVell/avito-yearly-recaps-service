@@ -1,6 +1,7 @@
 import type { CardVariant } from './cardVariants';
+import { RecapCardHeader } from './RecapCardHeader';
+import { RecapCardShell } from './RecapCardShell';
 import type { RecapAction } from './types';
-import logoSrc from '../../assets/logo.svg.webp';
 
 import styles from './RecapCard.module.css';
 
@@ -11,7 +12,6 @@ type ActionCardProps = {
   onAction?: (action: RecapAction) => void;
 };
 
-
 export function ActionCard({
   action,
   variant,
@@ -19,24 +19,15 @@ export function ActionCard({
   onAction,
 }: ActionCardProps) {
   return (
-    <article
-      className={`${styles.card} ${styles[variant]} ${
-        isActive ? styles.cardActive : styles.cardInactive
-      }`}
+    <RecapCardShell
+      variant={variant}
+      isActive={isActive}
     >
-      <header className={styles.header}>
-        <img
-          src={logoSrc}
-          alt="Avito"
-          className={styles.logoImage}
-        />
+      <div className={styles.actionTop}>
+        <RecapCardHeader title="Что попробовать дальше" />
 
-        <h2 className={styles.title}>Что попробовать дальше</h2>
-      </header>
-
-      <span className={styles.badge}>{action.label}</span>
-
-      <p className={styles.text}>{action.reason}</p>
+        <p className={styles.text}>{action.reason}</p>
+      </div>
 
       <button
         className={styles.actionButton}
@@ -46,6 +37,6 @@ export function ActionCard({
       >
         {action.label}
       </button>
-    </article>
+    </RecapCardShell>
   );
 }

@@ -1,6 +1,7 @@
 import type { CardVariant } from './cardVariants';
+import { RecapCardHeader } from './RecapCardHeader';
+import { RecapCardShell } from './RecapCardShell';
 import type { Achievement } from './types';
-import logoSrc from '../../assets/logo.svg.webp';
 
 import styles from './RecapCard.module.css';
 
@@ -10,27 +11,17 @@ type AchievementCardProps = {
   isActive: boolean;
 };
 
-
 export function AchievementCard({
   achievement,
   variant,
   isActive,
 }: AchievementCardProps) {
   return (
-    <article
-      className={`${styles.card} ${styles[variant]} ${
-        isActive ? styles.cardActive : styles.cardInactive
-      }`}
+    <RecapCardShell
+      variant={variant}
+      isActive={isActive}
     >
-      <header className={styles.header}>
-        <img
-          src={logoSrc}
-          alt="Avito"
-          className={styles.logoImage}
-        />
-
-        <h2 className={styles.title}>Достижение</h2>
-      </header>
+      <RecapCardHeader title="Достижение" />
 
       <strong className={styles.value} aria-hidden="true">
         ★
@@ -40,6 +31,6 @@ export function AchievementCard({
         <p className={styles.text}>{achievement.name}</p>
         <p className={styles.text}>{achievement.description}</p>
       </div>
-    </article>
+    </RecapCardShell>
   );
 }
