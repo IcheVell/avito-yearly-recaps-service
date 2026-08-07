@@ -24,6 +24,7 @@ type RecapResponse struct {
 
 type RecapRoleResponse struct {
 	Code                 string `json:"code"`
+	Name                 string `json:"name"`
 	Title                string `json:"title"`
 	Subtitle             string `json:"subtitle"`
 	Why                  string `json:"why"`
@@ -69,6 +70,7 @@ func NewRecapResponse(recap domain.Recap) RecapResponse {
 		CreatedAt: recap.CreatedAt,
 		Role: RecapRoleResponse{
 			Code:                 recap.Role.Code,
+			Name:                 recap.Role.Name,
 			Title:                recap.Role.Title,
 			Subtitle:             recap.Role.Subtitle,
 			Why:                  recap.Role.Why,

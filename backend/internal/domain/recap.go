@@ -16,6 +16,7 @@ type Recap struct {
 
 type RecapRole struct {
 	Code                 string `json:"code"`
+	Name                 string `json:"name"`
 	Title                string `json:"title"`
 	Subtitle             string `json:"subtitle"`
 	Why                  string `json:"why"`
