@@ -55,13 +55,13 @@ export const mockRecap: Recap = {
       code: 'shortlist_hoarder',
       name: 'Коллекционер',
       description: 'Много в избранном',
-      imageUrl: '',
+      imageUrl: '/mock-achievements/shortlist_boarder.png',
     },
     {
       code: 'diplomat',
       name: 'Дипломат',
       description: 'Много собеседников',
-      imageUrl: '',
+      imageUrl: '/mock-achievements/diplomat.png',
     },
   ],
 
@@ -134,13 +134,13 @@ const buyerMockRecap: Recap = {
       code: 'wallet_whisperer',
       name: 'Шепот кошелька',
       description: 'Много потратил как покупатель',
-      imageUrl: '',
+      imageUrl: '/mock-achievements/wallet_whisperer.png',
     },
     {
       code: 'trust_badge',
       name: 'Знак доверия',
       description: 'Высокий рейтинг',
-      imageUrl: '',
+      imageUrl: '/mock-achievements/trust_badge.png',
     },
   ],
 
@@ -220,13 +220,13 @@ const watcherMockRecap: Recap = {
       code: 'streak_survivor',
       name: 'Несгибаемый',
       description: 'Длинная серия заходов',
-      imageUrl: '',
+      imageUrl: '/mock-achievements/streak_survivor.png',
     },
     {
       code: 'plot_twist',
       name: 'Неожиданный поворот',
       description: 'Вернулся после паузы',
-      imageUrl: '',
+      imageUrl: '/mock-achievements/plot_twist.png',
     },
   ],
 
@@ -249,13 +249,7 @@ export const mockRecaps: Recap[] = [
   watcherMockRecap,
 ];
 
-export function getMockRecap(
-  userId: number,
-): Recap {
-  const recap =
-    mockRecaps.find((item) => item.userId === userId) ??
-    mockRecap;
-
+function prepareMockRecap(recap: Recap, userId: number): Recap {
   return {
     ...recap,
     userId,
@@ -263,11 +257,28 @@ export function getMockRecap(
   };
 }
 
-export function getMockRecapById(recapId: number): Recap {
-  return (
-    mockRecaps.find((item) => item.id === recapId) ?? {
+const mockRecapStore = new Map<number, Recap>(
+  mockRecaps.map((recap) => [
+    recap.userId,
+    prepareMockRecap(recap, recap.userId),
+  ]),
+);
+
+export function getMockRecap(userId: number): Recap | undefined {
+  return mockRecapStore.get(userId);
+}
+
+export function generateMockRecap(userId: number): Recap {
+  const existingRecap = mockRecapStore.get(userId);
+  const generatedRecap = prepareMockRecap(
+    existingRecap ?? {
       ...mockRecap,
-      id: recapId,
-    }
+      id: 100 + userId,
+    },
+    userId,
   );
+
+  mockRecapStore.set(userId, generatedRecap);
+
+  return generatedRecap;
 }
