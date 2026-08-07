@@ -55,13 +55,13 @@ export const mockRecap: Recap = {
       code: 'shortlist_hoarder',
       name: 'Коллекционер',
       description: 'Много в избранном',
-      imageUrl: '/mock-achievements/shortlist_boarder.png',
+      imageUrl: '',
     },
     {
       code: 'diplomat',
       name: 'Дипломат',
       description: 'Много собеседников',
-      imageUrl: '/mock-achievements/diplomat.png',
+      imageUrl: '',
     },
   ],
 
@@ -134,13 +134,13 @@ const buyerMockRecap: Recap = {
       code: 'wallet_whisperer',
       name: 'Шепот кошелька',
       description: 'Много потратил как покупатель',
-      imageUrl: '/mock-achievements/wallet_whisperer.png',
+      imageUrl: '',
     },
     {
       code: 'trust_badge',
       name: 'Знак доверия',
       description: 'Высокий рейтинг',
-      imageUrl: '/mock-achievements/trust_badge.png',
+      imageUrl: '',
     },
   ],
 
@@ -220,13 +220,13 @@ const watcherMockRecap: Recap = {
       code: 'streak_survivor',
       name: 'Несгибаемый',
       description: 'Длинная серия заходов',
-      imageUrl: '/mock-achievements/streak_survivor.png',
+      imageUrl: '',
     },
     {
       code: 'plot_twist',
       name: 'Неожиданный поворот',
       description: 'Вернулся после паузы',
-      imageUrl: '/mock-achievements/plot_twist.png',
+      imageUrl: '',
     },
   ],
 
