@@ -101,17 +101,30 @@ export function RecapOverlay({
         });
         return;
 
-      case 'view_favorites':
-        console.info('View favorites:', {
+      case 'create_listing':
+        console.info('Create listing');
+        return;
+
+      case 'listing_abandoned':
+        console.info('Contact listing seller:', {
           listingIds: action.target.listingIds,
           categoryId: action.target.categoryId,
         });
         return;
 
-      case 'open_recommendations':
-        console.info('Open recommendations:', {
+      case 'compare_top':
+        console.info('Compare listings:', {
+          listingIds: action.target.listingIds,
           categoryId: action.target.categoryId,
         });
+        return;
+
+      case 'open_favorites':
+        console.info('Open favorites:', action.target);
+        return;
+
+      case 'continue_search':
+        console.info('Continue search:', action.target);
         return;
 
       default: {

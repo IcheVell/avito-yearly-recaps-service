@@ -11,7 +11,7 @@ export const mockRecap: Recap = {
   role: {
     code: 'seller',
     name: 'Продавец',
-    title: 'Продавец!',
+    title: 'В этом году ты крутой продавец!',
     subtitle: 'Ты продал 9 товаров.',
     why: '67% активности — создание объявлений и продажа товаров',
     activitySharePercent: 67,
@@ -52,15 +52,15 @@ export const mockRecap: Recap = {
 
   achievements: [
     {
-      code: 'clean_sale',
-      name: 'Чистая продажа',
-      description: 'У тебя есть завершённые продажи в этом году.',
+      code: 'shortlist_hoarder',
+      name: 'Коллекционер',
+      description: 'Много в избранном',
       imageUrl: '',
     },
     {
       code: 'diplomat',
       name: 'Дипломат',
-      description: 'Ты вёл много диалогов относительно просмотров.',
+      description: 'Много собеседников',
       imageUrl: '',
     },
   ],
@@ -88,11 +88,11 @@ const buyerMockRecap: Recap = {
   createdAt: '2026-01-16T10:30:00Z',
 
   role: {
-    code: 'bargain_hunter',
-    name: 'Охотник за выгодой',
-    title: 'Охотник за выгодой',
-    subtitle: 'Ты знаешь, как найти лучшее предложение.',
-    why: '78% активности — поиск, сравнение и покупки',
+    code: 'buyer',
+    name: 'Покупатель',
+    title: 'В этом году ты активный покупатель!',
+    subtitle: 'Ты купил 12 товаров.',
+    why: '78% активности — поиск и покупки',
     activitySharePercent: 78,
   },
 
@@ -131,27 +131,24 @@ const buyerMockRecap: Recap = {
 
   achievements: [
     {
-      code: 'smart_choice',
-      name: 'Умный выбор',
-      description: 'Ты сравнил десятки вариантов и нашёл свой.',
+      code: 'wallet_whisperer',
+      name: 'Шепот кошелька',
+      description: 'Много потратил как покупатель',
       imageUrl: '',
     },
     {
-      code: 'quick_deal',
-      name: 'Быстрая сделка',
-      description: 'Одна из твоих покупок состоялась в день первого сообщения.',
+      code: 'trust_badge',
+      name: 'Знак доверия',
+      description: 'Высокий рейтинг',
       imageUrl: '',
     },
   ],
 
   action: {
-    type: 'view_favorites',
-    label: 'Проверить избранное',
-    reason: 'В твоём избранном остались предложения, которые могут скоро исчезнуть.',
-    target: {
-      listingIds: [7, 18, 24],
-      categoryId: 4,
-    },
+    type: 'open_favorites',
+    label: 'Вернуться к сохранённым',
+    reason: 'У тебя есть избранные объявления, к которым ты давно не возвращался.',
+    target: {},
   },
 
   debug: {
@@ -167,17 +164,17 @@ const watcherMockRecap: Recap = {
   createdAt: '2026-01-17T08:15:00Z',
 
   role: {
-    code: 'explorer',
-    name: 'Неутомимый исследователь',
-    title: 'Неутомимый исследователь',
-    subtitle: 'Ты всегда в курсе, что нового появилось на Avito.',
-    why: '86% активности — просмотры и избранное',
+    code: 'watcher',
+    name: 'Наблюдатель',
+    title: 'В этом году ты внимательный наблюдатель!',
+    subtitle: 'Ты посмотрел 847 объявлений.',
+    why: '86% активности — просмотры и поиск',
     activitySharePercent: 86,
   },
 
   metrics: [
     {
-      type: 'active_days',
+      type: 'active_days_number',
       title: 'Дней вместе с Avito',
       text: 'Больше половины года ты заглядывал в поисках чего-то интересного.',
       highlights: ['216'],
@@ -195,12 +192,13 @@ const watcherMockRecap: Recap = {
       },
     },
     {
-      type: 'max_streak_days',
-      title: 'Максимальный стрик',
-      text: ' Без единого дня без новых находок.',
-      highlights: ['31 день'],
+      type: 'views_vs_favorites',
+      title: 'Просмотры и избранное',
+      text: 'Ты много смотрел и сохранял самые интересные объявления.',
+      highlights: ['847 просмотров', '67 в избранном'],
       payload: {
-        maxStreakDays: 31,
+        viewsCount: 847,
+        favoritesCount: 67,
       },
     },
     {
@@ -219,32 +217,24 @@ const watcherMockRecap: Recap = {
 
   achievements: [
     {
-      code: 'collector',
-      name: 'Коллекционер',
-      description: 'Твоё избранное похоже на настоящую коллекцию.',
+      code: 'streak_survivor',
+      name: 'Несгибаемый',
+      description: 'Длинная серия заходов',
       imageUrl: '',
     },
     {
-      code: 'regular',
-      name: 'Завсегдатай',
-      description: 'Ты возвращалась на Avito чаще, чем через день.',
-      imageUrl: '',
-    },
-    {
-      code: 'wide_horizon',
-      name: 'Широкий кругозор',
-      description: 'В твоих поисках было больше десяти разных категорий.',
+      code: 'plot_twist',
+      name: 'Неожиданный поворот',
+      description: 'Вернулся после паузы',
       imageUrl: '',
     },
   ],
 
   action: {
-    type: 'open_recommendations',
-    label: 'Посмотреть рекомендации',
-    reason: 'Мы нашли новые объявления по мотивам твоих любимых поисков.',
-    target: {
-      categoryId: 5,
-    },
+    type: 'continue_search',
+    label: 'Продолжить поиск',
+    reason: 'Ты активно смотрел и искал — осталось сузить выбор и найти подходящий вариант.',
+    target: {},
   },
 
   debug: {

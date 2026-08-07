@@ -1,7 +1,7 @@
 import type { Achievement } from '../achievement/types';
 
 export type RecapRole = {
-  code: string; //напомнить алине сделать универсальную роль!!!
+  code: string;
   name: string;
   title: string;
   subtitle: string;
@@ -32,25 +32,50 @@ export type BoostListingsAction = RecapActionBase & {
   };
 };
 
-export type ViewFavoritesAction = RecapActionBase & {
-  type: 'view_favorites';
+export type CreateListingAction = RecapActionBase & {
+  type: 'create_listing';
+  target: Record<string, never>;
+};
+
+export type ListingAbandonedAction = RecapActionBase & {
+  type: 'listing_abandoned';
+  target: {
+    listingIds: number[];
+    categoryId: number;
+  };
+};
+
+export type CompareTopAction = RecapActionBase & {
+  type: 'compare_top';
+  target: {
+    listingIds: number[];
+    categoryId: number;
+  };
+};
+
+export type OpenFavoritesAction = RecapActionBase & {
+  type: 'open_favorites';
   target: {
     listingIds?: number[];
     categoryId?: number;
   };
 };
 
-export type OpenRecommendationsAction = RecapActionBase & {
-  type: 'open_recommendations';
+export type ContinueSearchAction = RecapActionBase & {
+  type: 'continue_search';
   target: {
-    categoryId: number;
+    listingIds?: number[];
+    categoryId?: number;
   };
 };
 
 export type RecapAction =
   | BoostListingsAction
-  | ViewFavoritesAction
-  | OpenRecommendationsAction;
+  | CreateListingAction
+  | ListingAbandonedAction
+  | CompareTopAction
+  | OpenFavoritesAction
+  | ContinueSearchAction;
 
 export type RecapDebug = {
   generatorVersion: string;

@@ -1,12 +1,9 @@
 import { env } from '../config/env.ts';
 import { wait } from '../lib/wait';
-import type {  GenerateRecapRequest, Recap} from '../../entities/recap/types';
+import type { GenerateRecapRequest, Recap } from '../../entities/recap/types';
 
 import { baseApi } from './baseApi';
-import {
-  getMockRecap,
-  getMockRecapById,
-} from '../../mocks/mockRecap';
+import { getMockRecap } from '../../mocks/mockRecap';
 
 export const recapApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -33,17 +30,19 @@ export const recapApi = baseApi.injectEndpoints({
         return { data: result.data as Recap };
       },
 
-      invalidatesTags: ['Recap'],
+      invalidatesTags: (_result, _error, { userId }) => [
+        { type: 'Recap', id: userId },
+      ],
     }),
 
     getRecap: builder.query<Recap, number>({
-      async queryFn(recapId, _api, _extraOptions, fetchWithBQ) {
+      async queryFn(userId, _api, _extraOptions, fetchWithBQ) {
         if (env.useMocks) {
           await wait(400);
-          return { data: getMockRecapById(recapId) };
+          return { data: getMockRecap(userId) };
         }
 
-        const result = await fetchWithBQ(`/recaps/${recapId}`);
+        const result = await fetchWithBQ(`/users/${userId}/recap`);
 
         if (result.error) {
           return { error: result.error };
@@ -52,8 +51,8 @@ export const recapApi = baseApi.injectEndpoints({
         return { data: result.data as Recap };
       },
 
-      providesTags: (_result, _error, recapId) => [
-        { type: 'Recap', id: recapId },
+      providesTags: (_result, _error, userId) => [
+        { type: 'Recap', id: userId },
       ],
     }),
   }),
@@ -62,4 +61,5 @@ export const recapApi = baseApi.injectEndpoints({
 export const {
   useGenerateRecapMutation,
   useGetRecapQuery,
+  useLazyGetRecapQuery,
 } = recapApi;
