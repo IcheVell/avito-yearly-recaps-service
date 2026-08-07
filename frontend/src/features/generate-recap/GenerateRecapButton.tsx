@@ -1,15 +1,17 @@
 import type { Recap } from '../../entities/recap/types';
+import { AsyncActionButton } from '../../shared/ui/AsyncActionButton/AsyncActionButton';
 
-import styles from './GenerateRecapButton.module.css';
 import { useGenerateRecap } from './model/useGenerateRecap';
 
 type GenerateRecapButtonProps = {
   userId: number;
+  year: number;
   onGenerated: (recap: Recap) => void;
 };
 
 export function GenerateRecapButton({
   userId,
+  year,
   onGenerated,
 }: GenerateRecapButtonProps) {
   const {
@@ -22,27 +24,12 @@ export function GenerateRecapButton({
   });
 
   return (
-    <div className={styles.wrapper}>
-      <button
-        className={styles.button}
-        type="button"
-        onClick={generateRecap}
-        disabled={isGenerating}
-      >
-        {isGenerating && (
-          <span className={styles.spinner} aria-hidden="true" />
-        )}
-
-        {isGenerating
-          ? 'Генерируем итоги…'
-          : 'Посмотреть итоги года'}
-      </button>
-
-      {errorMessage && (
-        <p className={styles.error} role="alert">
-          {errorMessage}
-        </p>
-      )}
-    </div>
+    <AsyncActionButton
+      label={`Сгенерировать итоги за ${year} год`}
+      loadingLabel="Генерируем итоги…"
+      isLoading={isGenerating}
+      errorMessage={errorMessage}
+      onClick={generateRecap}
+    />
   );
 }

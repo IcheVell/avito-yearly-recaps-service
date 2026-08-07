@@ -182,6 +182,13 @@
   font-size: 32px;
 }
 
+.recapButtons {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 @media (max-width: 900px) {
   .workspace {
     height: auto;
@@ -224,6 +231,10 @@
 
   .profileDetails > img {
     align-self: center;
+  }
+
+  .recapButtons {
+    flex-direction: column;
   }
 
   .profileContentPanel {

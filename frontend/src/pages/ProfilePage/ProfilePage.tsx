@@ -4,6 +4,7 @@ import logoSrc from '../../assets/logo.svg.webp';
 import type { Profile } from '../../entities/profile/types';
 import type { Recap } from '../../entities/recap/types';
 import { GenerateRecapButton } from '../../features/generate-recap/GenerateRecapButton';
+import { GetRecapButton } from '../../features/get-recap/GetRecapButton';
 import { useGetAchievementsQuery } from '../../shared/api/achievementsApi';
 import { getApiErrorMessage } from '../../shared/api/apiError';
 import { useGetProfilesQuery } from '../../shared/api/profilesApi';
@@ -120,7 +121,7 @@ export function ProfilePage() {
           </aside>
 
           <section className={styles.contentColumn}>
-            {selectedProfile && (
+            {data && selectedProfile && (
               <div className={styles.profileDetails}>
                 <img
                   src={selectedProfile.imageUrl}
@@ -133,10 +134,18 @@ export function ProfilePage() {
                   <p className={styles.eyebrow}>Текущий профиль</p>
                   <h2>{selectedProfile.username}</h2>
 
-                  <GenerateRecapButton
-                    userId={selectedProfile.id}
-                    onGenerated={setOpenRecap}
-                  />
+                  <div className={styles.recapButtons}>
+                    <GenerateRecapButton
+                      userId={selectedProfile.id}
+                      year={data.currentYear}
+                      onGenerated={setOpenRecap}
+                    />
+
+                    <GetRecapButton
+                      userId={selectedProfile.id}
+                      onReceived={setOpenRecap}
+                    />
+                  </div>
                 </div>
               </div>
             )}
