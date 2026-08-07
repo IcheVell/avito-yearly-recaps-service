@@ -11,13 +11,13 @@ VALUES
 INSERT INTO achievements (id, code, name, description, image_url)
 OVERRIDING SYSTEM VALUE
 VALUES
-    (995001, 'streak_survivor', 'Несгибаемый', 'Были дни, когда Avito тебя не отпускал — серия без пропусков.', 'https://images.example.test/achievements/streak-survivor.png'),
-    (995002, 'two_faced_market', 'Две стороны рынка', 'За год ты успел и купить, и продать — побывал по обе стороны сделки.', 'https://images.example.test/achievements/two-faced-market.png'),
-    (995003, 'shortlist_hoarder', 'Коллекционер', 'Избранное разрослось: ты собирал варианты, прежде чем выбрать.', 'https://images.example.test/achievements/shortlist-hoarder.png'),
-    (995004, 'wallet_whisperer', 'Шёпот кошелька', 'Покупки года сложились в заметную сумму — любопытство явно не дремало.', 'https://images.example.test/achievements/wallet-whisperer.png'),
-    (995005, 'trust_badge', 'Знак доверия', 'Высокий рейтинг продавца: с тобой имеют дело охотно и спокойно.', 'https://images.example.test/achievements/trust-badge.png'),
-    (995006, 'diplomat', 'Дипломат', 'Кажется ты перепутал Avito с мессенджером.', 'https://images.example.test/achievements/diplomat.png'),
-    (995007, 'plot_twist', 'Неожиданный поворот', 'После паузы ты вернулся на площадку — сюжет года сделал виток.', 'https://images.example.test/achievements/plot-twist.png');
+    (995001, 'streak_survivor', 'Несгибаемый', 'Были дни, когда Avito тебя не отпускал — серия без пропусков.', 'static/achievements/streak-survivor.png'),
+    (995002, 'two_faced_market', 'Две стороны рынка', 'За год ты успел и купить, и продать — побывал по обе стороны сделки.', 'static/achievements/two-faced-market.png'),
+    (995003, 'shortlist_hoarder', 'Коллекционер', 'Избранное разрослось: ты собирал варианты, прежде чем выбрать.', 'static/achievements/shortlist-hoarder.png'),
+    (995004, 'wallet_whisperer', 'Шёпот кошелька', 'Покупки года сложились в заметную сумму — любопытство явно не дремало.', 'static/achievements/wallet-whisperer.png'),
+    (995005, 'trust_badge', 'Знак доверия', 'Высокий рейтинг продавца: с тобой имеют дело охотно и спокойно.', 'static/achievements/trust-badge.png'),
+    (995006, 'diplomat', 'Дипломат', 'Кажется ты перепутал Avito с мессенджером.', 'static/achievements/diplomat.png'),
+    (995007, 'plot_twist', 'Неожиданный поворот', 'После паузы ты вернулся на площадку — сюжет года сделал виток.', 'static/achievements/plot-twist.png');
 
 INSERT INTO user_achievements (user_id, achievement_id, created_at)
 VALUES
