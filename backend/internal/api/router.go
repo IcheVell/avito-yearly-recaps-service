@@ -36,6 +36,10 @@ func NewRouter(deps Dependencies) http.Handler {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 
+	fileServer := http.FileServer(http.Dir("./static"))
+
+	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
+
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/health", healthHandler.Check)
 		r.Get("/profiles", profilesHandler.List)
