@@ -1,6 +1,11 @@
-import type { KeyboardEvent } from 'react';
+import {
+  type KeyboardEvent,
+  useState,
+} from 'react';
 
-import type { Achievement } from '../../entities/recap/types';
+import type { EarnedAchievement } from '../../entities/achievement/types';
+import { ErrorMessage } from '../../shared/ui/ErrorMessage/ErrorMessage';
+import { Loader } from '../../shared/ui/Loader/Loader';
 
 import styles from './ProfileTabs.module.css';
 
@@ -13,14 +18,56 @@ export type ProfileTab = (typeof PROFILE_TABS)[number]['id'];
 
 type ProfileTabsProps = {
   activeTab: ProfileTab;
-  achievements: Achievement[] | null;
+  achievements: EarnedAchievement[] | null;
+  isAchievementsLoading: boolean;
+  achievementsErrorMessage: string | null;
   onTabChange: (tab: ProfileTab) => void;
+  onRetryAchievements: () => void;
 };
+
+function AchievementImage({
+  achievement,
+}: {
+  achievement: EarnedAchievement;
+}) {
+  const [failedImageUrl, setFailedImageUrl] = useState<
+    string | null
+  >(null);
+
+  const canShowImage =
+    achievement.imageUrl.length > 0 &&
+    failedImageUrl !== achievement.imageUrl;
+
+  return (
+    <div className={styles.imageFrame}>
+      {canShowImage ? (
+        <img
+          className={styles.achievementImage}
+          src={achievement.imageUrl}
+          alt=""
+          loading="lazy"
+          onError={() => setFailedImageUrl(achievement.imageUrl)}
+        />
+      ) : (
+        <div
+          className={styles.imagePlaceholder}
+          role="img"
+          aria-label="Изображение достижения пока недоступно"
+        >
+          <span aria-hidden="true">★</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function ProfileTabs({
   activeTab,
   achievements,
+  isAchievementsLoading,
+  achievementsErrorMessage,
   onTabChange,
+  onRetryAchievements,
 }: ProfileTabsProps) {
   function handleTabKeyDown(
     event: KeyboardEvent<HTMLButtonElement>,
@@ -96,13 +143,32 @@ export function ProfileTabs({
           </p>
         )}
 
-        {activeTab === 'achievements' && achievements === null && (
-          <p className={styles.emptyState}>
-            hehe
-          </p>
-        )}
+        {activeTab === 'achievements' &&
+          isAchievementsLoading && (
+            <Loader label="Загружаем достижения…" />
+          )}
 
         {activeTab === 'achievements' &&
+          !isAchievementsLoading &&
+          achievementsErrorMessage && (
+            <ErrorMessage
+              message={achievementsErrorMessage}
+              onRetry={onRetryAchievements}
+            />
+          )}
+
+        {activeTab === 'achievements' &&
+          !isAchievementsLoading &&
+          !achievementsErrorMessage &&
+          achievements === null && (
+            <p className={styles.emptyState}>
+              Данные о достижениях пока недоступны.
+            </p>
+          )}
+
+        {activeTab === 'achievements' &&
+          !isAchievementsLoading &&
+          !achievementsErrorMessage &&
           achievements?.length === 0 && (
             <p className={styles.emptyState}>
               У выбранного профиля пока нет достижений.
@@ -110,6 +176,8 @@ export function ProfileTabs({
           )}
 
         {activeTab === 'achievements' &&
+          !isAchievementsLoading &&
+          !achievementsErrorMessage &&
           achievements &&
           achievements.length > 0 && (
             <ul className={styles.achievementList}>
@@ -119,6 +187,7 @@ export function ProfileTabs({
                   className={styles.achievement}
                 >
                   <h3>{achievement.name}</h3>
+                  <AchievementImage achievement={achievement} />
                   <p>{achievement.description}</p>
                 </li>
               ))}

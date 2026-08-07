@@ -1,3 +1,5 @@
+import type { Achievement } from '../achievement/types';
+
 export type RecapRole = {
   code: string; //напомнить алине сделать универсальную роль!!!
   name: string;
@@ -15,12 +17,6 @@ export type RecapMetric = {
     text: string;
     highlights: string[];
     payload: MetricPayload;
-};
-
-export type Achievement = {
-  code: string;
-  name: string;
-  description: string;
 };
 
 type RecapActionBase = {

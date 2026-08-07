@@ -8,6 +8,6 @@ export const baseApi = createApi({
     baseUrl: env.apiBaseUrl,
   }),
 
-    tagTypes: ['Profiles', 'Recap'],
+    tagTypes: ['Profiles', 'Recap', 'Achievements'],
      endpoints: () => ({}),
 });

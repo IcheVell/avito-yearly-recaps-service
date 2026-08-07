@@ -1,7 +1,7 @@
+import type { Achievement } from '../achievement/types';
 import type { CardVariant } from './cardVariants';
 import { RecapCardHeader } from './RecapCardHeader';
 import { RecapCardShell } from './RecapCardShell';
-import type { Achievement } from './types';
 
 import styles from './RecapCard.module.css';
 

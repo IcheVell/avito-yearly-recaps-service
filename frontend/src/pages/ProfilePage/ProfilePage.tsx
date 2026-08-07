@@ -4,6 +4,7 @@ import logoSrc from '../../assets/logo.svg.webp';
 import type { Profile } from '../../entities/profile/types';
 import type { Recap } from '../../entities/recap/types';
 import { GenerateRecapButton } from '../../features/generate-recap/GenerateRecapButton';
+import { useGetAchievementsQuery } from '../../shared/api/achievementsApi';
 import { getApiErrorMessage } from '../../shared/api/apiError';
 import { useGetProfilesQuery } from '../../shared/api/profilesApi';
 import { ErrorMessage } from '../../shared/ui/ErrorMessage/ErrorMessage';
@@ -18,15 +19,11 @@ import {
 
 const RECAP_YEAR = 2026;
 
-type RecapsByProfileId = Partial<Record<number, Recap>>;
-
 export function ProfilePage() {
   const [selectedProfileId, setSelectedProfileId] =
     useState<number | null>(null);
   const [activeTab, setActiveTab] =
     useState<ProfileTab>('statistics');
-  const [recapsByProfileId, setRecapsByProfileId] =
-    useState<RecapsByProfileId>({});
   const [openRecap, setOpenRecap] = useState<Recap | null>(null);
 
   const {
@@ -42,17 +39,17 @@ export function ProfilePage() {
       (profile) => profile.id === selectedProfileId,
     ) ?? data?.items[0];
 
-  const selectedProfileRecap = selectedProfile
-    ? recapsByProfileId[selectedProfile.id]
-    : undefined;
+  const shouldLoadAchievements =
+    activeTab === 'achievements' && selectedProfile !== undefined;
 
-  function handleRecapGenerated(generatedRecap: Recap) {
-    setRecapsByProfileId((currentRecaps) => ({
-      ...currentRecaps,
-      [generatedRecap.userId]: generatedRecap,
-    }));
-    setOpenRecap(generatedRecap);
-  }
+  const {
+    data: achievementsData,
+    isFetching: isAchievementsLoading,
+    error: achievementsError,
+    refetch: refetchAchievements,
+  } = useGetAchievementsQuery(selectedProfile?.id ?? 0, {
+    skip: !shouldLoadAchievements,
+  });
 
   return (
     <>
@@ -141,7 +138,7 @@ export function ProfilePage() {
                   <GenerateRecapButton
                     userId={selectedProfile.id}
                     year={RECAP_YEAR}
-                    onGenerated={handleRecapGenerated}
+                    onGenerated={setOpenRecap}
                   />
                 </div>
               </div>
@@ -150,10 +147,15 @@ export function ProfilePage() {
             <div className={styles.profileContentPanel}>
               <ProfileTabs
                 activeTab={activeTab}
-                achievements={
-                  selectedProfileRecap?.achievements ?? null
+                achievements={achievementsData?.earned ?? null}
+                isAchievementsLoading={isAchievementsLoading}
+                achievementsErrorMessage={
+                  achievementsError
+                    ? getApiErrorMessage(achievementsError)
+                    : null
                 }
                 onTabChange={setActiveTab}
+                onRetryAchievements={refetchAchievements}
               />
             </div>
           </section>

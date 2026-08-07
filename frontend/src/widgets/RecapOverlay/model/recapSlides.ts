@@ -1,5 +1,5 @@
+import type { Achievement } from '../../../entities/achievement/types';
 import type {
-  Achievement,
   Recap,
   RecapAction,
   RecapMetric,
