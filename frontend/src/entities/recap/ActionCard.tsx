@@ -1,6 +1,7 @@
 import type { CardVariant } from './cardVariants';
 import { RecapCardHeader } from './RecapCardHeader';
 import { RecapCardShell } from './RecapCardShell';
+import { truncateText } from './truncateText';
 import type { RecapAction } from './types';
 
 import styles from './RecapCard.module.css';
@@ -22,11 +23,14 @@ export function ActionCard({
     <RecapCardShell
       variant={variant}
       isActive={isActive}
+      className={styles.actionCard}
     >
-      <div className={styles.actionTop}>
-        <RecapCardHeader title="Что попробовать дальше" />
+      <RecapCardHeader title="Что попробовать дальше" />
 
-        <p className={styles.text}>{action.reason}</p>
+      <div className={styles.actionBody}>
+        <p className={`${styles.text} ${styles.actionReason}`}>
+          {truncateText(action.reason)}
+        </p>
       </div>
 
       <button
