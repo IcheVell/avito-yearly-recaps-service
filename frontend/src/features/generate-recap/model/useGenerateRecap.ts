@@ -32,7 +32,7 @@ export function useGenerateRecap({
 
       onGenerated(recap);
     } catch {
-      // RTK Query сохраняет ошибку mutation в `error`.
+      return;
     }
   }, [onGenerated, reset, triggerGenerateRecap, userId]);
 

@@ -1,6 +1,5 @@
 const DEFAULT_MAX_LENGTH = 140;
 
-/** Truncate card body copy at a word boundary. */
 export function truncateText(
   text: string,
   maxLength = DEFAULT_MAX_LENGTH,

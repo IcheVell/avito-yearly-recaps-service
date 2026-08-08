@@ -9,7 +9,6 @@ type FitTextProps = {
   children: ReactNode;
   className?: string;
   maxFontSize?: number;
-  /** Smallest size while still trying to keep one line. */
   minFontSize?: number;
 } & Omit<HTMLAttributes<HTMLElement>, 'children' | 'className'>;
 
