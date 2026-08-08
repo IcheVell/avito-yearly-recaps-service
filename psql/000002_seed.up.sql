@@ -3,7 +3,7 @@ BEGIN;
 INSERT INTO users (id, username, image_url, created_at, updated_at)
 OVERRIDING SYSTEM VALUE
 VALUES
-    (910001, 'aferist_alina', 'https://images.example.test/profiles/aferist_alina.jpg', '2018-04-12 09:00:00+00', '2026-12-31 18:00:00+00'),
+    (910001, 'aferist_alina', 'static/users/aferist_alina.jpg', '2018-04-12 09:00:00+00', '2026-12-31 18:00:00+00'),
     (910002, 'temshik_kirill', 'https://images.example.test/profiles/temshik_kirill.jpg', '2020-09-21 11:30:00+00', '2026-12-30 16:20:00+00'),
     (910003, 'sonnaya_katya', 'https://images.example.test/profiles/sonnaya_katya.jpg', '2022-02-08 08:15:00+00', '2026-12-29 14:10:00+00'),
     (910004, 'rabotyaga_ilya', 'https://images.example.test/profiles/rabotyaga_ilya.jpg', '2019-07-03 13:45:00+00', '2026-12-31 20:40:00+00'),
