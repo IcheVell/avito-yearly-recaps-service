@@ -7,13 +7,17 @@
 ## Распределение ответственности между участниками команды:
 [@IcheVell](https://github.com/IcheVell) - backend
 
-[@alina965](https://github.com/alina965) - backend, дизайнер
+[@alina965](https://github.com/alina965) - backend
 
 [@che1nov](https://github.com/che1nov) - backend
 
-[@Lunkova-Kate](https://github.com/Lunkova-Kate) - frontend, дизайнер
+[@Lunkova-Kate](https://github.com/Lunkova-Kate) - frontend
 
 
+Основную работу над дизайном интерфейса и итоговых карточек выполняли:
+[@Lunkova-Kate](https://github.com/Lunkova-Kate) и
+[@alina965](https://github.com/alina965).
+Конечные решения обсуждались и принимались всей командой.
 ## Что умеет MVP
 
 Пользователь выбирает один из тестовых профилей и запускает генерацию итогов. Backend агрегирует годовую активность и формирует recap, в который входят:
