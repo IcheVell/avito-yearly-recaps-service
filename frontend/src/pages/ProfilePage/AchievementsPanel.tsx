@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useId } from 'react';
 
 import type {
   Achievement,
@@ -7,6 +7,7 @@ import type {
 } from '../../entities/achievement/types';
 import { ErrorMessage } from '../../shared/ui/ErrorMessage/ErrorMessage';
 import { Loader } from '../../shared/ui/Loader/Loader';
+import { SafeImage } from '../../shared/ui/SafeImage/SafeImage';
 
 import styles from './ProfileTabs.module.css';
 
@@ -22,32 +23,23 @@ function AchievementImage({
 }: {
   achievement: Achievement;
 }) {
-  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(
-    null,
-  );
-  const canShowImage =
-    achievement.imageUrl.length > 0 &&
-    failedImageUrl !== achievement.imageUrl;
-
   return (
     <div className={styles.imageFrame}>
-      {canShowImage ? (
-        <img
-          className={styles.achievementImage}
-          src={achievement.imageUrl}
-          alt=""
-          loading="lazy"
-          onError={() => setFailedImageUrl(achievement.imageUrl)}
-        />
-      ) : (
-        <div
-          className={styles.imagePlaceholder}
-          role="img"
-          aria-label="Изображение достижения пока недоступно"
-        >
-          <span aria-hidden="true">★</span>
-        </div>
-      )}
+      <SafeImage
+        className={styles.achievementImage}
+        src={achievement.imageUrl}
+        alt=""
+        loading="lazy"
+        fallback={
+          <div
+            className={styles.imagePlaceholder}
+            role="img"
+            aria-label="Изображение достижения пока недоступно"
+          >
+            <span aria-hidden="true">★</span>
+          </div>
+        }
+      />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type { Recap } from '../../entities/recap/types';
 import { GenerateRecapButton } from '../../features/generate-recap/GenerateRecapButton';
 import { GetRecapButton } from '../../features/get-recap/GetRecapButton';
 
+import { ProfileAvatar } from './ProfileAvatar';
 import styles from './ProfilePage.module.css';
 
 type ProfileSummaryProps = {
@@ -18,12 +19,7 @@ export function ProfileSummary({
 }: ProfileSummaryProps) {
   return (
     <div className={styles.profileDetails}>
-      <img
-        src={profile.imageUrl}
-        alt=""
-        width="108"
-        height="108"
-      />
+      <ProfileAvatar profile={profile} size={108} />
 
       <div>
         <p className={styles.eyebrow}>Текущий профиль</p>

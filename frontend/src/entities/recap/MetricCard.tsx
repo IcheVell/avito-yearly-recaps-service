@@ -1,3 +1,5 @@
+import { SafeImage } from '../../shared/ui/SafeImage/SafeImage';
+
 import type { CardVariant } from './cardVariants';
 import { getPayloadString } from './payloadHelper';
 import { RecapCardHeader } from './RecapCardHeader';
@@ -30,7 +32,7 @@ export function MetricCard({
       <RecapCardHeader title={metric.title} />
 
       {imageUrl && (
-        <img
+        <SafeImage
           className={styles.image}
           src={imageUrl}
           alt=""
