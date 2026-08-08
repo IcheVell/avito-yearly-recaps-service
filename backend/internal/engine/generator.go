@@ -2,23 +2,23 @@ package engine
 
 import (
 	"time"
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
-func Generate(yearMetrics domain.YearMetrics) (domain.Recap, error) {
+func Generate(yearMetrics recap.YearMetrics) (recap.Recap, error) {
 	role, err := ResolveRole(yearMetrics)
 	if err != nil {
-		return domain.Recap{}, err
+		return recap.Recap{}, err
 	}
 
 	metrics, err := ResolveMetrics(yearMetrics)
 	if err != nil {
-		return domain.Recap{}, err
+		return recap.Recap{}, err
 	}
 
 	action, err := ResolveAction(yearMetrics, role.Code)
 	if err != nil {
-		return domain.Recap{}, err
+		return recap.Recap{}, err
 	}
 
 	achievements := ResolveAchievements(yearMetrics)
@@ -27,7 +27,7 @@ func Generate(yearMetrics domain.YearMetrics) (domain.Recap, error) {
 	past := now.AddDate(0, -1, 0)
 	year := past.Year()
 
-	recap := domain.Recap{
+	recap := recap.Recap{
 		UserID:       yearMetrics.UserID,
 		Year:         year,
 		CreatedAt:    time.Now().UTC(),

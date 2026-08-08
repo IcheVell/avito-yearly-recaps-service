@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"v1/internal/domain"
+	"v1/internal/domain/entity"
+	"v1/internal/domain/recap"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -23,7 +24,7 @@ func NewAchievementsRepository(db *gorm.DB) *AchievementsRepository {
 	return &AchievementsRepository{db: db}
 }
 
-func (r *AchievementsRepository) ListUserAchievements(ctx context.Context, userID int64) (earned []domain.UserAchievement, locked []domain.Achievement, err error) {
+func (r *AchievementsRepository) ListUserAchievements(ctx context.Context, userID int64) (earned []entity.UserAchievement, locked []entity.Achievement, err error) {
 	err = r.db.WithContext(ctx).
 		Preload("Achievement").
 		Where("user_id = ?", userID).
@@ -33,7 +34,7 @@ func (r *AchievementsRepository) ListUserAchievements(ctx context.Context, userI
 		return nil, nil, fmt.Errorf("list earned achievements: %w", err)
 	}
 
-	var all []domain.Achievement
+	var all []entity.Achievement
 	err = r.db.WithContext(ctx).Order("id ASC").Find(&all).Error
 	if err != nil {
 		return nil, nil, fmt.Errorf("list all achievements: %w", err)
@@ -44,7 +45,7 @@ func (r *AchievementsRepository) ListUserAchievements(ctx context.Context, userI
 		earnedIDs[a.AchievementID] = struct{}{}
 	}
 
-	locked = make([]domain.Achievement, 0)
+	locked = make([]entity.Achievement, 0)
 	for _, a := range all {
 		if _, ok := earnedIDs[a.ID]; !ok {
 			locked = append(locked, a)
@@ -55,7 +56,7 @@ func (r *AchievementsRepository) ListUserAchievements(ctx context.Context, userI
 }
 
 func (r *AchievementsRepository) AddAchievementToUser(ctx context.Context, userID int64, achievementID int64) error {
-	userAchievement := &domain.UserAchievement{
+	userAchievement := &entity.UserAchievement{
 		AchievementID: achievementID,
 		UserID:        userID,
 	}
@@ -76,7 +77,7 @@ func (r *AchievementsRepository) AddAchievementToUser(ctx context.Context, userI
 	return nil
 }
 
-func (r *AchievementsRepository) GetRulesForAchievements(ctx context.Context) ([]domain.Rule, error) {
+func (r *AchievementsRepository) GetRulesForAchievements(ctx context.Context) ([]recap.Rule, error) {
 	var rows []struct {
 		AchievementID int64  `gorm:"column:achievement_id"`
 		Rule          []byte `gorm:"column:rule"`
@@ -93,16 +94,16 @@ func (r *AchievementsRepository) GetRulesForAchievements(ctx context.Context) ([
 		return nil, fmt.Errorf("get rules for achievements: %w", err)
 	}
 
-	rules := make([]domain.Rule, 0, len(rows))
+	rules := make([]recap.Rule, 0, len(rows))
 
 	for _, row := range rows {
-		var ruleNode domain.RuleNode
+		var ruleNode recap.RuleNode
 
 		if err := json.Unmarshal(row.Rule, &ruleNode); err != nil {
 			return nil, fmt.Errorf("unmarshal rule for achievement %d: %w", row.AchievementID, err)
 		}
 
-		rules = append(rules, domain.Rule{ID: row.AchievementID, RuleNode: ruleNode})
+		rules = append(rules, recap.Rule{ID: row.AchievementID, RuleNode: ruleNode})
 	}
 
 	return rules, nil

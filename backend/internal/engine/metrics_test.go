@@ -3,14 +3,14 @@ package engine
 import (
 	"testing"
 
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
 func TestResolveMetrics_OK(t *testing.T) {
 	var earned int64 = 120_000
 	var spent int64 = 48_000
 
-	m := domain.YearMetrics{
+	m := recap.YearMetrics{
 		EarnedAmount:  &earned,
 		SpentAmount:   &spent,
 		MaxStreakDays: 14,

@@ -5,11 +5,11 @@ import (
 	"log/slog"
 	"net/http"
 	"v1/internal/api/dto"
-	"v1/internal/domain"
+	"v1/internal/domain/entity"
 )
 
 type ProfileProvider interface {
-	ListProfiles(ctx context.Context) ([]domain.User, error)
+	ListProfiles(ctx context.Context) ([]entity.User, error)
 }
 
 type ProfilesHandler struct {

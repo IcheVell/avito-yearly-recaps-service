@@ -3,19 +3,19 @@ package engine
 import (
 	"reflect"
 	"testing"
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
 func TestResolveAchievements_Empty(t *testing.T) {
-	got := ResolveAchievements(domain.YearMetrics{})
+	got := ResolveAchievements(recap.YearMetrics{})
 	if len(got) != 0 {
 		t.Fatalf("got %d achievements, want 0", len(got))
 	}
 }
 
 func TestResolveAchievements_MapsAllWhenFew(t *testing.T) {
-	m := domain.YearMetrics{
-		YearAchievements: []domain.YearAchievement{
+	m := recap.YearMetrics{
+		YearAchievements: []recap.YearAchievement{
 			{Code: "diplomat", Name: "Дипломат", Description: "desc1", ImageURL: "u1"},
 			{Code: "unbending", Name: "Несгибаемый", Description: "desc2", ImageURL: "u2"},
 		},
@@ -23,7 +23,7 @@ func TestResolveAchievements_MapsAllWhenFew(t *testing.T) {
 
 	got := ResolveAchievements(m)
 
-	want := []domain.RecapAchievement{
+	want := []recap.RecapAchievement{
 		{Code: "diplomat", Name: "Дипломат", Description: "desc1", ImageURL: "u1"},
 		{Code: "unbending", Name: "Несгибаемый", Description: "desc2", ImageURL: "u2"},
 	}
@@ -33,8 +33,8 @@ func TestResolveAchievements_MapsAllWhenFew(t *testing.T) {
 }
 
 func TestResolveAchievements_TruncatesToThree(t *testing.T) {
-	m := domain.YearMetrics{
-		YearAchievements: []domain.YearAchievement{
+	m := recap.YearMetrics{
+		YearAchievements: []recap.YearAchievement{
 			{Code: "a1", Name: "n1", Description: "d1", ImageURL: "i1"},
 			{Code: "a2", Name: "n2", Description: "d2", ImageURL: "i2"},
 			{Code: "a3", Name: "n3", Description: "d3", ImageURL: "i3"},

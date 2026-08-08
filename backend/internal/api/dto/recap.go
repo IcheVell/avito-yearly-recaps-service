@@ -2,7 +2,7 @@ package dto
 
 import (
 	"time"
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
 type GenerateRecapRequest struct {
@@ -63,39 +63,39 @@ type RecapDebugResponse struct {
 	SeedProfile      string `json:"seedProfile"`
 }
 
-func NewRecapResponse(recap domain.Recap) RecapResponse {
+func NewRecapResponse(story recap.Recap) RecapResponse {
 	return RecapResponse{
-		ID:        recap.ID,
-		UserID:    recap.UserID,
-		Year:      recap.Year,
-		CreatedAt: recap.CreatedAt,
+		ID:        story.ID,
+		UserID:    story.UserID,
+		Year:      story.Year,
+		CreatedAt: story.CreatedAt,
 		Role: RecapRoleResponse{
-			Code:                 recap.Role.Code,
-			Name:                 recap.Role.Name,
-			Title:                recap.Role.Title,
-			Subtitle:             recap.Role.Subtitle,
-			Why:                  recap.Role.Why,
-			ActivitySharePercent: recap.Role.ActivitySharePercent,
+			Code:                 story.Role.Code,
+			Name:                 story.Role.Name,
+			Title:                story.Role.Title,
+			Subtitle:             story.Role.Subtitle,
+			Why:                  story.Role.Why,
+			ActivitySharePercent: story.Role.ActivitySharePercent,
 		},
-		Metrics:      newRecapMetricResponses(recap.Metrics),
-		Achievements: newRecapAchievementResponses(recap.Achievements),
+		Metrics:      newRecapMetricResponses(story.Metrics),
+		Achievements: newRecapAchievementResponses(story.Achievements),
 		Action: RecapActionResponse{
-			Type:   recap.Action.Type,
-			Label:  recap.Action.Label,
-			Reason: recap.Action.Reason,
+			Type:   story.Action.Type,
+			Label:  story.Action.Label,
+			Reason: story.Action.Reason,
 			Target: RecapActionTargetResponse{
-				ListingIDs: emptyInt64SliceIfNil(recap.Action.Target.ListingIDs),
-				CategoryID: recap.Action.Target.CategoryID,
+				ListingIDs: emptyInt64SliceIfNil(story.Action.Target.ListingIDs),
+				CategoryID: story.Action.Target.CategoryID,
 			},
 		},
 		Debug: RecapDebugResponse{
-			GeneratorVersion: recap.Debug.GeneratorVersion,
-			SeedProfile:      recap.Debug.SeedProfile,
+			GeneratorVersion: story.Debug.GeneratorVersion,
+			SeedProfile:      story.Debug.SeedProfile,
 		},
 	}
 }
 
-func newRecapMetricResponses(metrics []domain.RecapMetric) []RecapMetricResponse {
+func newRecapMetricResponses(metrics []recap.RecapMetric) []RecapMetricResponse {
 	items := make([]RecapMetricResponse, 0, len(metrics))
 	for _, metric := range metrics {
 		items = append(items, RecapMetricResponse{
@@ -110,7 +110,7 @@ func newRecapMetricResponses(metrics []domain.RecapMetric) []RecapMetricResponse
 	return items
 }
 
-func newRecapAchievementResponses(achievements []domain.RecapAchievement) []RecapAchievementResponse {
+func newRecapAchievementResponses(achievements []recap.RecapAchievement) []RecapAchievementResponse {
 	items := make([]RecapAchievementResponse, 0, len(achievements))
 	for _, achievement := range achievements {
 		items = append(items, RecapAchievementResponse{

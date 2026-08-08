@@ -126,7 +126,7 @@
 
 | Сущность | Файл |
 |----------|------|
-| Роли | `backend/internal/engine/roles.json` |
-| Метрики | `backend/internal/engine/metrics.json` |
-| Действия | `backend/internal/engine/actions.json` |
-| Ачивки (сид) | `psql/000002_seed.up.sql` |
+| Роли | `backend/catalog/roles.json` |
+| Метрики | `backend/catalog/metrics.json` |
+| Действия | `backend/catalog/actions.json` |
+| Ачивки (сид) | `backend/migrations/000002_seed.up.sql` |

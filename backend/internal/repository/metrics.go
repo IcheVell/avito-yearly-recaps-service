@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
-	"v1/internal/domain"
+	"v1/internal/domain/entity"
+	"v1/internal/domain/recap"
 
 	"gorm.io/gorm"
 )
@@ -17,8 +18,8 @@ func NewMetricsRepository(db *gorm.DB) *MetricsRepository {
 	return &MetricsRepository{db: db}
 }
 
-func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user domain.User, year int) (*domain.YearMetrics, error) {
-	yearMetrics := &domain.YearMetrics{}
+func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user entity.User, year int) (*recap.YearMetrics, error) {
+	yearMetrics := &recap.YearMetrics{}
 
 	var err error
 
@@ -161,7 +162,7 @@ func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user domain.
 	return yearMetrics, nil
 }
 
-func (r *MetricsRepository) getUserViewsCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserViewsCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var viewsCount int64
 
 	err := r.db.
@@ -180,7 +181,7 @@ func (r *MetricsRepository) getUserViewsCount(ctx context.Context, user domain.U
 	return viewsCount, nil
 }
 
-func (r *MetricsRepository) getUserSearchesCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserSearchesCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var searchesCount int64
 
 	err := r.db.
@@ -199,7 +200,7 @@ func (r *MetricsRepository) getUserSearchesCount(ctx context.Context, user domai
 	return searchesCount, nil
 }
 
-func (r *MetricsRepository) getUserFavoritesCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserFavoritesCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var favoritesCount int64
 
 	err := r.db.
@@ -218,7 +219,7 @@ func (r *MetricsRepository) getUserFavoritesCount(ctx context.Context, user doma
 	return favoritesCount, nil
 }
 
-func (r *MetricsRepository) getUserMessagesCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserMessagesCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var messagesCount int64
 
 	err := r.db.
@@ -237,7 +238,7 @@ func (r *MetricsRepository) getUserMessagesCount(ctx context.Context, user domai
 	return messagesCount, nil
 }
 
-func (r *MetricsRepository) getUserCreatedListingsCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserCreatedListingsCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var listingsCount int64
 
 	err := r.db.
@@ -256,7 +257,7 @@ func (r *MetricsRepository) getUserCreatedListingsCount(ctx context.Context, use
 	return listingsCount, nil
 }
 
-func (r *MetricsRepository) getUserBuysCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserBuysCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var buysCount int64
 
 	err := r.db.
@@ -265,7 +266,7 @@ func (r *MetricsRepository) getUserBuysCount(ctx context.Context, user domain.Us
 		Where("deals.buyer_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
-		Where("deals.status = ?", domain.DealStatusCompleted).
+		Where("deals.status = ?", entity.DealStatusCompleted).
 		Count(&buysCount).
 		Error
 
@@ -276,7 +277,7 @@ func (r *MetricsRepository) getUserBuysCount(ctx context.Context, user domain.Us
 	return buysCount, nil
 }
 
-func (r *MetricsRepository) getUserSellsCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserSellsCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var sellsCount int64
 
 	err := r.db.
@@ -286,7 +287,7 @@ func (r *MetricsRepository) getUserSellsCount(ctx context.Context, user domain.U
 		Where("listings.seller_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
-		Where("deals.status = ?", domain.DealStatusCompleted).
+		Where("deals.status = ?", entity.DealStatusCompleted).
 		Count(&sellsCount).
 		Error
 
@@ -297,7 +298,7 @@ func (r *MetricsRepository) getUserSellsCount(ctx context.Context, user domain.U
 	return sellsCount, nil
 }
 
-func (r *MetricsRepository) getUserSpentAmount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*int64, error) {
+func (r *MetricsRepository) getUserSpentAmount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*int64, error) {
 	var res struct {
 		Amount *int64 `gorm:"column:amount"`
 	}
@@ -309,7 +310,7 @@ func (r *MetricsRepository) getUserSpentAmount(ctx context.Context, user domain.
 		Where("deals.buyer_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
-		Where("deals.status = ?", domain.DealStatusCompleted).
+		Where("deals.status = ?", entity.DealStatusCompleted).
 		Scan(&res).
 		Error
 
@@ -320,7 +321,7 @@ func (r *MetricsRepository) getUserSpentAmount(ctx context.Context, user domain.
 	return res.Amount, nil
 }
 
-func (r *MetricsRepository) getUserEarnedAmount(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*int64, error) {
+func (r *MetricsRepository) getUserEarnedAmount(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*int64, error) {
 	var res struct {
 		Amount *int64 `gorm:"column:amount"`
 	}
@@ -333,7 +334,7 @@ func (r *MetricsRepository) getUserEarnedAmount(ctx context.Context, user domain
 		Where("listings.seller_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
-		Where("deals.status = ?", domain.DealStatusCompleted).
+		Where("deals.status = ?", entity.DealStatusCompleted).
 		Scan(&res).
 		Error
 
@@ -344,7 +345,7 @@ func (r *MetricsRepository) getUserEarnedAmount(ctx context.Context, user domain
 	return res.Amount, nil
 }
 
-func (r *MetricsRepository) getUserMaxStreak(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserMaxStreak(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var maxStreak int64
 
 	query := `
@@ -380,7 +381,7 @@ func (r *MetricsRepository) getUserMaxStreak(ctx context.Context, user domain.Us
 	return maxStreak, nil
 }
 
-func (r *MetricsRepository) getUserActiveDays(ctx context.Context, user domain.User, maxDate, minDate time.Time) (int64, error) {
+func (r *MetricsRepository) getUserActiveDays(ctx context.Context, user entity.User, maxDate, minDate time.Time) (int64, error) {
 	var activeDays int64
 
 	err := r.db.
@@ -398,7 +399,7 @@ func (r *MetricsRepository) getUserActiveDays(ctx context.Context, user domain.U
 	return activeDays, nil
 }
 
-func (r *MetricsRepository) getUserMaxAndMinPrice(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*int64, *int64, error) {
+func (r *MetricsRepository) getUserMaxAndMinPrice(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*int64, *int64, error) {
 	var res struct {
 		MaxPrice *int64 `gorm:"column:max_price"`
 		MinPrice *int64 `gorm:"column:min_price"`
@@ -411,7 +412,7 @@ func (r *MetricsRepository) getUserMaxAndMinPrice(ctx context.Context, user doma
 		Where("deals.buyer_id = ?", user.ID).
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
-		Where("deals.status = ?", domain.DealStatusCompleted).
+		Where("deals.status = ?", entity.DealStatusCompleted).
 		Scan(&res).
 		Error
 
@@ -422,7 +423,7 @@ func (r *MetricsRepository) getUserMaxAndMinPrice(ctx context.Context, user doma
 	return res.MaxPrice, res.MinPrice, nil
 }
 
-func (r *MetricsRepository) getUserSellerRating(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*float64, error) {
+func (r *MetricsRepository) getUserSellerRating(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*float64, error) {
 	var res struct {
 		Rating *float64 `gorm:"column:rating"`
 	}
@@ -444,8 +445,8 @@ func (r *MetricsRepository) getUserSellerRating(ctx context.Context, user domain
 	return res.Rating, nil
 }
 
-func (r *MetricsRepository) getUserFavoriteBuyCategory(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*domain.YearMetricsCategory, error) {
-	var favoriteBuyCategory domain.YearMetricsCategory
+func (r *MetricsRepository) getUserFavoriteBuyCategory(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*recap.YearMetricsCategory, error) {
+	var favoriteBuyCategory recap.YearMetricsCategory
 
 	res := r.db.
 		WithContext(ctx).
@@ -455,7 +456,7 @@ func (r *MetricsRepository) getUserFavoriteBuyCategory(ctx context.Context, user
 		Select("categories.id, categories.name").
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
-		Where("deals.status = ?", domain.DealStatusCompleted).
+		Where("deals.status = ?", entity.DealStatusCompleted).
 		Where("deals.buyer_id = ?", user.ID).
 		Group("categories.id, categories.name").
 		Order("COUNT(deals.id) DESC").
@@ -473,8 +474,8 @@ func (r *MetricsRepository) getUserFavoriteBuyCategory(ctx context.Context, user
 	return &favoriteBuyCategory, nil
 }
 
-func (r *MetricsRepository) getUserFavoriteSellCategory(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*domain.YearMetricsCategory, error) {
-	var favoriteSellCategory domain.YearMetricsCategory
+func (r *MetricsRepository) getUserFavoriteSellCategory(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*recap.YearMetricsCategory, error) {
+	var favoriteSellCategory recap.YearMetricsCategory
 
 	res := r.db.
 		WithContext(ctx).
@@ -484,7 +485,7 @@ func (r *MetricsRepository) getUserFavoriteSellCategory(ctx context.Context, use
 		Select("categories.id, categories.name").
 		Where("deals.completed_at < ?", maxDate).
 		Where("deals.completed_at >= ?", minDate).
-		Where("deals.status = ?", domain.DealStatusCompleted).
+		Where("deals.status = ?", entity.DealStatusCompleted).
 		Where("listings.seller_id = ?", user.ID).
 		Group("categories.id").
 		Order("COUNT(deals.id) DESC").
@@ -502,8 +503,8 @@ func (r *MetricsRepository) getUserFavoriteSellCategory(ctx context.Context, use
 	return &favoriteSellCategory, nil
 }
 
-func (r *MetricsRepository) getUserMostViewedListing(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*domain.YearMetricsListing, error) {
-	var mostViewedListing domain.YearMetricsListing
+func (r *MetricsRepository) getUserMostViewedListing(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*recap.YearMetricsListing, error) {
+	var mostViewedListing recap.YearMetricsListing
 
 	res := r.db.
 		WithContext(ctx).
@@ -529,8 +530,8 @@ func (r *MetricsRepository) getUserMostViewedListing(ctx context.Context, user d
 	return &mostViewedListing, nil
 }
 
-func (r *MetricsRepository) getUserBestReviewReceived(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*domain.YearMetricsReview, error) {
-	var review domain.YearMetricsReview
+func (r *MetricsRepository) getUserBestReviewReceived(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*recap.YearMetricsReview, error) {
+	var review recap.YearMetricsReview
 
 	res := r.db.
 		WithContext(ctx).
@@ -553,8 +554,8 @@ func (r *MetricsRepository) getUserBestReviewReceived(ctx context.Context, user 
 	return &review, nil
 }
 
-func (r *MetricsRepository) getUserBestReviewLeft(ctx context.Context, user domain.User, maxDate, minDate time.Time) (*domain.YearMetricsReview, error) {
-	var review domain.YearMetricsReview
+func (r *MetricsRepository) getUserBestReviewLeft(ctx context.Context, user entity.User, maxDate, minDate time.Time) (*recap.YearMetricsReview, error) {
+	var review recap.YearMetricsReview
 
 	res := r.db.
 		WithContext(ctx).
@@ -577,8 +578,8 @@ func (r *MetricsRepository) getUserBestReviewLeft(ctx context.Context, user doma
 	return &review, nil
 }
 
-func (r *MetricsRepository) getUserViewsByCategory(ctx context.Context, user domain.User, maxDate, minDate time.Time) ([]domain.YearMetricsViews, error) {
-	categories := []domain.YearMetricsViews{}
+func (r *MetricsRepository) getUserViewsByCategory(ctx context.Context, user entity.User, maxDate, minDate time.Time) ([]recap.YearMetricsViews, error) {
+	categories := []recap.YearMetricsViews{}
 
 	err := r.db.
 		WithContext(ctx).
@@ -601,8 +602,8 @@ func (r *MetricsRepository) getUserViewsByCategory(ctx context.Context, user dom
 	return categories, nil
 }
 
-func (r *MetricsRepository) getUserSearchesByCategory(ctx context.Context, user domain.User, maxDate, minDate time.Time) ([]domain.YearMetricsSearches, error) {
-	categories := []domain.YearMetricsSearches{}
+func (r *MetricsRepository) getUserSearchesByCategory(ctx context.Context, user entity.User, maxDate, minDate time.Time) ([]recap.YearMetricsSearches, error) {
+	categories := []recap.YearMetricsSearches{}
 
 	err := r.db.
 		WithContext(ctx).
@@ -624,8 +625,8 @@ func (r *MetricsRepository) getUserSearchesByCategory(ctx context.Context, user 
 	return categories, nil
 }
 
-func (r *MetricsRepository) getUserFavorites(ctx context.Context, user domain.User, maxDate, minDate time.Time) ([]domain.YearMetricsFavorite, error) {
-	categories := []domain.YearMetricsFavorite{}
+func (r *MetricsRepository) getUserFavorites(ctx context.Context, user entity.User, maxDate, minDate time.Time) ([]recap.YearMetricsFavorite, error) {
+	categories := []recap.YearMetricsFavorite{}
 
 	err := r.db.
 		WithContext(ctx).
@@ -647,8 +648,8 @@ func (r *MetricsRepository) getUserFavorites(ctx context.Context, user domain.Us
 	return categories, nil
 }
 
-func (r *MetricsRepository) getUserListingCount(ctx context.Context, user domain.User, maxDate, minDate time.Time) ([]domain.YearMetricsListingCount, error) {
-	listingCount := []domain.YearMetricsListingCount{}
+func (r *MetricsRepository) getUserListingCount(ctx context.Context, user entity.User, maxDate, minDate time.Time) ([]recap.YearMetricsListingCount, error) {
+	listingCount := []recap.YearMetricsListingCount{}
 
 	err := r.db.
 		WithContext(ctx).
@@ -671,7 +672,7 @@ func (r *MetricsRepository) getUserListingCount(ctx context.Context, user domain
 	return listingCount, nil
 }
 
-func (r *MetricsRepository) getUserMessagedListingIDs(ctx context.Context, user domain.User, maxDate, minDate time.Time) ([]int64, error) {
+func (r *MetricsRepository) getUserMessagedListingIDs(ctx context.Context, user entity.User, maxDate, minDate time.Time) ([]int64, error) {
 	var ids []int64
 
 	err := r.db.
@@ -682,7 +683,7 @@ func (r *MetricsRepository) getUserMessagedListingIDs(ctx context.Context, user 
 		Where("conversations.initiator_id = ?", user.ID).
 		Where("conversations.created_at < ?", maxDate).
 		Where("conversations.created_at >= ?", minDate).
-		Where("listings.status = ?", domain.ListingStatusActive).
+		Where("listings.status = ?", entity.ListingStatusActive).
 		Group("listings.id").
 		Scan(&ids).
 		Error
@@ -694,8 +695,8 @@ func (r *MetricsRepository) getUserMessagedListingIDs(ctx context.Context, user 
 	return ids, nil
 }
 
-func (r *MetricsRepository) getUserOwnListings(ctx context.Context, user domain.User, maxDate, minDate time.Time) ([]domain.YearMetricsOwnListing, error) {
-	listings := []domain.YearMetricsOwnListing{}
+func (r *MetricsRepository) getUserOwnListings(ctx context.Context, user entity.User, maxDate, minDate time.Time) ([]recap.YearMetricsOwnListing, error) {
+	listings := []recap.YearMetricsOwnListing{}
 
 	err := r.db.
 		WithContext(ctx).
@@ -717,8 +718,8 @@ func (r *MetricsRepository) getUserOwnListings(ctx context.Context, user domain.
 	return listings, nil
 }
 
-func (r *MetricsRepository) getUserAchievementsByIDAndYear(ctx context.Context, userID int64, maxDate time.Time, minDate time.Time) ([]domain.YearAchievement, error) {
-	var achievements []domain.YearAchievement
+func (r *MetricsRepository) getUserAchievementsByIDAndYear(ctx context.Context, userID int64, maxDate time.Time, minDate time.Time) ([]recap.YearAchievement, error) {
+	var achievements []recap.YearAchievement
 
 	res := r.db.
 		WithContext(ctx).

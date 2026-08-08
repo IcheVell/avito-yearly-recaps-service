@@ -1,13 +1,14 @@
 package engine
 
 import (
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
 	"sync"
-	"v1/internal/domain"
+
+	"v1/catalog"
+	"v1/internal/domain/recap"
 )
 
 const (
@@ -23,15 +24,15 @@ const (
 	weightSearch         = 1
 )
 
-func ResolveRole(metrics domain.YearMetrics) (domain.RecapRole, error) {
+func ResolveRole(metrics recap.YearMetrics) (recap.RecapRole, error) {
 	role, percent := chooseCode(metrics)
 
 	title, subtitle, why, name, err := chooseText(role, percent, metrics)
 	if err != nil {
-		return domain.RecapRole{}, err
+		return recap.RecapRole{}, err
 	}
 
-	return domain.RecapRole{
+	return recap.RecapRole{
 		Code:                 role,
 		Name:                 name,
 		Title:                title,
@@ -41,7 +42,7 @@ func ResolveRole(metrics domain.YearMetrics) (domain.RecapRole, error) {
 	}, nil
 }
 
-func chooseText(role string, percent int64, metrics domain.YearMetrics) (string, string, string, string, error) {
+func chooseText(role string, percent int64, metrics recap.YearMetrics) (string, string, string, string, error) {
 	roleStats, err := loadRoleCopies()
 	if err != nil {
 		return "", "", "", "", err
@@ -77,7 +78,7 @@ func chooseText(role string, percent int64, metrics domain.YearMetrics) (string,
 	return title, subtitle, why, stats.Name, nil
 }
 
-func chooseCode(metrics domain.YearMetrics) (string, int64) {
+func chooseCode(metrics recap.YearMetrics) (string, int64) {
 	sellerScore := metrics.ListingsCreatedCount*weightListingCreated + metrics.SellsCount*weightSell
 	buyerScore := metrics.FavoritesCount*weightFavorite + metrics.BuysCount*weightBuy
 	watcherScore := metrics.ViewsCount*weightView + metrics.SearchesCount*weightSearch
@@ -107,9 +108,6 @@ type roleStats struct {
 	Why      string   `json:"why"`
 }
 
-//go:embed roles.json
-var rolesJSON []byte
-
 var (
 	roleCopies     map[string]roleStats
 	roleCopiesErr  error
@@ -118,7 +116,7 @@ var (
 
 func loadRoleCopies() (map[string]roleStats, error) {
 	roleCopiesOnce.Do(func() {
-		roleCopiesErr = json.Unmarshal(rolesJSON, &roleCopies)
+		roleCopiesErr = json.Unmarshal(catalog.RolesJSON, &roleCopies)
 	})
 	return roleCopies, roleCopiesErr
 }

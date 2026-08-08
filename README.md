@@ -90,8 +90,8 @@ curl http://localhost/api/health
 При первом создании volume PostgreSQL автоматически применяет:
 
 ```text
-psql/000001_init.up.sql
-psql/000002_seed.up.sql
+backend/migrations/000001_init.up.sql
+backend/migrations/000002_seed.up.sql
 ```
 
 Чтобы полностью пересоздать локальную БД и повторно выполнить init-скрипты:
@@ -112,7 +112,7 @@ DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=yearly_recaps
 DB_SSLMODE=disable
-RECAP_YEAR=2025
+RECAP_YEAR=2026
 ```
 
 В `docker-compose.yaml` для основных параметров предусмотрены значения по умолчанию.

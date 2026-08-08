@@ -5,20 +5,21 @@ import (
 	"log/slog"
 	"net/http"
 	"v1/internal/api/dto"
-	"v1/internal/domain"
+	"v1/internal/domain/entity"
+	"v1/internal/domain/recap"
 )
 
 type RecapService interface {
-	GenerateRecap(ctx context.Context, userID int64, year int) (domain.Recap, bool, error)
-	GetUserRecap(ctx context.Context, userID int64, year int) (domain.Recap, error)
+	GenerateRecap(ctx context.Context, userID int64, year int) (recap.Recap, bool, error)
+	GetUserRecap(ctx context.Context, userID int64, year int) (recap.Recap, error)
 }
 
 type AchievementProvider interface {
-	ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error)
+	ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, error)
 }
 
 type StatsProvider interface {
-	GetUserStats(ctx context.Context, userID int64, year int) (domain.YearMetrics, error)
+	GetUserStats(ctx context.Context, userID int64, year int) (recap.YearMetrics, error)
 }
 
 type RecapsHandler struct {

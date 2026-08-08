@@ -4,14 +4,14 @@ import (
 	"reflect"
 	"testing"
 	"time"
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
 func TestChooseType_SellerBoostListings(t *testing.T) {
 	old := time.Now().AddDate(0, 0, -30)
-	m := domain.YearMetrics{
+	m := recap.YearMetrics{
 		SellsCount: 10,
-		OwnListings: []domain.YearMetricsOwnListing{
+		OwnListings: []recap.YearMetricsOwnListing{
 			{ID: 1, Status: "active", UpdatedAt: old, ViewsCount: 1},
 			{ID: 2, Status: "active", UpdatedAt: old, ViewsCount: 3},
 			{ID: 3, Status: "active", UpdatedAt: old, ViewsCount: 5},
@@ -30,12 +30,12 @@ func TestChooseType_SellerBoostListings(t *testing.T) {
 }
 
 func TestChooseType_ListingAbandoned(t *testing.T) {
-	m := domain.YearMetrics{
-		ListingViewCounts: []domain.YearMetricsListingCount{
+	m := recap.YearMetrics{
+		ListingViewCounts: []recap.YearMetricsListingCount{
 			{ListingID: 100, CategoryID: 7, Views: 12},
 		},
 		MessagedListingIDs: []int64{200},
-		Favorites: []domain.YearMetricsFavorite{
+		Favorites: []recap.YearMetricsFavorite{
 			{ListingID: 100, CategoryID: 7},
 		},
 	}
@@ -54,15 +54,15 @@ func TestChooseType_ListingAbandoned(t *testing.T) {
 }
 
 func TestChooseType_CompareTop(t *testing.T) {
-	m := domain.YearMetrics{
-		Favorites: []domain.YearMetricsFavorite{
+	m := recap.YearMetrics{
+		Favorites: []recap.YearMetricsFavorite{
 			{ListingID: 1, CategoryID: 5},
 			{ListingID: 2, CategoryID: 5},
 			{ListingID: 3, CategoryID: 5},
 			{ListingID: 4, CategoryID: 5},
 			{ListingID: 5, CategoryID: 5},
 		},
-		ListingViewCounts: []domain.YearMetricsListingCount{
+		ListingViewCounts: []recap.YearMetricsListingCount{
 			{ListingID: 1, CategoryID: 5, Views: 10},
 			{ListingID: 2, CategoryID: 5, Views: 50},
 			{ListingID: 3, CategoryID: 5, Views: 30},
@@ -88,8 +88,8 @@ func TestChooseType_CompareTop(t *testing.T) {
 }
 
 func TestChooseType_FallbackContinueSearch(t *testing.T) {
-	m := domain.YearMetrics{
-		ViewsByCategory: []domain.YearMetricsViews{
+	m := recap.YearMetrics{
+		ViewsByCategory: []recap.YearMetricsViews{
 			{CategoryID: 9, Views: 100},
 			{CategoryID: 3, Views: 20},
 		},
