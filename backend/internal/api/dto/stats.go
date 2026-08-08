@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"math"
 	"time"
 	"v1/internal/domain"
 )
@@ -110,7 +111,7 @@ func NewYearMetricsResponse(metrics domain.YearMetrics) YearMetricsResponse {
 		YearsOnAvito:         metrics.YearsOnAvito,
 		PriceMin:             metrics.PriceMin,
 		PriceMax:             metrics.PriceMax,
-		SellerRating:         metrics.SellerRating,
+		SellerRating:         roundSellerRating(metrics.SellerRating),
 		FavoriteBuyCategory:  newYearMetricsCategoryResponse(metrics.FavoriteBuyCategory),
 		FavoriteSellCategory: newYearMetricsCategoryResponse(metrics.FavoriteSellCategory),
 		MostViewedListing:    newYearMetricsListingResponse(metrics.MostViewedListing),
@@ -123,6 +124,14 @@ func NewYearMetricsResponse(metrics domain.YearMetrics) YearMetricsResponse {
 		MessagedListingIDs:   emptyInt64SliceIfNil(metrics.MessagedListingIDs),
 		OwnListings:          newYearMetricsOwnListingResponses(metrics.OwnListings),
 	}
+}
+
+func roundSellerRating(rating *float64) *float64 {
+	if rating == nil {
+		return nil
+	}
+	rounded := math.Round(*rating*10) / 10
+	return &rounded
 }
 
 func newYearMetricsCategoryResponse(category *domain.YearMetricsCategory) *YearMetricsCategoryResponse {
