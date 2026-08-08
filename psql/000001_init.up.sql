@@ -9,12 +9,43 @@ CREATE TABLE users(
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE user_stats(
+    user_id BIGINT PRIMARY KEY,
+    buys_count BIGINT NOT NULL DEFAULT 0,
+    sells_count BIGINT NOT NULL DEFAULT 0,
+    favorites_count BIGINT NOT NULL DEFAULT 0,
+    conversations_count BIGINT NOT NULL DEFAULT 0,
+    spent_amount NUMERIC(14, 2) NOT NULL DEFAULT 0,
+    rating_sum BIGINT NOT NULL DEFAULT 0,
+    reviews_count BIGINT NOT NULL DEFAULT 0,
+    max_streak_days BIGINT NOT NULL DEFAULT 0,
+    max_inactive_gap_days BIGINT NOT NULL DEFAULT 0,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_user_stats_user_id
+        FOREIGN KEY(user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE achievements(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     code non_empty_varchar_255 NOT NULL UNIQUE,
     name non_empty_varchar_255 NOT NULL,
     description non_empty_varchar_255 NOT NULL,
     image_url non_empty_varchar_255 NOT NULL
+);
+
+CREATE TABLE achievement_rules(
+    achievement_id BIGINT PRIMARY KEY,
+    rule JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT fk_achievement_rules_achievement_id
+        FOREIGN KEY(achievement_id)
+        REFERENCES achievements(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE yearly_recaps(
