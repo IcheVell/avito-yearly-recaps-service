@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest';
 import { getApiErrorMessage } from '../../../src/shared/api/apiError';
 
 describe('getApiErrorMessage', () => {
+  it('показывает общее сообщение для неизвестной ошибки', () => {
+    expect(getApiErrorMessage(new Error('Неизвестная ошибка'))).toBe(
+      'Произошла неизвестная ошибка.',
+    );
+  });
+
   it('показывает специальное сообщение, если итоги ещё не созданы', () => {
     const message = getApiErrorMessage({
       status: 404,
@@ -39,4 +45,25 @@ describe('getApiErrorMessage', () => {
       }),
     ).toBe('Не удалось связаться с сервером.');
   });
+
+  it('обрабатывает обычную ошибку 404', () => {
+    expect(
+      getApiErrorMessage({
+        status: 404,
+        data: null,
+      }),
+    ).toBe('Пользователь или итоги не найдены.');
+  });
+
+  it.each([500, 502, 503, 504, 505, 511])(
+    'показывает сообщение о недоступности при ошибке %s',
+    (status) => {
+      expect(
+        getApiErrorMessage({
+          status,
+          data: null,
+        }),
+      ).toBe('Сервис временно недоступен.');
+    },
+  );
 });

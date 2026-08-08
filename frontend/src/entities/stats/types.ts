@@ -7,7 +7,7 @@ export type StatsListing = {
   id: number;
   name: string;
   city: string;
-  imageUrl: string;
+  imageUrl: string | null;
   viewsCount: number;
 };
 
