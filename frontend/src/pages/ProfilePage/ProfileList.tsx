@@ -1,5 +1,6 @@
 import type { Profile } from '../../entities/profile/types';
 
+import { ProfileAvatar } from './ProfileAvatar';
 import styles from './ProfilePage.module.css';
 
 type ProfileListProps = {
@@ -28,12 +29,7 @@ export function ProfileList({
             onClick={() => onSelect(profile.id)}
             aria-pressed={isSelected}
           >
-            <img
-              src={profile.imageUrl}
-              alt=""
-              width="64"
-              height="64"
-            />
+            <ProfileAvatar profile={profile} size={64} />
             <span title={profile.username}>{profile.username}</span>
           </button>
         );

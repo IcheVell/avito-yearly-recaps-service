@@ -152,9 +152,27 @@
 }
 
 .profileCard img,
-.profileDetails img {
+.profileDetails img,
+.profileAvatarFallback {
   object-fit: cover;
   border-radius: 50%;
+}
+
+.profileAvatarFallback {
+  flex: 0 0 auto;
+
+  display: grid;
+  place-items: center;
+
+  background: linear-gradient(135deg, #d9f2ff, #e7d7ff);
+  color: #5b3f75;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.profileDetails .profileAvatarFallback {
+  font-size: 28px;
 }
 
 .profileCardSelected {

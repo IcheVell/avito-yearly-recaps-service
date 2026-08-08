@@ -1,5 +1,4 @@
-import { useState } from 'react';
-
+import { SafeImage } from '../../shared/ui/SafeImage/SafeImage';
 import type { Achievement } from '../achievement/types';
 import type { CardVariant } from './cardVariants';
 import { RecapCardHeader } from './RecapCardHeader';
@@ -18,14 +17,6 @@ export function AchievementCard({
   variant,
   isActive,
 }: AchievementCardProps) {
-  const [failedImageUrl, setFailedImageUrl] = useState<
-    string | null
-  >(null);
-
-  const canShowImage =
-    achievement.imageUrl.length > 0 &&
-    failedImageUrl !== achievement.imageUrl;
-
   return (
     <RecapCardShell
       variant={variant}
@@ -35,22 +26,20 @@ export function AchievementCard({
       <RecapCardHeader title="Достижение" />
 
       <div className={styles.achievementVisual}>
-        {canShowImage ? (
-          <img
-            className={styles.achievementImage}
-            src={achievement.imageUrl}
-            alt=""
-            loading="lazy"
-            onError={() => setFailedImageUrl(achievement.imageUrl)}
-          />
-        ) : (
-          <strong
-            className={`${styles.value} ${styles.achievementFallback}`}
-            aria-hidden="true"
-          >
-            ★
-          </strong>
-        )}
+        <SafeImage
+          className={styles.achievementImage}
+          src={achievement.imageUrl}
+          alt=""
+          loading="lazy"
+          fallback={
+            <strong
+              className={`${styles.value} ${styles.achievementFallback}`}
+              aria-hidden="true"
+            >
+              ★
+            </strong>
+          }
+        />
       </div>
 
       <div className={styles.achievementCopy}>
