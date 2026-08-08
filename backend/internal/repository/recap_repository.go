@@ -101,37 +101,6 @@ func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID in
 	return &recap, nil
 }
 
-func (r *RecapRepository) ListUserAchievements(ctx context.Context, userID int64) (earned []domain.UserAchievement, locked []domain.Achievement, err error) {
-	err = r.db.WithContext(ctx).
-		Preload("Achievement").
-		Where("user_id = ?", userID).
-		Order("created_at DESC").
-		Find(&earned).Error
-	if err != nil {
-		return nil, nil, fmt.Errorf("list earned achievements: %w", err)
-	}
-
-	var all []domain.Achievement
-	err = r.db.WithContext(ctx).Order("id ASC").Find(&all).Error
-	if err != nil {
-		return nil, nil, fmt.Errorf("list all achievements: %w", err)
-	}
-
-	earnedIDs := make(map[int64]struct{}, len(earned))
-	for _, a := range earned {
-		earnedIDs[a.AchievementID] = struct{}{}
-	}
-
-	locked = make([]domain.Achievement, 0)
-	for _, a := range all {
-		if _, ok := earnedIDs[a.ID]; !ok {
-			locked = append(locked, a)
-		}
-	}
-
-	return earned, locked, nil
-}
-
 func marshalRecapPayload(recap *domain.Recap) ([]byte, error) {
 	payload := domain.YearlyRecapPayload{
 		Role:         recap.Role,
