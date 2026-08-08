@@ -12,7 +12,7 @@ INSERT INTO achievements (id, code, name, description, image_url)
 OVERRIDING SYSTEM VALUE
 VALUES
     (995001, 'streak_survivor', 'Несгибаемый', 'Были дни, когда Avito тебя не отпускал — серия без пропусков.', 'static/achievements/streak_survivor.png'),
-    (995002, 'two_faced_market', 'Две стороны рынка', 'За год ты успел и купить, и продать — побывал по обе стороны сделки.', 'static/achievements/two-faced_market.png'),
+    (995002, 'two_faced_market', 'Две стороны рынка', 'За год ты успел и купить, и продать — побывал по обе стороны сделки.', 'static/achievements/two_faced_market.png'),
     (995003, 'shortlist_boarder', 'Коллекционер', 'Избранное разрослось: ты собирал варианты, прежде чем выбрать.', 'static/achievements/shortlist_boarder.png'),
     (995004, 'wallet_whisperer', 'Шёпот кошелька', 'Покупки года сложились в заметную сумму — любопытство явно не дремало.', 'static/achievements/wallet_whisperer.png'),
     (995005, 'trust_badge', 'Знак доверия', 'Высокий рейтинг продавца: с тобой имеют дело охотно и спокойно.', 'static/achievements/trust_badge.png'),
