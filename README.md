@@ -88,7 +88,7 @@ mocks/       Локальные данные для запуска без backen
 ```
 
 
-Frontend  взаимодействует с backend через RTK Query. Подробное описание структуры, режимов работы, запуска и тестирования находится в [README frontend](frontend/README.md).
+Frontend  взаимодействует с backend через RTK Query. Подробное описание структуры, режимов работы находится в [README frontend](frontend/README.md).
 
 ## Архитектура backend
 
