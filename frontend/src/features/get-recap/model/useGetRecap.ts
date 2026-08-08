@@ -7,34 +7,32 @@ import { useLazyGetRecapQuery } from '../../../shared/api/recapApi';
 type UseGetRecapOptions = {
   userId: number;
   onReceived: (recap: Recap) => void;
+  onError: (message: string) => void;
 };
 
 type UseGetRecapResult = {
   getRecap: () => Promise<void>;
   isGetting: boolean;
-  errorMessage: string | null;
 };
 
 export function useGetRecap({
   userId,
   onReceived,
+  onError,
 }: UseGetRecapOptions): UseGetRecapResult {
-  const [triggerGetRecap, { isFetching, error }] =
-    useLazyGetRecapQuery();
+  const [triggerGetRecap, { isFetching }] = useLazyGetRecapQuery();
 
   const getRecap = useCallback(async () => {
     try {
       const recap = await triggerGetRecap(userId).unwrap();
       onReceived(recap);
-    } catch {
-      // RTK Query сохраняет ошибку запроса в `error`.
+    } catch (error) {
+      onError(getApiErrorMessage(error));
     }
-  }, [onReceived, triggerGetRecap, userId]);
+  }, [onError, onReceived, triggerGetRecap, userId]);
 
   return {
     getRecap,
     isGetting: isFetching,
-    errorMessage:
-      !isFetching && error ? getApiErrorMessage(error) : null,
   };
 }

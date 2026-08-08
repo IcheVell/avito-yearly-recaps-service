@@ -107,9 +107,11 @@
 
 .error {
   max-width: 480px;
-  margin: 0;
+  margin: 6px 0 0;
   color: #b11f31;
   font-weight: 700;
+
+  animation: errorEnter 240ms ease-out both;
 }
 
 @media (max-width: 720px) {
@@ -124,7 +126,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
+  .spinner,
+  .error {
     animation: none;
   }
 }
@@ -132,5 +135,17 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes errorEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
