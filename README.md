@@ -6,8 +6,11 @@
 
 ## Распределение ответственности между участниками команды:
 [@IcheVell](https://github.com/IcheVell) - backend
+
 [@alina965](https://github.com/alina965) - backend, дизайнер
+
 [@che1nov](https://github.com/che1nov) - backend
+
 [@Lunkova-Kate](https://github.com/Lunkova-Kate) - frontend, дизайнер
 
 
@@ -70,7 +73,6 @@ PostgreSQL
 
 ## Архитектура Frontend
 
-## Архитектура
 
 Frontend разделён на слои по ответственности:
 
