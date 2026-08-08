@@ -1,36 +1,21 @@
-import {
-  useEffect,
-  useMemo,
-} from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { createCardVariants } from '../../entities/recap/createCardVariants';
-import type {
-  Recap,
-  RecapAction,
-} from '../../entities/recap/types';
-import { CloseRecapButton } from '../../features/close-recap/CloseRecapButton';
+import type { Recap } from '../../entities/recap/types';
 
+import { handleRecapAction } from './model/handleRecapAction';
 import { createRecapSlides } from './model/recapSlides';
 import { useRecapCarousel } from './model/useRecapCarousel';
+import { RecapControls } from './RecapControls';
+import { RecapFireworks } from './RecapFireworks';
 import styles from './RecapOverlay.module.css';
+import { RecapProgress } from './RecapProgress';
 import { RecapSlideView } from './RecapSlideView';
 
 type RecapOverlayProps = {
   recap: Recap;
   onClose: () => void;
 };
-
-const FIREWORK_PARTICLES = Array.from({ length: 12 });
-
-function OverlayFirework({ className }: { className: string }) {
-  return (
-    <span className={`${styles.overlayFirework} ${className}`}>
-      {FIREWORK_PARTICLES.map((_, index) => (
-        <i key={index} />
-      ))}
-    </span>
-  );
-}
 
 export function RecapOverlay({
   recap,
@@ -92,52 +77,6 @@ export function RecapOverlay({
     };
   }, [goToNextSlide, goToPreviousSlide, onClose]);
 
-  function handleAction(action: RecapAction) {
-    switch (action.type) {
-      case 'boost_listings':
-        console.info('Boost listings:', {
-          listingIds: action.target.listingIds,
-          categoryId: action.target.categoryId,
-        });
-        return;
-
-      case 'create_listing':
-        console.info('Create listing');
-        return;
-
-      case 'listing_abandoned':
-        console.info('Contact listing seller:', {
-          listingIds: action.target.listingIds,
-          categoryId: action.target.categoryId,
-        });
-        return;
-
-      case 'compare_top':
-        console.info('Compare listings:', {
-          listingIds: action.target.listingIds,
-          categoryId: action.target.categoryId,
-        });
-        return;
-
-      case 'open_favorites':
-        console.info('Open favorites:', action.target);
-        return;
-
-      case 'continue_search':
-        console.info('Continue search:', action.target);
-        return;
-
-      default: {
-        const exhaustiveAction: never = action;
-        throw new Error(
-          `Неизвестное recap-действие: ${JSON.stringify(
-            exhaustiveAction,
-          )}`,
-        );
-      }
-    }
-  }
-
   return (
     <div
       className={styles.overlay}
@@ -145,44 +84,15 @@ export function RecapOverlay({
       aria-modal="true"
       aria-label={`Итоги ${recap.year} года`}
     >
-      <header className={styles.topBar}>
-        <div
-          className={styles.progress}
-          aria-label={`Карточка ${
-            currentSlide + 1
-          } из ${slidesCount}`}
-        >
-          {slides.map(
-            (slide, index) => (
-              <button
-                key={slide.id}
-                className={`${
-                  styles.progressItem
-                } ${
-                  index === currentSlide
-                    ? styles.progressItemActive
-                    : ''
-                }`}
-                type="button"
-                onClick={() => scrollToSlide(index)}
-                aria-label={`Перейти к карточке ${
-                  index + 1
-                }`}
-              />
-            ),
-          )}
-        </div>
-
-        <CloseRecapButton onClose={onClose} />
-      </header>
+      <RecapProgress
+        slides={slides}
+        currentSlide={currentSlide}
+        onSelectSlide={scrollToSlide}
+        onClose={onClose}
+      />
 
       {slides[currentSlide]?.kind === 'intro' && (
-        <div className={styles.fireworksLayer} aria-hidden="true">
-          <OverlayFirework className={styles.fireworkUpperLeft} />
-          <OverlayFirework className={styles.fireworkUpperRight} />
-          <OverlayFirework className={styles.fireworkLowerLeft} />
-          <OverlayFirework className={styles.fireworkLowerRight} />
-        </div>
+        <RecapFireworks />
       )}
 
       <div
@@ -196,40 +106,19 @@ export function RecapOverlay({
             slide={slide}
             variant={variants[index]}
             isActive={currentSlide === index}
-            onAction={handleAction}
+            onAction={handleRecapAction}
           />
         ))}
       </div>
 
-      <footer className={styles.controls}>
-        <button
-          type="button"
-          onClick={goToPreviousSlide}
-          disabled={isFirstSlide}
-          aria-label="Предыдущая карточка"
-        >
-          <span className={styles.controlIcon} aria-hidden="true">
-            ←
-          </span>
-          <span className={styles.controlLabel}>Назад</span>
-        </button>
-
-        <span>
-          {currentSlide + 1} / {slidesCount}
-        </span>
-
-        <button
-          type="button"
-          onClick={goToNextSlide}
-          disabled={isLastSlide}
-          aria-label="Следующая карточка"
-        >
-          <span className={styles.controlIcon} aria-hidden="true">
-            →
-          </span>
-          <span className={styles.controlLabel}>Вперёд</span>
-        </button>
-      </footer>
+      <RecapControls
+        currentSlide={currentSlide}
+        slidesCount={slidesCount}
+        isFirstSlide={isFirstSlide}
+        isLastSlide={isLastSlide}
+        onPrevious={goToPreviousSlide}
+        onNext={goToNextSlide}
+      />
     </div>
   );
 }

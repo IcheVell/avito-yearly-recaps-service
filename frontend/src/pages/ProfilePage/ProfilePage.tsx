@@ -3,20 +3,23 @@ import { useState } from 'react';
 import logoSrc from '../../assets/logo.svg.webp';
 import type { Profile } from '../../entities/profile/types';
 import type { Recap } from '../../entities/recap/types';
-import { GenerateRecapButton } from '../../features/generate-recap/GenerateRecapButton';
-import { GetRecapButton } from '../../features/get-recap/GetRecapButton';
 import { useGetAchievementsQuery } from '../../shared/api/achievementsApi';
 import { getApiErrorMessage } from '../../shared/api/apiError';
 import { useGetProfilesQuery } from '../../shared/api/profilesApi';
+import { useGetStatsQuery } from '../../shared/api/statsApi';
 import { ErrorMessage } from '../../shared/ui/ErrorMessage/ErrorMessage';
 import { Loader } from '../../shared/ui/Loader/Loader';
 import { RecapOverlay } from '../../widgets/RecapOverlay/RecapOverlay';
 
+import { AchievementsPanel } from './AchievementsPanel';
+import { ProfileList } from './ProfileList';
 import styles from './ProfilePage.module.css';
+import { ProfileSummary } from './ProfileSummary';
 import {
   ProfileTabs,
   type ProfileTab,
 } from './ProfileTabs';
+import { StatisticsPanel } from './StatisticsPanel';
 
 export function ProfilePage() {
   const [selectedProfileId, setSelectedProfileId] =
@@ -25,18 +28,24 @@ export function ProfilePage() {
     useState<ProfileTab>('statistics');
   const [openRecap, setOpenRecap] = useState<Recap | null>(null);
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useGetProfilesQuery();
-
+  const { data, isLoading, error, refetch } = useGetProfilesQuery();
 
   const selectedProfile: Profile | undefined =
     data?.items.find(
       (profile) => profile.id === selectedProfileId,
     ) ?? data?.items[0];
+
+  const shouldLoadStats =
+    activeTab === 'statistics' && selectedProfile !== undefined;
+
+  const {
+    data: statsData,
+    isFetching: isStatsLoading,
+    error: statsError,
+    refetch: refetchStats,
+  } = useGetStatsQuery(selectedProfile?.id ?? 0, {
+    skip: !shouldLoadStats,
+  });
 
   const shouldLoadAchievements =
     activeTab === 'achievements' && selectedProfile !== undefined;
@@ -85,84 +94,50 @@ export function ProfilePage() {
             )}
 
             {data && (
-              <div className={styles.profileList}>
-                {data.items.map((profile) => {
-                  const isSelected =
-                    profile.id === selectedProfile?.id;
-
-                  return (
-                    <button
-                      key={profile.id}
-                      className={`${styles.profileCard} ${
-                        isSelected
-                          ? styles.profileCardSelected
-                          : ''
-                      }`}
-                      type="button"
-                      onClick={() =>
-                        setSelectedProfileId(profile.id)
-                      }
-                      aria-pressed={isSelected}
-                    >
-                      <img
-                        src={profile.imageUrl}
-                        alt=""
-                        width="64"
-                        height="64"
-                      />
-                      <span title={profile.username}>
-                        {profile.username}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <ProfileList
+                profiles={data.items}
+                selectedProfileId={selectedProfile?.id ?? 0}
+                onSelect={setSelectedProfileId}
+              />
             )}
           </aside>
 
           <section className={styles.contentColumn}>
             {data && selectedProfile && (
-              <div className={styles.profileDetails}>
-                <img
-                  src={selectedProfile.imageUrl}
-                  alt=""
-                  width="108"
-                  height="108"
-                />
-
-                <div>
-                  <p className={styles.eyebrow}>Текущий профиль</p>
-                  <h2>{selectedProfile.username}</h2>
-
-                  <div className={styles.recapButtons}>
-                    <GenerateRecapButton
-                      userId={selectedProfile.id}
-                      year={data.currentYear}
-                      onGenerated={setOpenRecap}
-                    />
-
-                    <GetRecapButton
-                      userId={selectedProfile.id}
-                      onReceived={setOpenRecap}
-                    />
-                  </div>
-                </div>
-              </div>
+              <ProfileSummary
+                profile={selectedProfile}
+                year={data.currentYear}
+                onRecapReceived={setOpenRecap}
+              />
             )}
 
             <div className={styles.profileContentPanel}>
               <ProfileTabs
                 activeTab={activeTab}
-                achievements={achievementsData?.earned ?? null}
-                isAchievementsLoading={isAchievementsLoading}
-                achievementsErrorMessage={
-                  achievementsError
-                    ? getApiErrorMessage(achievementsError)
-                    : null
-                }
                 onTabChange={setActiveTab}
-                onRetryAchievements={refetchAchievements}
-              />
+              >
+                {activeTab === 'statistics' ? (
+                  <StatisticsPanel
+                    stats={statsData ?? null}
+                    isLoading={isStatsLoading}
+                    errorMessage={
+                      statsError ? getApiErrorMessage(statsError) : null
+                    }
+                    onRetry={refetchStats}
+                  />
+                ) : (
+                  <AchievementsPanel
+                    achievements={achievementsData ?? null}
+                    isLoading={isAchievementsLoading}
+                    errorMessage={
+                      achievementsError
+                        ? getApiErrorMessage(achievementsError)
+                        : null
+                    }
+                    onRetry={refetchAchievements}
+                  />
+                )}
+              </ProfileTabs>
             </div>
           </section>
         </div>

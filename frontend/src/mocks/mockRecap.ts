@@ -1,4 +1,5 @@
 import type { Recap } from '../entities/recap/types';
+import { mockAchievementCatalog } from './mockAchievements';
 import { mockProfiles } from './mockProfiles';
 
 
@@ -243,10 +244,342 @@ const watcherMockRecap: Recap = {
   },
 };
 
+function selectAchievements(...codes: string[]) {
+  const selectedCodes = new Set(codes);
+  return mockAchievementCatalog.filter((achievement) =>
+    selectedCodes.has(achievement.code),
+  );
+}
+
+const sellerCreatorMockRecap: Recap = {
+  id: 104,
+  userId: 4,
+  year: 2025,
+  createdAt: '2026-01-18T09:20:00Z',
+  role: {
+    code: 'seller',
+    name: 'Продавец',
+    title: 'В этом году ты был на волне продаж!',
+    subtitle: 'Ты продал 18 товаров.',
+    why: '72% активности — объявления и успешные продажи',
+    activitySharePercent: 72,
+  },
+  metrics: [
+    {
+      type: 'earned_amount',
+      title: 'Заработанная сумма',
+      text: 'Твои объявления принесли заметный результат за год.',
+      highlights: ['286 000 ₽'],
+      payload: { earnedAmount: 286_000 },
+    },
+    {
+      type: 'sells_count',
+      title: 'Продажи за год',
+      text: 'Столько вещей нашли новых владельцев благодаря тебе.',
+      highlights: ['18 продаж'],
+      payload: { sellsCount: 18 },
+    },
+    {
+      type: 'favorite_sell_category',
+      title: 'Любимая категория продаж',
+      text: 'Чаще всего ты продавал товары для дома.',
+      highlights: ['Для дома'],
+      payload: { categoryId: 4, categoryName: 'Для дома' },
+    },
+  ],
+  achievements: selectAchievements(
+    'two_faced_market',
+    'trust_badge',
+    'diplomat',
+  ),
+  action: {
+    type: 'create_listing',
+    label: 'Разместить новое',
+    reason: 'У тебя уже были успешные продажи — самое время продолжить.',
+    target: {},
+  },
+  debug: {
+    generatorVersion: 'v1',
+    seedProfile: 'seller_creator_4',
+  },
+};
+
+const buyerExplorerMockRecap: Recap = {
+  id: 105,
+  userId: 5,
+  year: 2025,
+  createdAt: '2026-01-19T11:10:00Z',
+  role: {
+    code: 'buyer',
+    name: 'Покупатель',
+    title: 'Ты находил именно то, что искал!',
+    subtitle: 'Ты купил 21 товар.',
+    why: '81% активности — поиск, избранное и покупки',
+    activitySharePercent: 81,
+  },
+  metrics: [
+    {
+      type: 'spent_amount',
+      title: 'Потраченная сумма',
+      text: 'Столько стоили твои лучшие находки за год.',
+      highlights: ['194 600 ₽'],
+      payload: { spentAmount: 194_600 },
+    },
+    {
+      type: 'buys_count',
+      title: 'Покупки за год',
+      text: 'Каждая из них началась с любопытства и хорошего поиска.',
+      highlights: ['21 покупка'],
+      payload: { buysCount: 21 },
+    },
+    {
+      type: 'price_range',
+      title: 'Диапазон цен',
+      text: 'Ты находил варианты и для мелких, и для больших покупок.',
+      highlights: ['от 300 ₽'],
+      payload: { priceMin: 300, priceMax: 85_000 },
+    },
+  ],
+  achievements: selectAchievements(
+    'shortlist_hoarder',
+    'wallet_whisperer',
+    'plot_twist',
+  ),
+  action: {
+    type: 'listing_abandoned',
+    label: 'Написать продавцу',
+    reason: 'Есть объявление, к которому ты возвращался, но не написал.',
+    target: { listingIds: [205], categoryId: 1 },
+  },
+  debug: {
+    generatorVersion: 'v1',
+    seedProfile: 'buyer_explorer_5',
+  },
+};
+
+const watcherCollectorMockRecap: Recap = {
+  id: 106,
+  userId: 6,
+  year: 2025,
+  createdAt: '2026-01-20T13:40:00Z',
+  role: {
+    code: 'watcher',
+    name: 'Наблюдатель',
+    title: 'Ни одна интересная вещь не прошла мимо!',
+    subtitle: 'Ты посмотрел 1 432 объявления.',
+    why: '89% активности — просмотры, поиски и сравнение вариантов',
+    activitySharePercent: 89,
+  },
+  metrics: [
+    {
+      type: 'viewed_listenings_number',
+      title: 'Просмотренные объявления',
+      text: 'Ты изучил достаточно вариантов, чтобы выбирать уверенно.',
+      highlights: ['1 432'],
+      payload: { viewsCount: 1_432 },
+    },
+    {
+      type: 'searches_count',
+      title: 'Поиски',
+      text: 'Каждый новый запрос приближал тебя к идеальному варианту.',
+      highlights: ['516'],
+      payload: { searchesCount: 516 },
+    },
+    {
+      type: 'favorite_buy_category',
+      title: 'Главный интерес года',
+      text: 'Больше всего тебя привлекала электроника.',
+      highlights: ['Электроника'],
+      payload: { categoryId: 1, categoryName: 'Электроника' },
+    },
+  ],
+  achievements: selectAchievements(
+    'streak_survivor',
+    'shortlist_hoarder',
+    'diplomat',
+  ),
+  action: {
+    type: 'compare_top',
+    label: 'Сравнить топ-3',
+    reason: 'У тебя уже есть три сильных кандидата — осталось сравнить.',
+    target: { listingIds: [301, 302, 303], categoryId: 1 },
+  },
+  debug: {
+    generatorVersion: 'v1',
+    seedProfile: 'watcher_collector_6',
+  },
+};
+
+const sellerVeteranMockRecap: Recap = {
+  id: 107,
+  userId: 7,
+  year: 2025,
+  createdAt: '2026-01-21T15:00:00Z',
+  role: {
+    code: 'seller',
+    name: 'Продавец',
+    title: 'Опыт и доверие работали на тебя весь год!',
+    subtitle: 'Ты продал 34 товара.',
+    why: '76% активности — продажи и управление объявлениями',
+    activitySharePercent: 76,
+  },
+  metrics: [
+    {
+      type: 'earned_amount',
+      title: 'Твои продажи',
+      text: 'Год получился действительно результативным.',
+      highlights: ['542 000 ₽'],
+      payload: { earnedAmount: 542_000 },
+    },
+    {
+      type: 'seller_rating',
+      title: 'Рейтинг продавца',
+      text: 'Покупатели особенно высоко оценили работу с тобой.',
+      highlights: ['5,0'],
+      payload: { sellerRating: 5 },
+    },
+    {
+      type: 'buy_vs_sell',
+      title: 'Покупки и продажи',
+      text: 'В этом году продажи уверенно вышли вперёд.',
+      highlights: ['34 продажи'],
+      payload: { buysCount: 6, sellsCount: 34 },
+    },
+  ],
+  achievements: selectAchievements(
+    'streak_survivor',
+    'two_faced_market',
+    'shortlist_hoarder',
+  ),
+  action: {
+    type: 'boost_listings',
+    label: 'Обновить объявления',
+    reason: 'Несколько активных объявлений пора снова поднять в выдаче.',
+    target: { listingIds: [401, 402], categoryId: 3 },
+  },
+  debug: {
+    generatorVersion: 'v1',
+    seedProfile: 'seller_veteran_7',
+  },
+};
+
+const buyerBalancedMockRecap: Recap = {
+  id: 108,
+  userId: 8,
+  year: 2025,
+  createdAt: '2026-01-22T16:25:00Z',
+  role: {
+    code: 'buyer',
+    name: 'Покупатель',
+    title: 'Ты умел находить выгодные варианты!',
+    subtitle: 'Ты купил 9 товаров.',
+    why: '69% активности — сравнение цен и покупки',
+    activitySharePercent: 69,
+  },
+  metrics: [
+    {
+      type: 'favorites_count',
+      title: 'Избранное',
+      text: 'Ты сохранял лучшие варианты, чтобы ничего не потерять.',
+      highlights: ['48 находок'],
+      payload: { favoritesCount: 48 },
+    },
+    {
+      type: 'buys_count',
+      title: 'Покупки за год',
+      text: 'Девять поисков завершились удачной покупкой.',
+      highlights: ['9 покупок'],
+      payload: { buysCount: 9 },
+    },
+    {
+      type: 'best_left_review',
+      title: 'Лучший оставленный отзыв',
+      text: '«Продавец помог с выбором и быстро всё отправил».',
+      highlights: ['5 звёзд'],
+      payload: {
+        bestLeftReview: 'Продавец помог с выбором и быстро всё отправил',
+      },
+    },
+  ],
+  achievements: selectAchievements(
+    'two_faced_market',
+    'wallet_whisperer',
+  ),
+  action: {
+    type: 'open_favorites',
+    label: 'Вернуться к сохранённым',
+    reason: 'В избранном остались варианты, которые стоит проверить.',
+    target: { categoryId: 2 },
+  },
+  debug: {
+    generatorVersion: 'v1',
+    seedProfile: 'buyer_balanced_8',
+  },
+};
+
+const watcherReturningMockRecap: Recap = {
+  id: 109,
+  userId: 9,
+  year: 2025,
+  createdAt: '2026-01-23T18:05:00Z',
+  role: {
+    code: 'watcher',
+    name: 'Наблюдатель',
+    title: 'Ты вернулся и снова включился в поиск!',
+    subtitle: 'Ты посмотрел 963 объявления.',
+    why: '84% активности — просмотры и возвращение к поиску',
+    activitySharePercent: 84,
+  },
+  metrics: [
+    {
+      type: 'active_days_number',
+      title: 'Дни на Avito',
+      text: 'Ты регулярно возвращался посмотреть новые предложения.',
+      highlights: ['148 дней'],
+      payload: { activeDays: 148 },
+    },
+    {
+      type: 'years_together',
+      title: 'Лет вместе с Avito',
+      text: 'За это время поиск хороших вариантов стал привычным делом.',
+      highlights: ['7 лет'],
+      payload: { yearsTogether: 7 },
+    },
+    {
+      type: 'views_vs_favorites',
+      title: 'Просмотры и избранное',
+      text: 'Из сотен вариантов ты сохранял только самые интересные.',
+      highlights: ['963 просмотра'],
+      payload: { viewsCount: 963, favoritesCount: 71 },
+    },
+  ],
+  achievements: selectAchievements(
+    'plot_twist',
+    'diplomat',
+    'streak_survivor',
+  ),
+  action: {
+    type: 'continue_search',
+    label: 'Продолжить поиск',
+    reason: 'Новые объявления уже появились — можно продолжить с лучшего места.',
+    target: { categoryId: 4 },
+  },
+  debug: {
+    generatorVersion: 'v1',
+    seedProfile: 'watcher_returning_9',
+  },
+};
+
 export const mockRecaps: Recap[] = [
   mockRecap,
   buyerMockRecap,
   watcherMockRecap,
+  sellerCreatorMockRecap,
+  buyerExplorerMockRecap,
+  watcherCollectorMockRecap,
+  sellerVeteranMockRecap,
+  buyerBalancedMockRecap,
+  watcherReturningMockRecap,
 ];
 
 function prepareMockRecap(recap: Recap, userId: number): Recap {
