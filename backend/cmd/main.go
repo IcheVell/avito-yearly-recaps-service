@@ -41,8 +41,8 @@ func main() {
 	recapRepo := repository.NewRecapRepository(db)
 	achievementsRepo := repository.NewAchievementsRepository(db)
 	userStatsRepo := repository.NewUserStatsRepository(db)
-	recapService := service.NewRecapService(userRepo, metricsRepo, recapRepo, logger)
 	achievementsService := service.NewAchievementService(achievementsRepo, userRepo, userStatsRepo, logger)
+	recapService := service.NewRecapService(userRepo, metricsRepo, recapRepo, achievementsService, logger)
 
 	router := api.NewRouter(api.Dependencies{
 		Profiles:     userRepo,

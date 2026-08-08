@@ -26,19 +26,25 @@ type RecapRepository interface {
 	GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*domain.YearlyRecap, error)
 }
 
+type AchievementServiceInterface interface {
+	UpdateUserAchievements(ctx context.Context, userID int64) error
+}
+
 const recapMetricsLimit = 4
 
 type RecapService struct {
-	users   UserRepository
-	metrics MetricsRepository
-	recaps  RecapRepository
-	logger  *slog.Logger
+	users              UserRepository
+	metrics            MetricsRepository
+	recaps             RecapRepository
+	AchievementService AchievementServiceInterface
+	logger             *slog.Logger
 }
 
 func NewRecapService(
 	users UserRepository,
 	metrics MetricsRepository,
 	recaps RecapRepository,
+	achievements AchievementServiceInterface,
 	logger *slog.Logger,
 ) *RecapService {
 	if logger == nil {
@@ -46,10 +52,11 @@ func NewRecapService(
 	}
 
 	return &RecapService{
-		users:   users,
-		metrics: metrics,
-		recaps:  recaps,
-		logger:  logger.With("component", "recap_service"),
+		users:              users,
+		metrics:            metrics,
+		recaps:             recaps,
+		AchievementService: achievements,
+		logger:             logger.With("component", "recap_service"),
 	}
 }
 
@@ -59,6 +66,10 @@ func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
 		return domain.Recap{}, false, mapUserError(err)
+	}
+
+	if err := s.AchievementService.UpdateUserAchievements(ctx, userID); err != nil {
+		return domain.Recap{}, false, err
 	}
 
 	metrics, err := s.metrics.GetByUserIDAndYear(ctx, *user, year)
