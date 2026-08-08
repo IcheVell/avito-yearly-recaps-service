@@ -28,6 +28,10 @@ export function getApiErrorMessage(error: unknown): string {
   if (typeof error.data === 'object' && error.data !== null) {
     const body = error.data as BackendErrorBody;
 
+    if (body.error?.code === 'RECAP_NOT_FOUND') {
+      return 'Итоги года ещё не сгенерированы. Сначала создайте их.';
+    }
+
     if (body.error?.message) {
       return body.error.message;
     }

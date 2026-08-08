@@ -50,7 +50,7 @@ export const recapApi = baseApi.injectEndpoints({
                 status: 404,
                 data: {
                   error: {
-                    code: 'NOT_FOUND',
+                    code: 'RECAP_NOT_FOUND',
                     message: 'Итоги пользователя ещё не сгенерированы.',
                     details: {
                       field: 'userId',
