@@ -21,6 +21,7 @@ CREATE TABLE user_stats(
     max_streak_days BIGINT NOT NULL DEFAULT 0,
     max_inactive_gap_days BIGINT NOT NULL DEFAULT 0,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    processed_at TIMESTAMPTZ,
 
     CONSTRAINT fk_user_stats_user_id
         FOREIGN KEY(user_id)
