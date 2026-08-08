@@ -3,7 +3,7 @@ package dto
 import (
 	"sort"
 	"time"
-	"v1/internal/domain"
+	"v1/internal/domain/entity"
 )
 
 type UserAchievementsResponse struct {
@@ -27,10 +27,10 @@ type AchievementResponse struct {
 }
 
 func NewUserAchievementsResponse(
-	earned []domain.UserAchievement,
-	locked []domain.Achievement,
+	earned []entity.UserAchievement,
+	locked []entity.Achievement,
 ) UserAchievementsResponse {
-	sortedEarned := append([]domain.UserAchievement(nil), earned...)
+	sortedEarned := append([]entity.UserAchievement(nil), earned...)
 	sort.SliceStable(sortedEarned, func(i, j int) bool {
 		return sortedEarned[i].CreatedAt.After(sortedEarned[j].CreatedAt)
 	})

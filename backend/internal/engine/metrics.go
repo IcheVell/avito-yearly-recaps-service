@@ -1,17 +1,18 @@
 package engine
 
 import (
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
 	"sort"
 	"sync"
-	"v1/internal/domain"
+
+	"v1/catalog"
+	"v1/internal/domain/recap"
 )
 
-type metricBuilder func(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error)
+type metricBuilder func(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error)
 
 const (
 	metricKindNumber      = "number"
@@ -48,7 +49,7 @@ var builders = map[string]metricBuilder{
 	"views_vs_favorites":       buildViewsVsFavorites,
 }
 
-func ResolveMetrics(m domain.YearMetrics) ([]domain.RecapMetric, error) {
+func ResolveMetrics(m recap.YearMetrics) ([]recap.RecapMetric, error) {
 	copies, err := loadMetricsCopies()
 	if err != nil {
 		return nil, err
@@ -140,7 +141,7 @@ func ResolveMetrics(m domain.YearMetrics) ([]domain.RecapMetric, error) {
 	selected = append(selected, pickN(typeBuckets[metricKindQualitative], desiredQualitativeMetrics)...)
 	selected = append(selected, pickN(typeBuckets[metricKindComparison], desiredComparisonMetrics)...)
 
-	metrics := make([]domain.RecapMetric, 0)
+	metrics := make([]recap.RecapMetric, 0)
 	for _, metricType := range selected {
 		buildFn, ok := builders[metricType]
 		if !ok {
@@ -184,19 +185,19 @@ func buildMetric(
 	copy metricStats,
 	value any,
 	payload map[string]any,
-) (domain.RecapMetric, error) {
+) (recap.RecapMetric, error) {
 	if len(copy.Texts) == 0 {
-		return domain.RecapMetric{}, errors.New("no texts")
+		return recap.RecapMetric{}, errors.New("no texts")
 	}
 	if len(copy.Highlights) == 0 {
-		return domain.RecapMetric{}, errors.New("no highlights")
+		return recap.RecapMetric{}, errors.New("no highlights")
 	}
 
 	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
 	highlight := fmt.Sprintf(copy.Highlights[0], value)
 	text := fmt.Sprintf(randomText, highlight)
 
-	return domain.RecapMetric{
+	return recap.RecapMetric{
 		Type:       metricType,
 		Title:      copy.Title,
 		Text:       text,
@@ -205,54 +206,54 @@ func buildMetric(
 	}, nil
 }
 
-func buildEarnedAmount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildEarnedAmount(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.EarnedAmount == nil {
-		return domain.RecapMetric{}, errors.New("no earned amount for this year")
+		return recap.RecapMetric{}, errors.New("no earned amount for this year")
 	}
 	return buildMetric("earned_amount", copy, *m.EarnedAmount, map[string]any{
 		"earnedAmount": *m.EarnedAmount,
 	})
 }
 
-func buildSpentAmount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildSpentAmount(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.SpentAmount == nil {
-		return domain.RecapMetric{}, errors.New("no spent amount for this year")
+		return recap.RecapMetric{}, errors.New("no spent amount for this year")
 	}
 	return buildMetric("spent_amount", copy, *m.SpentAmount, map[string]any{
 		"spentAmount": *m.SpentAmount,
 	})
 }
 
-func buildMaxStreak(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildMaxStreak(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.MaxStreakDays <= 0 {
-		return domain.RecapMetric{}, errors.New("max streak days must be greater than zero")
+		return recap.RecapMetric{}, errors.New("max streak days must be greater than zero")
 	}
 	return buildMetric("max_streak_days", copy, m.MaxStreakDays, map[string]any{
 		"maxStreakDays": m.MaxStreakDays,
 	})
 }
 
-func buildActiveDaysNumber(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildActiveDaysNumber(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.ActiveDays <= 0 {
-		return domain.RecapMetric{}, errors.New("active days must be greater than zero")
+		return recap.RecapMetric{}, errors.New("active days must be greater than zero")
 	}
 	return buildMetric("active_days_number", copy, m.ActiveDays, map[string]any{
 		"activeDays": m.ActiveDays,
 	})
 }
 
-func buildViewedListeningsNumber(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildViewedListeningsNumber(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.ViewsCount <= 0 {
-		return domain.RecapMetric{}, errors.New("views count must be greater than zero")
+		return recap.RecapMetric{}, errors.New("views count must be greater than zero")
 	}
 	return buildMetric("viewed_listenings_number", copy, m.ViewsCount, map[string]any{
 		"viewsCount": m.ViewsCount,
 	})
 }
 
-func buildFavoriteBuyCategory(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildFavoriteBuyCategory(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.FavoriteBuyCategory == nil {
-		return domain.RecapMetric{}, errors.New("favorite buy category is nil")
+		return recap.RecapMetric{}, errors.New("favorite buy category is nil")
 	}
 	return buildMetric("favorite_buy_category", copy, m.FavoriteBuyCategory.Name, map[string]any{
 		"categoryId":   m.FavoriteBuyCategory.ID,
@@ -260,12 +261,12 @@ func buildFavoriteBuyCategory(m domain.YearMetrics, copy metricStats) (domain.Re
 	})
 }
 
-func buildBuyCategoryComparison(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildBuyCategoryComparison(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if len(copy.Texts) == 0 {
-		return domain.RecapMetric{}, errors.New("no texts")
+		return recap.RecapMetric{}, errors.New("no texts")
 	}
 	if len(copy.Highlights) == 0 {
-		return domain.RecapMetric{}, errors.New("no highlights")
+		return recap.RecapMetric{}, errors.New("no highlights")
 	}
 
 	type categoryPair struct {
@@ -285,7 +286,7 @@ func buildBuyCategoryComparison(m domain.YearMetrics, copy metricStats) (domain.
 	}
 
 	if len(pairs) < 2 {
-		return domain.RecapMetric{}, errors.New("not enough categories for comparison")
+		return recap.RecapMetric{}, errors.New("not enough categories for comparison")
 	}
 
 	sort.Slice(pairs, func(i, j int) bool {
@@ -298,7 +299,7 @@ func buildBuyCategoryComparison(m domain.YearMetrics, copy metricStats) (domain.
 	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
 	text := fmt.Sprintf(randomText, highlight)
 
-	return domain.RecapMetric{
+	return recap.RecapMetric{
 		Type:       "buy_category_comparison",
 		Title:      copy.Title,
 		Text:       text,
@@ -312,54 +313,54 @@ func buildBuyCategoryComparison(m domain.YearMetrics, copy metricStats) (domain.
 	}, nil
 }
 
-func buildChatsPeople(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildChatsPeople(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.MessagesPeopleCount <= 0 {
-		return domain.RecapMetric{}, errors.New("messages people count must be greater than zero")
+		return recap.RecapMetric{}, errors.New("messages people count must be greater than zero")
 	}
 	return buildMetric("chats_people", copy, m.MessagesPeopleCount, map[string]any{
 		"peopleCount": m.MessagesPeopleCount,
 	})
 }
 
-func buildYearsTogether(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildYearsTogether(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.YearsOnAvito <= 0 {
-		return domain.RecapMetric{}, errors.New("years on Avito must be greater than zero")
+		return recap.RecapMetric{}, errors.New("years on Avito must be greater than zero")
 	}
 	return buildMetric("years_together", copy, m.YearsOnAvito, map[string]any{
 		"yearsTogether": m.YearsOnAvito,
 	})
 }
 
-func buildSellerRating(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildSellerRating(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.SellerRating == nil {
-		return domain.RecapMetric{}, errors.New("seller rating is nil")
+		return recap.RecapMetric{}, errors.New("seller rating is nil")
 	}
 	return buildMetric("seller_rating", copy, *m.SellerRating, map[string]any{
 		"sellerRating": *m.SellerRating,
 	})
 }
 
-func buildBestReceivedReview(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildBestReceivedReview(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.BestReviewReceived == nil {
-		return domain.RecapMetric{}, errors.New("best review received is nil")
+		return recap.RecapMetric{}, errors.New("best review received is nil")
 	}
 	return buildMetric("best_received_review", copy, m.BestReviewReceived.Text, map[string]any{
 		"bestReceivedReview": m.BestReviewReceived.Text,
 	})
 }
 
-func buildBestLeftReview(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildBestLeftReview(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.BestReviewLeft == nil {
-		return domain.RecapMetric{}, errors.New("best review left is nil")
+		return recap.RecapMetric{}, errors.New("best review left is nil")
 	}
 	return buildMetric("best_left_review", copy, m.BestReviewLeft.Text, map[string]any{
 		"bestLeftReview": m.BestReviewLeft.Text,
 	})
 }
 
-func buildFavoriteSellCategory(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildFavoriteSellCategory(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.FavoriteSellCategory == nil {
-		return domain.RecapMetric{}, errors.New("favorite sell category is nil")
+		return recap.RecapMetric{}, errors.New("favorite sell category is nil")
 	}
 	return buildMetric("favorite_sell_category", copy, m.FavoriteSellCategory.Name, map[string]any{
 		"categoryId":   m.FavoriteSellCategory.ID,
@@ -367,54 +368,54 @@ func buildFavoriteSellCategory(m domain.YearMetrics, copy metricStats) (domain.R
 	})
 }
 
-func buildSellsCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildSellsCount(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.SellsCount <= 0 {
-		return domain.RecapMetric{}, errors.New("sells count must be greater than zero")
+		return recap.RecapMetric{}, errors.New("sells count must be greater than zero")
 	}
 	return buildMetric("sells_count", copy, m.SellsCount, map[string]any{
 		"sellsCount": m.SellsCount,
 	})
 }
 
-func buildBuysCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildBuysCount(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.BuysCount <= 0 {
-		return domain.RecapMetric{}, errors.New("buys count must be greater than zero")
+		return recap.RecapMetric{}, errors.New("buys count must be greater than zero")
 	}
 	return buildMetric("buys_count", copy, m.BuysCount, map[string]any{
 		"buysCount": m.BuysCount,
 	})
 }
 
-func buildListingsCreated(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildListingsCreated(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.ListingsCreatedCount <= 0 {
-		return domain.RecapMetric{}, errors.New("listings created count must be greater than zero")
+		return recap.RecapMetric{}, errors.New("listings created count must be greater than zero")
 	}
 	return buildMetric("listings_created", copy, m.ListingsCreatedCount, map[string]any{
 		"listingsCreatedCount": m.ListingsCreatedCount,
 	})
 }
 
-func buildFavoritesCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildFavoritesCount(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.FavoritesCount <= 0 {
-		return domain.RecapMetric{}, errors.New("favorites count must be greater than zero")
+		return recap.RecapMetric{}, errors.New("favorites count must be greater than zero")
 	}
 	return buildMetric("favorites_count", copy, m.FavoritesCount, map[string]any{
 		"favoritesCount": m.FavoritesCount,
 	})
 }
 
-func buildSearchesCount(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildSearchesCount(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.SearchesCount <= 0 {
-		return domain.RecapMetric{}, errors.New("searches count must be greater than zero")
+		return recap.RecapMetric{}, errors.New("searches count must be greater than zero")
 	}
 	return buildMetric("searches_count", copy, m.SearchesCount, map[string]any{
 		"searchesCount": m.SearchesCount,
 	})
 }
 
-func buildMostViewedListing(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildMostViewedListing(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.MostViewedListing == nil {
-		return domain.RecapMetric{}, errors.New("most viewed listing is nil")
+		return recap.RecapMetric{}, errors.New("most viewed listing is nil")
 	}
 	listing := m.MostViewedListing
 	return buildMetric("most_viewed_listing", copy, listing.Name, map[string]any{
@@ -426,22 +427,22 @@ func buildMostViewedListing(m domain.YearMetrics, copy metricStats) (domain.Reca
 	})
 }
 
-func buildPriceRange(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildPriceRange(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.PriceMin == nil || m.PriceMax == nil {
-		return domain.RecapMetric{}, errors.New("price min/max is nil")
+		return recap.RecapMetric{}, errors.New("price min/max is nil")
 	}
 	if len(copy.Texts) == 0 {
-		return domain.RecapMetric{}, errors.New("no texts")
+		return recap.RecapMetric{}, errors.New("no texts")
 	}
 	if len(copy.Highlights) == 0 {
-		return domain.RecapMetric{}, errors.New("no highlights")
+		return recap.RecapMetric{}, errors.New("no highlights")
 	}
 
 	highlight := fmt.Sprintf(copy.Highlights[0], *m.PriceMin, *m.PriceMax)
 	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
 	text := fmt.Sprintf(randomText, highlight)
 
-	return domain.RecapMetric{
+	return recap.RecapMetric{
 		Type:       "price_range",
 		Title:      copy.Title,
 		Text:       text,
@@ -453,15 +454,15 @@ func buildPriceRange(m domain.YearMetrics, copy metricStats) (domain.RecapMetric
 	}, nil
 }
 
-func buildBuyVsSell(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildBuyVsSell(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.BuysCount <= 0 && m.SellsCount <= 0 {
-		return domain.RecapMetric{}, errors.New("no buys or sells for comparison")
+		return recap.RecapMetric{}, errors.New("no buys or sells for comparison")
 	}
 	if len(copy.Texts) == 0 {
-		return domain.RecapMetric{}, errors.New("no texts")
+		return recap.RecapMetric{}, errors.New("no texts")
 	}
 	if len(copy.Highlights) == 0 {
-		return domain.RecapMetric{}, errors.New("no highlights")
+		return recap.RecapMetric{}, errors.New("no highlights")
 	}
 
 	var highlight string
@@ -481,7 +482,7 @@ func buildBuyVsSell(m domain.YearMetrics, copy metricStats) (domain.RecapMetric,
 	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
 	text := fmt.Sprintf(randomText, highlight)
 
-	return domain.RecapMetric{
+	return recap.RecapMetric{
 		Type:       "buy_vs_sell",
 		Title:      copy.Title,
 		Text:       text,
@@ -493,22 +494,22 @@ func buildBuyVsSell(m domain.YearMetrics, copy metricStats) (domain.RecapMetric,
 	}, nil
 }
 
-func buildViewsVsFavorites(m domain.YearMetrics, copy metricStats) (domain.RecapMetric, error) {
+func buildViewsVsFavorites(m recap.YearMetrics, copy metricStats) (recap.RecapMetric, error) {
 	if m.ViewsCount <= 0 || m.FavoritesCount <= 0 {
-		return domain.RecapMetric{}, errors.New("need both views and favorites for comparison")
+		return recap.RecapMetric{}, errors.New("need both views and favorites for comparison")
 	}
 	if len(copy.Texts) == 0 {
-		return domain.RecapMetric{}, errors.New("no texts")
+		return recap.RecapMetric{}, errors.New("no texts")
 	}
 	if len(copy.Highlights) == 0 {
-		return domain.RecapMetric{}, errors.New("no highlights")
+		return recap.RecapMetric{}, errors.New("no highlights")
 	}
 
 	highlight := fmt.Sprintf(copy.Highlights[0], m.ViewsCount, m.FavoritesCount)
 	randomText := copy.Texts[rand.IntN(len(copy.Texts))]
 	text := fmt.Sprintf(randomText, highlight)
 
-	return domain.RecapMetric{
+	return recap.RecapMetric{
 		Type:       "views_vs_favorites",
 		Title:      copy.Title,
 		Text:       text,
@@ -528,9 +529,6 @@ type metricStats struct {
 	Payload    map[string]any `json:"payload"`
 }
 
-//go:embed metrics.json
-var metricsJSON []byte
-
 var (
 	metricsCopies     map[string]metricStats
 	metricsCopiesErr  error
@@ -539,7 +537,7 @@ var (
 
 func loadMetricsCopies() (map[string]metricStats, error) {
 	metricsCopiesOnce.Do(func() {
-		metricsCopiesErr = json.Unmarshal(metricsJSON, &metricsCopies)
+		metricsCopiesErr = json.Unmarshal(catalog.MetricsJSON, &metricsCopies)
 	})
 	return metricsCopies, metricsCopiesErr
 }

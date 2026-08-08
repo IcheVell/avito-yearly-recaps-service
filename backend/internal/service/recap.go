@@ -6,24 +6,26 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"v1/internal/domain"
+
+	"v1/internal/domain/entity"
+	"v1/internal/domain/recap"
 	"v1/internal/engine"
 	"v1/internal/repository"
 )
 
 type UserRepository interface {
-	GetByID(ctx context.Context, id int64) (*domain.User, error)
-	ListProfiles(ctx context.Context) ([]domain.User, error)
+	GetByID(ctx context.Context, id int64) (*entity.User, error)
+	ListProfiles(ctx context.Context) ([]entity.User, error)
 }
 
 type MetricsRepository interface {
-	GetByUserIDAndYear(ctx context.Context, user domain.User, year int) (*domain.YearMetrics, error)
+	GetByUserIDAndYear(ctx context.Context, user entity.User, year int) (*recap.YearMetrics, error)
 }
 
 type RecapRepository interface {
-	Create(ctx context.Context, recap *domain.Recap) error
-	Update(ctx context.Context, recap *domain.Recap) error
-	GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*domain.YearlyRecap, error)
+	Create(ctx context.Context, story *recap.Recap) error
+	Update(ctx context.Context, story *recap.Recap) error
+	GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*entity.YearlyRecap, error)
 }
 
 type AchievementServiceInterface interface {
@@ -60,93 +62,93 @@ func NewRecapService(
 	}
 }
 
-func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int) (domain.Recap, bool, error) {
+func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int) (recap.Recap, bool, error) {
 	s.logger.InfoContext(ctx, "generate recap", "user_id", userID, "year", year, "operation", "generate_recap")
 
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
-		return domain.Recap{}, false, mapUserError(err)
+		return recap.Recap{}, false, mapUserError(err)
 	}
 
 	if err := s.AchievementService.UpdateUserAchievements(ctx, userID); err != nil {
-		return domain.Recap{}, false, err
+		return recap.Recap{}, false, err
 	}
 
 	metrics, err := s.metrics.GetByUserIDAndYear(ctx, *user, year)
 	if err != nil {
-		return domain.Recap{}, false, fmt.Errorf("get user stats: %w", err)
+		return recap.Recap{}, false, fmt.Errorf("get user stats: %w", err)
 	}
 
-	recap, err := engine.Generate(*metrics)
+	story, err := engine.Generate(*metrics)
 	if err != nil {
-		return domain.Recap{}, false, fmt.Errorf("generate recap: %w", err)
+		return recap.Recap{}, false, fmt.Errorf("generate recap: %w", err)
 	}
-	if len(recap.Metrics) > recapMetricsLimit {
-		recap.Metrics = recap.Metrics[:recapMetricsLimit]
+	if len(story.Metrics) > recapMetricsLimit {
+		story.Metrics = story.Metrics[:recapMetricsLimit]
 	}
-	recap.UserID = userID
-	recap.Year = year
-	recap.Debug = domain.RecapDebug{
+	story.UserID = userID
+	story.Year = year
+	story.Debug = recap.RecapDebug{
 		GeneratorVersion: "v1",
-		SeedProfile:      recap.Role.Code + "_1",
+		SeedProfile:      story.Role.Code + "_1",
 	}
 
 	existing, err := s.recaps.GetUserRecapByIDAndYear(ctx, userID, year)
 	if err != nil {
-		return domain.Recap{}, false, fmt.Errorf("get existing recap: %w", err)
+		return recap.Recap{}, false, fmt.Errorf("get existing recap: %w", err)
 	}
 
 	if existing == nil {
-		if err := s.recaps.Create(ctx, &recap); err != nil {
-			return domain.Recap{}, false, fmt.Errorf("create recap: %w", err)
+		if err := s.recaps.Create(ctx, &story); err != nil {
+			return recap.Recap{}, false, fmt.Errorf("create recap: %w", err)
 		}
 
-		return recap, true, nil
+		return story, true, nil
 	}
 
-	recap.ID = existing.ID
-	recap.CreatedAt = existing.CreatedAt
-	if err := s.recaps.Update(ctx, &recap); err != nil {
-		return domain.Recap{}, false, fmt.Errorf("update recap: %w", err)
+	story.ID = existing.ID
+	story.CreatedAt = existing.CreatedAt
+	if err := s.recaps.Update(ctx, &story); err != nil {
+		return recap.Recap{}, false, fmt.Errorf("update recap: %w", err)
 	}
 
-	return recap, false, nil
+	return story, false, nil
 }
 
-func (s *RecapService) GetUserRecap(ctx context.Context, userID int64, year int) (domain.Recap, error) {
-	recap, err := s.recaps.GetUserRecapByIDAndYear(ctx, userID, year)
+func (s *RecapService) GetUserRecap(ctx context.Context, userID int64, year int) (recap.Recap, error) {
+	yearly, err := s.recaps.GetUserRecapByIDAndYear(ctx, userID, year)
 	if err != nil {
-		return domain.Recap{}, fmt.Errorf("get recap: %w", err)
+		return recap.Recap{}, fmt.Errorf("get recap: %w", err)
 	}
 
-	if recap == nil {
-		return domain.Recap{}, notFound("RECAP_NOT_FOUND", "recap not found")
+	if yearly == nil {
+		return recap.Recap{}, notFound("RECAP_NOT_FOUND", "recap not found")
 	}
 
-	return newRecapFromYearlyRecap(*recap)
+	return newRecapFromYearlyRecap(*yearly)
 }
 
-func (s *RecapService) GetUserStats(ctx context.Context, userID int64, year int) (domain.YearMetrics, error) {
+func (s *RecapService) GetUserStats(ctx context.Context, userID int64, year int) (recap.YearMetrics, error) {
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
-		return domain.YearMetrics{}, mapUserError(err)
+		return recap.YearMetrics{}, mapUserError(err)
 	}
 
 	metrics, err := s.metrics.GetByUserIDAndYear(ctx, *user, year)
 	if err != nil {
-		return domain.YearMetrics{}, fmt.Errorf("get user stats: %w", err)
+		return recap.YearMetrics{}, fmt.Errorf("get user stats: %w", err)
 	}
 
 	return *metrics, nil
 }
 
-func newRecapFromYearlyRecap(yearlyRecap domain.YearlyRecap) (domain.Recap, error) {
-	var payload domain.YearlyRecapPayload
+func newRecapFromYearlyRecap(yearlyRecap entity.YearlyRecap) (recap.Recap, error) {
+	var payload recap.YearlyRecapPayload
 	if err := json.Unmarshal(yearlyRecap.Payload, &payload); err != nil {
-		return domain.Recap{}, fmt.Errorf("unmarshal recap payload: %w", err)
+		return recap.Recap{}, fmt.Errorf("unmarshal recap payload: %w", err)
 	}
 
-	return domain.Recap{
+	return recap.Recap{
 		ID:           yearlyRecap.ID,
 		UserID:       yearlyRecap.UserID,
 		Year:         yearlyRecap.Year,

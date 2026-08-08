@@ -1,4 +1,4 @@
-package domain
+package entity
 
 type ConversationParticipant struct {
 	UserID         int64 `gorm:"primaryKey;autoIncrement:false"`

@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"v1/internal/domain"
+
+	"v1/internal/domain/entity"
+	"v1/internal/domain/recap"
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -19,19 +21,19 @@ func NewRecapRepository(db *gorm.DB) *RecapRepository {
 	return &RecapRepository{db: db}
 }
 
-func (r *RecapRepository) Create(ctx context.Context, recap *domain.Recap) error {
-	if recap == nil {
+func (r *RecapRepository) Create(ctx context.Context, story *recap.Recap) error {
+	if story == nil {
 		return errors.New("create recap: recap is nil")
 	}
 
-	payloadJSON, err := marshalRecapPayload(recap)
+	payloadJSON, err := marshalRecapPayload(story)
 	if err != nil {
 		return err
 	}
 
-	yearlyRecap := domain.YearlyRecap{
-		UserID:  recap.UserID,
-		Year:    recap.Year,
+	yearlyRecap := entity.YearlyRecap{
+		UserID:  story.UserID,
+		Year:    story.Year,
 		Payload: datatypes.JSON(payloadJSON),
 	}
 
@@ -44,18 +46,18 @@ func (r *RecapRepository) Create(ctx context.Context, recap *domain.Recap) error
 		return fmt.Errorf("create yearly recap: %w", err)
 	}
 
-	recap.ID = yearlyRecap.ID
-	recap.CreatedAt = yearlyRecap.CreatedAt
+	story.ID = yearlyRecap.ID
+	story.CreatedAt = yearlyRecap.CreatedAt
 
 	return nil
 }
 
-func (r *RecapRepository) Update(ctx context.Context, recap *domain.Recap) error {
-	if recap == nil {
+func (r *RecapRepository) Update(ctx context.Context, story *recap.Recap) error {
+	if story == nil {
 		return errors.New("update recap: recap is nil")
 	}
 
-	payloadJSON, err := marshalRecapPayload(recap)
+	payloadJSON, err := marshalRecapPayload(story)
 	if err != nil {
 		return err
 	}
@@ -63,7 +65,7 @@ func (r *RecapRepository) Update(ctx context.Context, recap *domain.Recap) error
 	res := r.db.
 		WithContext(ctx).
 		Table("yearly_recaps").
-		Where("id = ?", recap.ID).
+		Where("id = ?", story.ID).
 		Updates(map[string]any{
 			"payload": datatypes.JSON(payloadJSON),
 		})
@@ -79,8 +81,8 @@ func (r *RecapRepository) Update(ctx context.Context, recap *domain.Recap) error
 	return nil
 }
 
-func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*domain.YearlyRecap, error) {
-	var recap domain.YearlyRecap
+func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*entity.YearlyRecap, error) {
+	var yearly entity.YearlyRecap
 
 	res := r.db.
 		WithContext(ctx).
@@ -88,7 +90,7 @@ func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID in
 		Select("yearly_recaps.*").
 		Where("yearly_recaps.user_id = ?", userID).
 		Where("yearly_recaps.year = ?", year).
-		Scan(&recap)
+		Scan(&yearly)
 
 	if res.Error != nil {
 		return nil, fmt.Errorf("get recap by id: %w", res.Error)
@@ -98,16 +100,16 @@ func (r *RecapRepository) GetUserRecapByIDAndYear(ctx context.Context, userID in
 		return nil, nil
 	}
 
-	return &recap, nil
+	return &yearly, nil
 }
 
-func marshalRecapPayload(recap *domain.Recap) ([]byte, error) {
-	payload := domain.YearlyRecapPayload{
-		Role:         recap.Role,
-		Metrics:      recap.Metrics,
-		Achievements: recap.Achievements,
-		Action:       recap.Action,
-		Debug:        recap.Debug,
+func marshalRecapPayload(story *recap.Recap) ([]byte, error) {
+	payload := recap.YearlyRecapPayload{
+		Role:         story.Role,
+		Metrics:      story.Metrics,
+		Achievements: story.Achievements,
+		Action:       story.Action,
+		Debug:        story.Debug,
 	}
 
 	payloadJSON, err := json.Marshal(payload)

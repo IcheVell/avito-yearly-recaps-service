@@ -2,19 +2,19 @@ package engine
 
 import (
 	"testing"
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
 func TestGenerate_OK(t *testing.T) {
 	var earned int64 = 10000
-	m := domain.YearMetrics{
+	m := recap.YearMetrics{
 		UserID:        1,
 		EarnedAmount:  &earned,
 		MaxStreakDays: 10,
 		ActiveDays:    50,
 		ViewsCount:    100,
 		SellsCount:    2,
-		YearAchievements: []domain.YearAchievement{
+		YearAchievements: []recap.YearAchievement{
 			{Code: "diplomat", Name: "Дипломат", Description: "Торг удался", ImageURL: "diplomat.png"},
 			{Code: "unbending", Name: "Несгибаемый", Description: "Держишь цену", ImageURL: "unbending.png"},
 			{Code: "both_sides", Name: "Две стороны рынка", Description: "И покупаешь, и продаёшь", ImageURL: "both.png"},

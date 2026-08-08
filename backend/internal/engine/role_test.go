@@ -2,21 +2,21 @@ package engine
 
 import (
 	"testing"
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
 func TestResolveRole(t *testing.T) {
 	tests := []struct {
 		name        string
 		wantName    string
-		in          domain.YearMetrics
+		in          recap.YearMetrics
 		wantCode    string
 		wantPercent *int // nil = любой в 1..100
 	}{
 		{
 			name:     "seller",
 			wantName: "Продавец",
-			in: domain.YearMetrics{
+			in: recap.YearMetrics{
 				ListingsCreatedCount: 20,
 				SellsCount:           15,
 				ViewsCount:           10,
@@ -29,7 +29,7 @@ func TestResolveRole(t *testing.T) {
 		{
 			name:     "buyer",
 			wantName: "Покупатель",
-			in: domain.YearMetrics{
+			in: recap.YearMetrics{
 				ListingsCreatedCount: 3,
 				SellsCount:           2,
 				ViewsCount:           10,
@@ -42,7 +42,7 @@ func TestResolveRole(t *testing.T) {
 		{
 			name:     "watcher",
 			wantName: "Наблюдатель",
-			in: domain.YearMetrics{
+			in: recap.YearMetrics{
 				ViewsCount:    500,
 				SearchesCount: 100,
 			},
@@ -50,7 +50,7 @@ func TestResolveRole(t *testing.T) {
 		},
 		{
 			name:        "all zeros",
-			in:          domain.YearMetrics{},
+			in:          recap.YearMetrics{},
 			wantName:    "Наблюдатель",
 			wantCode:    watcher,
 			wantPercent: intPtr(100),

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"v1/internal/domain"
+	"v1/internal/domain/entity"
 
 	"gorm.io/gorm"
 )
@@ -61,7 +61,7 @@ func (r *UserStatsRepository) Update(ctx context.Context, userID int64, from tim
 
 		err := tx.
 			WithContext(ctx).
-			Model(&domain.UserStats{}).
+			Model(&entity.UserStats{}).
 			Where("user_id = ?", userID).
 			Updates(map[string]any{
 				"processed_at": to,
@@ -77,8 +77,8 @@ func (r *UserStatsRepository) Update(ctx context.Context, userID int64, from tim
 	})
 }
 
-func (r *UserStatsRepository) GetByUserID(ctx context.Context, userID int64) (*domain.UserStats, error) {
-	var userStats domain.UserStats
+func (r *UserStatsRepository) GetByUserID(ctx context.Context, userID int64) (*entity.UserStats, error) {
+	var userStats entity.UserStats
 
 	err := r.db.
 		WithContext(ctx).
@@ -108,11 +108,11 @@ func (r *UserStatsRepository) updateBuysCount(
 		Where("buyer_id = ?", userID).
 		Where("completed_at > ?", from).
 		Where("completed_at <= ?", to).
-		Where("status = ?", domain.DealStatusCompleted)
+		Where("status = ?", entity.DealStatusCompleted)
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Update(
 			"buys_count",
@@ -141,11 +141,11 @@ func (r *UserStatsRepository) updateSellsCount(
 		Where("listings.seller_id = ?", userID).
 		Where("deals.completed_at > ?", from).
 		Where("deals.completed_at <= ?", to).
-		Where("deals.status = ?", domain.DealStatusCompleted)
+		Where("deals.status = ?", entity.DealStatusCompleted)
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Update(
 			"sells_count",
@@ -176,7 +176,7 @@ func (r *UserStatsRepository) updateFavoritesCount(
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Update(
 			"favorites_count",
@@ -211,7 +211,7 @@ func (r *UserStatsRepository) updateConversationsCount(
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Update(
 			"conversations_count",
@@ -242,11 +242,11 @@ func (r *UserStatsRepository) updateSpentAmount(
 		Where("buyer_id = ?", userID).
 		Where("completed_at > ?", from).
 		Where("completed_at <= ?", to).
-		Where("status = ?", domain.DealStatusCompleted)
+		Where("status = ?", entity.DealStatusCompleted)
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Update(
 			"spent_amount",
@@ -288,7 +288,7 @@ func (r *UserStatsRepository) updateRating(
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Updates(map[string]any{
 			"rating_sum": gorm.Expr(
@@ -344,7 +344,7 @@ func (r *UserStatsRepository) updateMaxStreakDays(
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Update(
 			"max_streak_days",
@@ -391,7 +391,7 @@ func (r *UserStatsRepository) updateMaxInactiveGapDays(
 
 	err := r.db.
 		WithContext(ctx).
-		Model(&domain.UserStats{}).
+		Model(&entity.UserStats{}).
 		Where("user_id = ?", userID).
 		Update(
 			"max_inactive_gap_days",

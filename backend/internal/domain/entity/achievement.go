@@ -1,4 +1,4 @@
-package domain
+package entity
 
 type Achievement struct {
 	ID          int64

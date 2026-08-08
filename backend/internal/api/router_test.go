@@ -12,22 +12,23 @@ import (
 	"time"
 	"v1/internal/api"
 	"v1/internal/api/dto"
-	"v1/internal/domain"
+	"v1/internal/domain/entity"
+	"v1/internal/domain/recap"
 )
 
 const testCurrentYear = 2026
 
 type fakeProfiles struct {
-	users []domain.User
+	users []entity.User
 	err   error
 }
 
-func (f fakeProfiles) ListProfiles(ctx context.Context) ([]domain.User, error) {
+func (f fakeProfiles) ListProfiles(ctx context.Context) ([]entity.User, error) {
 	return f.users, f.err
 }
 
 type fakeRecaps struct {
-	recap   domain.Recap
+	recap   recap.Recap
 	created bool
 
 	generateUserID int64
@@ -39,13 +40,13 @@ type fakeRecaps struct {
 	getErr    error
 }
 
-func (f *fakeRecaps) GenerateRecap(ctx context.Context, userID int64, year int) (domain.Recap, bool, error) {
+func (f *fakeRecaps) GenerateRecap(ctx context.Context, userID int64, year int) (recap.Recap, bool, error) {
 	f.generateUserID = userID
 	f.generateYear = year
 	return f.recap, f.created, f.generateErr
 }
 
-func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (domain.Recap, error) {
+func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (recap.Recap, error) {
 	f.getUserID = userID
 	f.getYear = year
 	return f.recap, f.getErr
@@ -53,12 +54,12 @@ func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (
 
 type fakeAchievements struct {
 	userID int64
-	earned []domain.UserAchievement
-	locked []domain.Achievement
+	earned []entity.UserAchievement
+	locked []entity.Achievement
 	err    error
 }
 
-func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error) {
+func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, error) {
 	f.userID = userID
 	return f.earned, f.locked, f.err
 }
@@ -66,11 +67,11 @@ func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int6
 type fakeStats struct {
 	userID  int64
 	year    int
-	metrics domain.YearMetrics
+	metrics recap.YearMetrics
 	err     error
 }
 
-func (f *fakeStats) GetUserStats(ctx context.Context, userID int64, year int) (domain.YearMetrics, error) {
+func (f *fakeStats) GetUserStats(ctx context.Context, userID int64, year int) (recap.YearMetrics, error) {
 	f.userID = userID
 	f.year = year
 	return f.metrics, f.err
@@ -128,7 +129,7 @@ func TestRouter(t *testing.T) {
 			method: http.MethodGet,
 			target: "/api/profiles",
 			profiles: fakeProfiles{
-				users: []domain.User{
+				users: []entity.User{
 					{ID: 1, Username: "seller_anna", ImageURL: "https://example.com/anna.png"},
 					{ID: 2, Username: "buyer_igor", ImageURL: "https://example.com/igor.png"},
 				},
@@ -247,10 +248,10 @@ func TestRouter(t *testing.T) {
 			method: http.MethodGet,
 			target: "/api/users/1/achievements",
 			achievements: &fakeAchievements{
-				earned: []domain.UserAchievement{
+				earned: []entity.UserAchievement{
 					{
 						CreatedAt: time.Date(2023, 10, 5, 12, 0, 0, 0, time.UTC),
-						Achievement: domain.Achievement{
+						Achievement: entity.Achievement{
 							Code:        "plot_twist",
 							Name:        "Неожиданный поворот",
 							Description: "После паузы ты вернулся на площадку.",
@@ -259,7 +260,7 @@ func TestRouter(t *testing.T) {
 					},
 					{
 						CreatedAt: time.Date(2025, 8, 12, 0, 0, 0, 0, time.UTC),
-						Achievement: domain.Achievement{
+						Achievement: entity.Achievement{
 							Code:        "streak_survivor",
 							Name:        "Несгибаемый",
 							Description: "Серия без пропусков.",
@@ -267,7 +268,7 @@ func TestRouter(t *testing.T) {
 						},
 					},
 				},
-				locked: []domain.Achievement{
+				locked: []entity.Achievement{
 					{
 						Code:        "diplomat",
 						Name:        "Дипломат",
@@ -395,13 +396,13 @@ func newTestRouter(
 	})
 }
 
-func sampleRecap() domain.Recap {
-	return domain.Recap{
+func sampleRecap() recap.Recap {
+	return recap.Recap{
 		ID:        10,
 		UserID:    1,
 		Year:      2026,
 		CreatedAt: time.Date(2026, 1, 15, 12, 0, 0, 0, time.UTC),
-		Metrics: []domain.RecapMetric{
+		Metrics: []recap.RecapMetric{
 			{
 				Type:       "earned_amount",
 				Title:      "Твои продажи",
@@ -410,44 +411,44 @@ func sampleRecap() domain.Recap {
 				Payload:    map[string]any{"earnedAmount": 120000},
 			},
 		},
-		Role: domain.RecapRole{
+		Role: recap.RecapRole{
 			Code:                 "seller",
 			Title:                "В этом году ты крутой продавец!",
 			Subtitle:             "Ты продал 9 товаров.",
 			Why:                  "67% активности — создание объявлений и продажа товаров",
 			ActivitySharePercent: 67,
 		},
-		Achievements: []domain.RecapAchievement{
+		Achievements: []recap.RecapAchievement{
 			{
 				Code:        "clean_sale",
 				Name:        "Чистая продажа",
 				Description: "У тебя есть завершённые продажи в этом году.",
 			},
 		},
-		Action: domain.RecapAction{
+		Action: recap.RecapAction{
 			Type:   "boost_listings",
 			Label:  "Обновить объявления",
 			Reason: "Есть активные объявления с низким откликом.",
-			Target: domain.RecapActionTarget{
+			Target: recap.RecapActionTarget{
 				ListingIDs: []int64{11},
 				CategoryID: 3,
 			},
 		},
-		Debug: domain.RecapDebug{
+		Debug: recap.RecapDebug{
 			GeneratorVersion: "v1",
 			SeedProfile:      "seller_1",
 		},
 	}
 }
 
-func sampleYearMetrics() domain.YearMetrics {
+func sampleYearMetrics() recap.YearMetrics {
 	spentAmount := int64(48000)
 	earnedAmount := int64(120000)
 	priceMin := int64(500)
 	priceMax := int64(150000)
 	sellerRating := 4.9
 
-	return domain.YearMetrics{
+	return recap.YearMetrics{
 		UserID:               1,
 		RegistrationDate:     time.Date(2025, 6, 1, 12, 0, 0, 0, time.UTC),
 		ViewsCount:           847,
@@ -465,17 +466,17 @@ func sampleYearMetrics() domain.YearMetrics {
 		PriceMin:             &priceMin,
 		PriceMax:             &priceMax,
 		SellerRating:         &sellerRating,
-		FavoriteBuyCategory:  &domain.YearMetricsCategory{ID: 1, Name: "Электроника"},
-		FavoriteSellCategory: &domain.YearMetricsCategory{ID: 3, Name: "Одежда и обувь"},
-		MostViewedListing:    &domain.YearMetricsListing{ID: 2, Name: "iPhone 13 128GB", City: "Москва", ImageURL: "https://example.com/image.png", ViewsCount: 42},
-		BestReviewReceived:   &domain.YearMetricsReview{ID: 5, Rating: 5, Text: "Всё четко, рекомендую"},
-		BestReviewLeft:       &domain.YearMetricsReview{ID: 6, Rating: 5, Text: "Товар как в описании"},
-		ViewsByCategory:      []domain.YearMetricsViews{{CategoryID: 1, CategoryName: "Электроника", Views: 400}},
-		SearchesByCategory:   []domain.YearMetricsSearches{{CategoryID: 1, CategoryName: "Электроника", Searches: 80}},
-		Favorites:            []domain.YearMetricsFavorite{{ListingID: 2, CategoryID: 1}},
-		ListingViewCounts:    []domain.YearMetricsListingCount{{ListingID: 2, CategoryID: 1, Views: 42}},
+		FavoriteBuyCategory:  &recap.YearMetricsCategory{ID: 1, Name: "Электроника"},
+		FavoriteSellCategory: &recap.YearMetricsCategory{ID: 3, Name: "Одежда и обувь"},
+		MostViewedListing:    &recap.YearMetricsListing{ID: 2, Name: "iPhone 13 128GB", City: "Москва", ImageURL: "https://example.com/image.png", ViewsCount: 42},
+		BestReviewReceived:   &recap.YearMetricsReview{ID: 5, Rating: 5, Text: "Всё четко, рекомендую"},
+		BestReviewLeft:       &recap.YearMetricsReview{ID: 6, Rating: 5, Text: "Товар как в описании"},
+		ViewsByCategory:      []recap.YearMetricsViews{{CategoryID: 1, CategoryName: "Электроника", Views: 400}},
+		SearchesByCategory:   []recap.YearMetricsSearches{{CategoryID: 1, CategoryName: "Электроника", Searches: 80}},
+		Favorites:            []recap.YearMetricsFavorite{{ListingID: 2, CategoryID: 1}},
+		ListingViewCounts:    []recap.YearMetricsListingCount{{ListingID: 2, CategoryID: 1, Views: 42}},
 		MessagedListingIDs:   []int64{9},
-		OwnListings:          []domain.YearMetricsOwnListing{{ID: 11, CategoryID: 3, Status: "active", UpdatedAt: time.Date(2025, 6, 1, 12, 0, 0, 0, time.UTC), ViewsCount: 3}},
+		OwnListings:          []recap.YearMetricsOwnListing{{ID: 11, CategoryID: 3, Status: "active", UpdatedAt: time.Date(2025, 6, 1, 12, 0, 0, 0, time.UTC), ViewsCount: 3}},
 	}
 }
 

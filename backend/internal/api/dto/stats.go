@@ -3,7 +3,7 @@ package dto
 import (
 	"math"
 	"time"
-	"v1/internal/domain"
+	"v1/internal/domain/recap"
 )
 
 type YearMetricsResponse struct {
@@ -93,7 +93,7 @@ type YearMetricsOwnListingResponse struct {
 	ViewsCount int       `json:"viewsCount"`
 }
 
-func NewYearMetricsResponse(metrics domain.YearMetrics) YearMetricsResponse {
+func NewYearMetricsResponse(metrics recap.YearMetrics) YearMetricsResponse {
 	return YearMetricsResponse{
 		UserID:               metrics.UserID,
 		RegistrationDate:     metrics.RegistrationDate,
@@ -134,7 +134,7 @@ func roundSellerRating(rating *float64) *float64 {
 	return &rounded
 }
 
-func newYearMetricsCategoryResponse(category *domain.YearMetricsCategory) *YearMetricsCategoryResponse {
+func newYearMetricsCategoryResponse(category *recap.YearMetricsCategory) *YearMetricsCategoryResponse {
 	if category == nil {
 		return nil
 	}
@@ -145,7 +145,7 @@ func newYearMetricsCategoryResponse(category *domain.YearMetricsCategory) *YearM
 	}
 }
 
-func newYearMetricsListingResponse(listing *domain.YearMetricsListing) *YearMetricsListingResponse {
+func newYearMetricsListingResponse(listing *recap.YearMetricsListing) *YearMetricsListingResponse {
 	if listing == nil {
 		return nil
 	}
@@ -159,7 +159,7 @@ func newYearMetricsListingResponse(listing *domain.YearMetricsListing) *YearMetr
 	}
 }
 
-func newYearMetricsReviewResponse(review *domain.YearMetricsReview) *YearMetricsReviewResponse {
+func newYearMetricsReviewResponse(review *recap.YearMetricsReview) *YearMetricsReviewResponse {
 	if review == nil {
 		return nil
 	}
@@ -171,7 +171,7 @@ func newYearMetricsReviewResponse(review *domain.YearMetricsReview) *YearMetrics
 	}
 }
 
-func newYearMetricsViewsResponses(views []domain.YearMetricsViews) []YearMetricsViewsResponse {
+func newYearMetricsViewsResponses(views []recap.YearMetricsViews) []YearMetricsViewsResponse {
 	items := make([]YearMetricsViewsResponse, 0, len(views))
 	for _, view := range views {
 		items = append(items, YearMetricsViewsResponse{
@@ -184,7 +184,7 @@ func newYearMetricsViewsResponses(views []domain.YearMetricsViews) []YearMetrics
 	return items
 }
 
-func newYearMetricsSearchesResponses(searches []domain.YearMetricsSearches) []YearMetricsSearchesResponse {
+func newYearMetricsSearchesResponses(searches []recap.YearMetricsSearches) []YearMetricsSearchesResponse {
 	items := make([]YearMetricsSearchesResponse, 0, len(searches))
 	for _, search := range searches {
 		items = append(items, YearMetricsSearchesResponse{
@@ -197,7 +197,7 @@ func newYearMetricsSearchesResponses(searches []domain.YearMetricsSearches) []Ye
 	return items
 }
 
-func newYearMetricsFavoriteResponses(favorites []domain.YearMetricsFavorite) []YearMetricsFavoriteResponse {
+func newYearMetricsFavoriteResponses(favorites []recap.YearMetricsFavorite) []YearMetricsFavoriteResponse {
 	items := make([]YearMetricsFavoriteResponse, 0, len(favorites))
 	for _, favorite := range favorites {
 		items = append(items, YearMetricsFavoriteResponse{
@@ -209,7 +209,7 @@ func newYearMetricsFavoriteResponses(favorites []domain.YearMetricsFavorite) []Y
 	return items
 }
 
-func newYearMetricsListingCountResponses(counts []domain.YearMetricsListingCount) []YearMetricsListingCountResponse {
+func newYearMetricsListingCountResponses(counts []recap.YearMetricsListingCount) []YearMetricsListingCountResponse {
 	items := make([]YearMetricsListingCountResponse, 0, len(counts))
 	for _, count := range counts {
 		items = append(items, YearMetricsListingCountResponse{
@@ -222,7 +222,7 @@ func newYearMetricsListingCountResponses(counts []domain.YearMetricsListingCount
 	return items
 }
 
-func newYearMetricsOwnListingResponses(listings []domain.YearMetricsOwnListing) []YearMetricsOwnListingResponse {
+func newYearMetricsOwnListingResponses(listings []recap.YearMetricsOwnListing) []YearMetricsOwnListingResponse {
 	items := make([]YearMetricsOwnListingResponse, 0, len(listings))
 	for _, listing := range listings {
 		items = append(items, YearMetricsOwnListingResponse{

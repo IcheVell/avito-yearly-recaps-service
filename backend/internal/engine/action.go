@@ -1,14 +1,15 @@
 package engine
 
 import (
-	_ "embed"
 	"encoding/json"
 	"errors"
 	"slices"
 	"sort"
 	"sync"
 	"time"
-	"v1/internal/domain"
+
+	"v1/catalog"
+	"v1/internal/domain/recap"
 )
 
 const (
@@ -26,24 +27,24 @@ const (
 	lowViewsThreshold           = 5
 )
 
-func ResolveAction(metrics domain.YearMetrics, role string) (domain.RecapAction, error) {
+func ResolveAction(metrics recap.YearMetrics, role string) (recap.RecapAction, error) {
 	selected := chooseType(metrics, role)
 
 	actionCopies, err := loadActionCopies()
 	if err != nil {
-		return domain.RecapAction{}, err
+		return recap.RecapAction{}, err
 	}
 
 	copyStat, ok := actionCopies[selected.Type]
 	if !ok {
-		return domain.RecapAction{}, errors.New("action type does not exist in json file")
+		return recap.RecapAction{}, errors.New("action type does not exist in json file")
 	}
 
-	return domain.RecapAction{
+	return recap.RecapAction{
 		Type:   selected.Type,
 		Label:  copyStat.Label,
 		Reason: copyStat.Reason,
-		Target: domain.RecapActionTarget{
+		Target: recap.RecapActionTarget{
 			ListingIDs: selected.ListingIDs,
 			CategoryID: selected.CategoryID,
 		},
@@ -56,7 +57,7 @@ type selectedAction struct {
 	CategoryID int64
 }
 
-func chooseType(metrics domain.YearMetrics, role string) selectedAction {
+func chooseType(metrics recap.YearMetrics, role string) selectedAction {
 	if role == seller {
 		if ids, ok := findStaleListingTargets(metrics, time.Now()); ok {
 			return selectedAction{Type: boostListings, ListingIDs: ids}
@@ -95,7 +96,7 @@ func chooseType(metrics domain.YearMetrics, role string) selectedAction {
 	}
 }
 
-func findStaleListingTargets(metrics domain.YearMetrics, now time.Time) ([]int64, bool) {
+func findStaleListingTargets(metrics recap.YearMetrics, now time.Time) ([]int64, bool) {
 	var ids []int64
 	cutoff := now.AddDate(0, 0, -staleDays)
 	for _, l := range metrics.OwnListings {
@@ -116,7 +117,7 @@ func findStaleListingTargets(metrics domain.YearMetrics, now time.Time) ([]int64
 	return ids, true
 }
 
-func findAbandonedListing(metrics domain.YearMetrics) (listingID int64, categoryID int64, ok bool) {
+func findAbandonedListing(metrics recap.YearMetrics) (listingID int64, categoryID int64, ok bool) {
 	messaged := metrics.MessagedListingIDs
 	fav := metrics.Favorites
 
@@ -135,7 +136,7 @@ func findAbandonedListing(metrics domain.YearMetrics) (listingID int64, category
 			continue
 		}
 
-		inFav := slices.Contains(fav, domain.YearMetricsFavorite{
+		inFav := slices.Contains(fav, recap.YearMetricsFavorite{
 			ListingID:  v.ListingID,
 			CategoryID: v.CategoryID,
 		})
@@ -161,7 +162,7 @@ func findAbandonedListing(metrics domain.YearMetrics) (listingID int64, category
 	return candidates[0].listingID, candidates[0].categoryID, true
 }
 
-func findCompareTopTargets(metrics domain.YearMetrics) (categoryID int64, listingIDs []int64, ok bool) {
+func findCompareTopTargets(metrics recap.YearMetrics) (categoryID int64, listingIDs []int64, ok bool) {
 	countByCategory := map[int64]int{}
 	maxCount := 0
 	var maxCategoryID int64
@@ -214,7 +215,7 @@ func findCompareTopTargets(metrics domain.YearMetrics) (categoryID int64, listin
 	return maxCategoryID, top, true
 }
 
-func findOpenFavoritesCategory(metrics domain.YearMetrics) (int64, bool) {
+func findOpenFavoritesCategory(metrics recap.YearMetrics) (int64, bool) {
 	if len(metrics.Favorites) < minFavoriteListings {
 		return 0, false
 	}
@@ -231,7 +232,7 @@ func findOpenFavoritesCategory(metrics domain.YearMetrics) (int64, bool) {
 	return maxCategoryID, true
 }
 
-func findContinueSearchCategory(metrics domain.YearMetrics) int64 {
+func findContinueSearchCategory(metrics recap.YearMetrics) int64 {
 	maxViews := 0
 	var categoryID int64
 	for _, c := range metrics.ViewsByCategory {
@@ -259,9 +260,6 @@ type actionStats struct {
 	Reason string `json:"reason"`
 }
 
-//go:embed actions.json
-var actionsJSON []byte
-
 var (
 	actionCopies     map[string]actionStats
 	actionCopiesErr  error
@@ -270,7 +268,7 @@ var (
 
 func loadActionCopies() (map[string]actionStats, error) {
 	actionCopiesOnce.Do(func() {
-		actionCopiesErr = json.Unmarshal(actionsJSON, &actionCopies)
+		actionCopiesErr = json.Unmarshal(catalog.ActionsJSON, &actionCopies)
 	})
 	return actionCopies, actionCopiesErr
 }
