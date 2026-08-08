@@ -45,43 +45,51 @@ func NewAchievementService(achievementRepo AchievementRepository, userRepo UserR
 	}
 }
 
-func (s *AchievementService) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error) {
+func (s *AchievementService) SyncUserAchievements(ctx context.Context, userID int64) error {
 	if _, err := s.users.GetByID(ctx, userID); err != nil {
-		return nil, nil, mapUserError(err)
+		return mapUserError(err)
 	}
 
 	userStats, err := s.userStats.GetByUserID(ctx, userID)
 	if err != nil {
-		return nil, nil, mapUserStatsError(err)
+		return mapUserStatsError(err)
 	}
 
 	to := time.Now()
 
 	if err := s.userStats.Update(ctx, userID, userStats.ProcessedAt, to); err != nil {
-		return nil, nil, mapUserStatsError(err)
+		return mapUserStatsError(err)
 	}
 
 	userStats, err = s.userStats.GetByUserID(ctx, userID)
 	if err != nil {
-		return nil, nil, mapUserStatsError(err)
+		return mapUserStatsError(err)
 	}
 
 	rules, err := s.achievements.GetRulesForAchievements(ctx)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
 	for _, rule := range rules {
 		ok, err := evaluateRule(rule.RuleNode, *userStats)
 		if err != nil {
-			return nil, nil, fmt.Errorf("evaluate rule: %w", err)
+			return fmt.Errorf("evaluate rule: %w", err)
 		}
 
 		if ok {
 			if err := s.achievements.AddAchievementToUser(ctx, userID, rule.ID); err != nil {
-				return nil, nil, mapAchievementError(err)
+				return mapAchievementError(err)
 			}
 		}
+	}
+
+	return nil
+}
+
+func (s *AchievementService) ListUserAchievements(ctx context.Context, userID int64) ([]domain.UserAchievement, []domain.Achievement, error) {
+	if err := s.SyncUserAchievements(ctx, userID); err != nil {
+		return nil, nil, err
 	}
 
 	return s.achievements.ListUserAchievements(ctx, userID)

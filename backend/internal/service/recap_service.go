@@ -26,19 +26,25 @@ type RecapRepository interface {
 	GetUserRecapByIDAndYear(ctx context.Context, userID int64, year int) (*domain.YearlyRecap, error)
 }
 
+type AchievementSyncer interface {
+	SyncUserAchievements(ctx context.Context, userID int64) error
+}
+
 const recapMetricsLimit = 4
 
 type RecapService struct {
-	users   UserRepository
-	metrics MetricsRepository
-	recaps  RecapRepository
-	logger  *slog.Logger
+	users        UserRepository
+	metrics      MetricsRepository
+	recaps       RecapRepository
+	achievements AchievementSyncer
+	logger       *slog.Logger
 }
 
 func NewRecapService(
 	users UserRepository,
 	metrics MetricsRepository,
 	recaps RecapRepository,
+	achievements AchievementSyncer,
 	logger *slog.Logger,
 ) *RecapService {
 	if logger == nil {
@@ -46,15 +52,22 @@ func NewRecapService(
 	}
 
 	return &RecapService{
-		users:   users,
-		metrics: metrics,
-		recaps:  recaps,
-		logger:  logger.With("component", "recap_service"),
+		users:        users,
+		metrics:      metrics,
+		recaps:       recaps,
+		achievements: achievements,
+		logger:       logger.With("component", "recap_service"),
 	}
 }
 
 func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int) (domain.Recap, bool, error) {
 	s.logger.InfoContext(ctx, "generate recap", "user_id", userID, "year", year, "operation", "generate_recap")
+
+	if s.achievements != nil {
+		if err := s.achievements.SyncUserAchievements(ctx, userID); err != nil {
+			return domain.Recap{}, false, fmt.Errorf("sync user achievements: %w", err)
+		}
+	}
 
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
