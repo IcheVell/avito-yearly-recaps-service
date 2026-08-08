@@ -69,6 +69,8 @@ Engine  Repositories
 
 Для запуска необходимы Docker и Docker Compose.
 
+Для отдельного запуска frontend на моках или через локальный API смотрите [инструкцию frontend](frontend/README.md).
+
 Из корня проекта:
 
 ```bash
@@ -168,5 +170,6 @@ MVP работает с тестовыми данными. В recap исполь
 
 ## Документация
 
+- [`frontend/README.md`](frontend/README.md) — установка, режим моков, запуск с API и команды frontend;
 - [`docs/CONTRACTS.md`](docs/CONTRACTS.md) — контракты данных и HTTP API;
 - [`docs/RULES.md`](docs/RULES.md) — правила работы с Git и коммитами.
