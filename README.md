@@ -36,7 +36,7 @@
 
 ## Стек
 
-**Frontend:** React, TypeScript, Redux Toolkit, Vite, Nginx.
+**Frontend:** React, TypeScript, Redux Toolkit, Vite, Nginx. Тесты: Vitest и React Testing Library.
 
 **Backend:** Go, Chi, GORM.
 
@@ -144,6 +144,7 @@ Frontend:
 ```bash
 cd frontend
 npm ci
+npm test
 npm run lint
 npm run build
 ```
