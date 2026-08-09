@@ -385,6 +385,9 @@ npm run build
 - реорганизация структуры backend (`cmd/api`, `catalog`, `migrations`, `entity` / `recap`, `engine/rules`);
 - структурированное логирование;
 - юнит-тесты engine и service;
+
+**Frontend / дизайн**
+- участие в дизайне интерфейса и карточек итогов.
 - бонус: вручную нарисовала картинки для ачивок :)
 
 ### Вклад [@Lunkova-Kate](https://github.com/Lunkova-Kate)
