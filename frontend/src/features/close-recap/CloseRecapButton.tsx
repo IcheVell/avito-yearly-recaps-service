@@ -4,9 +4,7 @@ type CloseRecapButtonProps = {
   onClose: () => void;
 };
 
-export function CloseRecapButton({
-  onClose,
-}: CloseRecapButtonProps) {
+export function CloseRecapButton({ onClose }: CloseRecapButtonProps) {
   return (
     <button
       className={styles.button}

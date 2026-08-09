@@ -16,13 +16,11 @@ type ErrorNotification = {
   message: string;
 };
 
-export function GetRecapButton({
-  userId,
-  onReceived,
-}: GetRecapButtonProps) {
+export function GetRecapButton({ userId, onReceived }: GetRecapButtonProps) {
   const notificationSequence = useRef(0);
-  const [notification, setNotification] =
-    useState<ErrorNotification | null>(null);
+  const [notification, setNotification] = useState<ErrorNotification | null>(
+    null,
+  );
 
   const showError = useCallback((message: string) => {
     notificationSequence.current += 1;

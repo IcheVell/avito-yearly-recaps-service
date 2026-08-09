@@ -84,12 +84,8 @@ function getMockEarnedAt(userId: number, index: number): string {
   ).toISOString();
 }
 
-export function getMockAchievements(
-  userId: number,
-): AchievementsResponse {
-  const earnedCodes = new Set(
-    earnedCodesByUserId[userId] ?? [],
-  );
+export function getMockAchievements(userId: number): AchievementsResponse {
+  const earnedCodes = new Set(earnedCodesByUserId[userId] ?? []);
 
   const earned: EarnedAchievement[] = mockAchievementCatalog
     .filter((achievement) => earnedCodes.has(achievement.code))

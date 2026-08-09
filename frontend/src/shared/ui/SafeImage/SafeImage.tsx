@@ -1,13 +1,6 @@
-import {
-  type ImgHTMLAttributes,
-  type ReactNode,
-  useState,
-} from 'react';
+import { type ImgHTMLAttributes, type ReactNode, useState } from 'react';
 
-type SafeImageProps = Omit<
-  ImgHTMLAttributes<HTMLImageElement>,
-  'src'
-> & {
+type SafeImageProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
   src: string | null | undefined;
   fallback?: ReactNode;
 };

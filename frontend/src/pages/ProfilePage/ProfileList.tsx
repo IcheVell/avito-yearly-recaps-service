@@ -30,10 +30,7 @@ export function ProfileList({
             aria-pressed={isSelected}
           >
             <ProfileAvatar profile={profile} size={64} />
-            <span
-              className={styles.profileName}
-              title={profile.username}
-            >
+            <span className={styles.profileName} title={profile.username}>
               {profile.username}
             </span>
           </button>

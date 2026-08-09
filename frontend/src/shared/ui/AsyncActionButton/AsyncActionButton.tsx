@@ -26,9 +26,7 @@ export function AsyncActionButton({
         disabled={isLoading}
         aria-busy={isLoading}
       >
-        {isLoading && (
-          <span className={styles.spinner} aria-hidden="true" />
-        )}
+        {isLoading && <span className={styles.spinner} aria-hidden="true" />}
 
         {isLoading ? loadingLabel : label}
       </button>

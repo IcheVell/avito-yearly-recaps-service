@@ -2,7 +2,6 @@ import type { Recap } from '../entities/recap/types';
 import { mockAchievementCatalog } from './mockAchievements';
 import { mockProfiles } from './mockProfiles';
 
-
 export const mockRecap: Recap = {
   id: 101,
   userId: 1,
@@ -45,7 +44,8 @@ export const mockRecap: Recap = {
       payload: {
         listingId: 2,
         name: 'iPhone 13 128GB',
-        imageUrl: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=900&q=80',
         viewsCount: 42,
       },
     },
@@ -124,7 +124,8 @@ const buyerMockRecap: Recap = {
       payload: {
         listingId: 7,
         name: 'PlayStation 5 Slim',
-        imageUrl: 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=900&q=80',
         viewsCount: 36,
       },
     },
@@ -148,7 +149,8 @@ const buyerMockRecap: Recap = {
   action: {
     type: 'open_favorites',
     label: 'Вернуться к сохранённым',
-    reason: 'У тебя есть избранные объявления, к которым ты давно не возвращался.',
+    reason:
+      'У тебя есть избранные объявления, к которым ты давно не возвращался.',
     target: {},
   },
 
@@ -210,7 +212,8 @@ const watcherMockRecap: Recap = {
       payload: {
         listingId: 15,
         name: 'City bike',
-        imageUrl: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=900&q=80',
+        imageUrl:
+          'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=900&q=80',
         viewsCount: 42,
       },
     },
@@ -234,7 +237,8 @@ const watcherMockRecap: Recap = {
   action: {
     type: 'continue_search',
     label: 'Продолжить поиск',
-    reason: 'Ты активно смотрел и искал — осталось сузить выбор и найти подходящий вариант.',
+    reason:
+      'Ты активно смотрел и искал — осталось сузить выбор и найти подходящий вариант.',
     target: {},
   },
 
@@ -501,10 +505,7 @@ const buyerBalancedMockRecap: Recap = {
       },
     },
   ],
-  achievements: selectAchievements(
-    'two_faced_market',
-    'wallet_whisperer',
-  ),
+  achievements: selectAchievements('two_faced_market', 'wallet_whisperer'),
   action: {
     type: 'open_favorites',
     label: 'Вернуться к сохранённым',
@@ -553,15 +554,12 @@ const watcherReturningMockRecap: Recap = {
       payload: { viewsCount: 963, favoritesCount: 71 },
     },
   ],
-  achievements: selectAchievements(
-    'plot_twist',
-    'diplomat',
-    'streak_survivor',
-  ),
+  achievements: selectAchievements('plot_twist', 'diplomat', 'streak_survivor'),
   action: {
     type: 'continue_search',
     label: 'Продолжить поиск',
-    reason: 'Новые объявления уже появились — можно продолжить с лучшего места.',
+    reason:
+      'Новые объявления уже появились — можно продолжить с лучшего места.',
     target: { categoryId: 4 },
   },
   debug: {

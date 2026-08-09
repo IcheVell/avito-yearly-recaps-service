@@ -5,10 +5,7 @@ type ErrorMessageProps = {
   onRetry?: () => void;
 };
 
-export function ErrorMessage({
-  message,
-  onRetry,
-}: ErrorMessageProps) {
+export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
   return (
     <div className={styles.box} role="alert">
       <p>{message}</p>

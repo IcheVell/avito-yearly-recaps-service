@@ -33,23 +33,20 @@ export type RecapSlide =
       action: RecapAction;
     };
 
-export function createRecapSlides(
-  recap: Recap,
-): RecapSlide[] {
-  const metricSlides: RecapSlide[] = recap.metrics.map(
-    (metric, index) => ({
-      id: `metric-${metric.type}-${index}`,
-      kind: 'metric',
-      metric,
-    }),
-  );
+export function createRecapSlides(recap: Recap): RecapSlide[] {
+  const metricSlides: RecapSlide[] = recap.metrics.map((metric, index) => ({
+    id: `metric-${metric.type}-${index}`,
+    kind: 'metric',
+    metric,
+  }));
 
-  const achievementSlides: RecapSlide[] =
-    recap.achievements.map((achievement, index) => ({
+  const achievementSlides: RecapSlide[] = recap.achievements.map(
+    (achievement, index) => ({
       id: `achievement-${achievement.code}-${index}`,
       kind: 'achievement',
       achievement,
-    }));
+    }),
+  );
 
   return [
     {

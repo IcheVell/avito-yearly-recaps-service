@@ -16,9 +16,7 @@ type RecapSlideViewProps = {
 };
 
 function assertNever(value: never): never {
-  throw new Error(
-    `Неизвестный тип recap-слайда: ${JSON.stringify(value)}`,
-  );
+  throw new Error(`Неизвестный тип recap-слайда: ${JSON.stringify(value)}`);
 }
 
 export function RecapSlideView({
@@ -30,20 +28,12 @@ export function RecapSlideView({
   switch (slide.kind) {
     case 'intro':
       return (
-        <IntroCard
-          year={slide.year}
-          variant={variant}
-          isActive={isActive}
-        />
+        <IntroCard year={slide.year} variant={variant} isActive={isActive} />
       );
 
     case 'role':
       return (
-        <RoleCard
-          role={slide.role}
-          variant={variant}
-          isActive={isActive}
-        />
+        <RoleCard role={slide.role} variant={variant} isActive={isActive} />
       );
 
     case 'metric':

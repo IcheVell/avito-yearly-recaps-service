@@ -9,11 +9,7 @@ type IntroCardProps = {
   isActive: boolean;
 };
 
-export function IntroCard({
-  year,
-  variant,
-  isActive,
-}: IntroCardProps) {
+export function IntroCard({ year, variant, isActive }: IntroCardProps) {
   return (
     <RecapCardShell
       variant={variant}
@@ -38,9 +34,7 @@ export function IntroCard({
         </p>
       </div>
 
-      <p className={styles.introThanks}>
-        Спасибо, что был с нами
-      </p>
+      <p className={styles.introThanks}>Спасибо, что был с нами</p>
     </RecapCardShell>
   );
 }

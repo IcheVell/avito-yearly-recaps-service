@@ -12,11 +12,11 @@ export type RecapRole = {
 export type MetricPayload = Record<string, unknown>;
 
 export type RecapMetric = {
-    type: string;
-    title: string;
-    text: string;
-    highlights: string[];
-    payload: MetricPayload;
+  type: string;
+  title: string;
+  text: string;
+  highlights: string[];
+  payload: MetricPayload;
 };
 
 type RecapActionBase = {

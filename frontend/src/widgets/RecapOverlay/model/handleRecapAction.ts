@@ -38,9 +38,7 @@ export function handleRecapAction(action: RecapAction) {
     default: {
       const exhaustiveAction: never = action;
       throw new Error(
-        `Неизвестное recap-действие: ${JSON.stringify(
-          exhaustiveAction,
-        )}`,
+        `Неизвестное recap-действие: ${JSON.stringify(exhaustiveAction)}`,
       );
     }
   }

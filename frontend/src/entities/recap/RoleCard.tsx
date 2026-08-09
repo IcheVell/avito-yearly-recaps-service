@@ -16,11 +16,7 @@ type RoleCardProps = {
   isActive: boolean;
 };
 
-export function RoleCard({
-  role,
-  variant,
-  isActive,
-}: RoleCardProps) {
+export function RoleCard({ role, variant, isActive }: RoleCardProps) {
   const tooltipId = useId();
 
   return (
@@ -45,11 +41,7 @@ export function RoleCard({
             {role.name}
           </FitText>
 
-          <span
-            id={tooltipId}
-            className={styles.roleTooltip}
-            role="tooltip"
-          >
+          <span id={tooltipId} className={styles.roleTooltip} role="tooltip">
             {role.why}
           </span>
         </div>

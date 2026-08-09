@@ -29,9 +29,7 @@ export function StatisticsPanel({
 
   if (!stats) {
     return (
-      <p className={styles.emptyState}>
-        Данные статистики пока недоступны.
-      </p>
+      <p className={styles.emptyState}>Данные статистики пока недоступны.</p>
     );
   }
 

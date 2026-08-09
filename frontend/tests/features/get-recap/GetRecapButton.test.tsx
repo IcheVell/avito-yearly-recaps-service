@@ -3,14 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { Provider } from 'react-redux';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Recap } from '../../../src/entities/recap/types';
 import { GetRecapButton } from '../../../src/features/get-recap/GetRecapButton';
@@ -87,16 +80,10 @@ function RecapHarness({ userId }: { userId: number }) {
 
   return (
     <>
-      <GetRecapButton
-        userId={userId}
-        onReceived={setOpenRecap}
-      />
+      <GetRecapButton userId={userId} onReceived={setOpenRecap} />
 
       {openRecap && (
-        <RecapOverlay
-          recap={openRecap}
-          onClose={() => setOpenRecap(null)}
-        />
+        <RecapOverlay recap={openRecap} onClose={() => setOpenRecap(null)} />
       )}
     </>
   );
@@ -110,11 +97,14 @@ function getRecapButton() {
 
 describe('получение итогов', () => {
   beforeEach(() => {
-    vi.stubGlobal('ResizeObserver', class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    });
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
   });
 
   afterEach(() => {
@@ -123,15 +113,11 @@ describe('получение итогов', () => {
   });
 
   it('отправляет GET-запрос по правильному маршруту с userId', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      createJsonResponse(recap),
-    );
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(recap));
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
-    renderWithApi(
-      <GetRecapButton userId={42} onReceived={vi.fn()} />,
-    );
+    renderWithApi(<GetRecapButton userId={42} onReceived={vi.fn()} />);
 
     await user.click(getRecapButton());
 
@@ -142,9 +128,7 @@ describe('получение итогов', () => {
     const request = fetchMock.mock.calls[0][0] as Request;
 
     expect(request.method).toBe('GET');
-    expect(request.url).toBe(
-      'http://localhost/api/users/42/recap',
-    );
+    expect(request.url).toBe('http://localhost/api/users/42/recap');
   });
 
   it('блокирует кнопку, пока запрос выполняется', async () => {
@@ -156,9 +140,7 @@ describe('получение итогов', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
-    renderWithApi(
-      <GetRecapButton userId={42} onReceived={vi.fn()} />,
-    );
+    renderWithApi(<GetRecapButton userId={42} onReceived={vi.fn()} />);
 
     const button = getRecapButton();
     await user.click(button);
@@ -197,17 +179,15 @@ describe('получение итогов', () => {
   it('показывает специальную плашку при RECAP_NOT_FOUND', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockImplementation(() =>
-        Promise.resolve(
-          createJsonResponse(recapNotFoundResponse, 404),
+      vi
+        .fn()
+        .mockImplementation(() =>
+          Promise.resolve(createJsonResponse(recapNotFoundResponse, 404)),
         ),
-      ),
     );
 
     const user = userEvent.setup();
-    renderWithApi(
-      <GetRecapButton userId={42} onReceived={vi.fn()} />,
-    );
+    renderWithApi(<GetRecapButton userId={42} onReceived={vi.fn()} />);
 
     await user.click(getRecapButton());
 
@@ -220,17 +200,13 @@ describe('получение итогов', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        createJsonResponse(recapNotFoundResponse, 404),
-      ),
+      vi.fn().mockResolvedValue(createJsonResponse(recapNotFoundResponse, 404)),
     );
 
     const user = userEvent.setup({
       advanceTimers: vi.advanceTimersByTime,
     });
-    renderWithApi(
-      <GetRecapButton userId={42} onReceived={vi.fn()} />,
-    );
+    renderWithApi(<GetRecapButton userId={42} onReceived={vi.fn()} />);
 
     await user.click(getRecapButton());
     expect(await screen.findByRole('alert')).toBeInTheDocument();
@@ -245,15 +221,11 @@ describe('получение итогов', () => {
   it('закрывает плашку вручную', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        createJsonResponse(recapNotFoundResponse, 404),
-      ),
+      vi.fn().mockResolvedValue(createJsonResponse(recapNotFoundResponse, 404)),
     );
 
     const user = userEvent.setup();
-    renderWithApi(
-      <GetRecapButton userId={42} onReceived={vi.fn()} />,
-    );
+    renderWithApi(<GetRecapButton userId={42} onReceived={vi.fn()} />);
 
     await user.click(getRecapButton());
     expect(await screen.findByRole('alert')).toBeInTheDocument();
@@ -268,17 +240,15 @@ describe('получение итогов', () => {
   });
 
   it('снова показывает плашку после повторного запроса', async () => {
-    const fetchMock = vi.fn().mockImplementation(() =>
-      Promise.resolve(
-        createJsonResponse(recapNotFoundResponse, 404),
-      ),
-    );
+    const fetchMock = vi
+      .fn()
+      .mockImplementation(() =>
+        Promise.resolve(createJsonResponse(recapNotFoundResponse, 404)),
+      );
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
-    renderWithApi(
-      <GetRecapButton userId={42} onReceived={vi.fn()} />,
-    );
+    renderWithApi(<GetRecapButton userId={42} onReceived={vi.fn()} />);
 
     const button = getRecapButton();
     await user.click(button);

@@ -3,10 +3,7 @@ import { wait } from '../lib/wait';
 import type { GenerateRecapRequest, Recap } from '../../entities/recap/types';
 
 import { baseApi } from './baseApi';
-import {
-  generateMockRecap,
-  getMockRecap,
-} from '../../mocks/mockRecap';
+import { generateMockRecap, getMockRecap } from '../../mocks/mockRecap';
 
 export const recapApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

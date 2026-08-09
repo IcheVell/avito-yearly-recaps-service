@@ -4,7 +4,6 @@ type LoaderProps = {
   label?: string;
 };
 
-
 export function Loader({ label = 'Загрузка…' }: LoaderProps) {
   return (
     <div className={styles.wrapper} role="status" aria-live="polite">

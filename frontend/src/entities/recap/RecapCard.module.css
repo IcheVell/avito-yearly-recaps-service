@@ -596,7 +596,6 @@
   color: #4a1768;
 }
 
-
 .red .value {
   background: linear-gradient(135deg, #bd3737, #65101e 65%, #1d0005);
   background-clip: text;
@@ -656,7 +655,6 @@
     bottom: 72px;
     font-size: 92px;
   }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -665,5 +663,4 @@
     animation: none;
     transition: none;
   }
-
 }

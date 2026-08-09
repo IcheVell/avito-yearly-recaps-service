@@ -32,10 +32,7 @@ export function ProfileSummary({
             onGenerated={onRecapReceived}
           />
 
-          <GetRecapButton
-            userId={profile.id}
-            onReceived={onRecapReceived}
-          />
+          <GetRecapButton userId={profile.id} onReceived={onRecapReceived} />
         </div>
       </div>
     </div>

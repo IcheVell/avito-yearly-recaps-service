@@ -17,14 +17,8 @@ type RecapOverlayProps = {
   onClose: () => void;
 };
 
-export function RecapOverlay({
-  recap,
-  onClose,
-}: RecapOverlayProps) {
-  const slides = useMemo(
-    () => createRecapSlides(recap),
-    [recap],
-  );
+export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
+  const slides = useMemo(() => createRecapSlides(recap), [recap]);
   const slidesCount = slides.length;
 
   const {
@@ -39,11 +33,7 @@ export function RecapOverlay({
   } = useRecapCarousel(slidesCount);
 
   const variants = useMemo(
-    () =>
-      createCardVariants(
-        `${recap.id}-${recap.createdAt}`,
-        slidesCount,
-      ),
+    () => createCardVariants(`${recap.id}-${recap.createdAt}`, slidesCount),
     [recap.id, recap.createdAt, slidesCount],
   );
 
@@ -91,15 +81,9 @@ export function RecapOverlay({
         onClose={onClose}
       />
 
-      {slides[currentSlide]?.kind === 'intro' && (
-        <RecapFireworks />
-      )}
+      {slides[currentSlide]?.kind === 'intro' && <RecapFireworks />}
 
-      <div
-        ref={trackRef}
-        className={styles.track}
-        onScroll={handleTrackScroll}
-      >
+      <div ref={trackRef} className={styles.track} onScroll={handleTrackScroll}>
         {slides.map((slide, index) => (
           <RecapSlideView
             key={slide.id}
