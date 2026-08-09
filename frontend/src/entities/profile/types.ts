@@ -1,7 +1,7 @@
 export type Profile = {
     id: number;
     username: string;
-    imageUrl: string;
+    imageUrl: string | null;
 };
 
 export type ProfilesResponse = {

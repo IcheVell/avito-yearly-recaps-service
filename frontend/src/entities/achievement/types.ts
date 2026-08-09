@@ -2,7 +2,7 @@ export type Achievement = {
   code: string;
   name: string;
   description: string;
-  imageUrl: string;
+  imageUrl: string | null;
 };
 
 export type EarnedAchievement = Achievement & {

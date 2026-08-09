@@ -37,6 +37,14 @@ export function getApiErrorMessage(error: unknown): string {
     }
   }
 
+  if (
+    typeof error.status === 'number' &&
+    error.status >= 500 &&
+    error.status <= 599
+  ) {
+    return 'Сервис временно недоступен.';
+  }
+
   switch (error.status) {
     case 400:
       return 'Запрос содержит неверные данные.';
@@ -44,8 +52,6 @@ export function getApiErrorMessage(error: unknown): string {
       return 'Пользователь или итоги не найдены.';
     case 409:
       return 'Возник конфликт состояния. Попробуйте ещё раз.';
-    case 500:
-      return 'Сервис временно недоступен.';
     case 'FETCH_ERROR':
       return 'Не удалось связаться с сервером.';
     default:

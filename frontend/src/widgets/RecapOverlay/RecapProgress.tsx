@@ -31,6 +31,7 @@ export function RecapProgress({
             type="button"
             onClick={() => onSelectSlide(index)}
             aria-label={`Перейти к карточке ${index + 1}`}
+            aria-current={index === currentSlide ? 'step' : undefined}
           />
         ))}
       </div>
