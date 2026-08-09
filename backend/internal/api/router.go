@@ -3,8 +3,8 @@ package api
 import (
 	"log/slog"
 	"net/http"
+	"v1/internal/api/handlers"
 	apimiddleware "v1/internal/api/middleware"
-	"v1/internal/handlers"
 	applog "v1/internal/logger"
 
 	"github.com/go-chi/chi/v5"
