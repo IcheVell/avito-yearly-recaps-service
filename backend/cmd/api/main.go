@@ -35,6 +35,11 @@ func main() {
 	}
 
 	appLogger.Info("database connected", "operation", "connect_database")
+	appLogger.Info(
+		"recap year configured",
+		"recap_year", cfg.RecapYear,
+		"operation", "load_config",
+	)
 
 	userRepo := repository.NewUserRepository(db)
 	metricsRepo := repository.NewMetricsRepository(db)

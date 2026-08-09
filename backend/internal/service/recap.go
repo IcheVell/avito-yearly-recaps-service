@@ -63,27 +63,53 @@ func NewRecapService(
 }
 
 func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int) (recap.Recap, bool, error) {
-	s.logger.InfoContext(ctx, "generate recap", "user_id", userID, "year", year, "operation", "generate_recap")
+	s.logger.InfoContext(ctx, "generate recap started", "user_id", userID, "year", year, "operation", "generate_recap")
 
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
+		s.logger.WarnContext(ctx, "generate recap user lookup failed", "user_id", userID, "year", year, "err", err, "operation", "generate_recap")
 		return recap.Recap{}, false, mapUserError(err)
 	}
 
 	if err := s.AchievementService.UpdateUserAchievements(ctx, userID); err != nil {
+		s.logger.ErrorContext(ctx, "generate recap achievements sync failed", "user_id", userID, "year", year, "err", err, "operation", "generate_recap")
 		return recap.Recap{}, false, err
 	}
 
 	metrics, err := s.metrics.GetByUserIDAndYear(ctx, *user, year)
 	if err != nil {
+		s.logger.ErrorContext(ctx, "generate recap metrics failed", "user_id", userID, "year", year, "err", err, "operation", "generate_recap")
 		return recap.Recap{}, false, fmt.Errorf("get user stats: %w", err)
 	}
 
+	s.logger.InfoContext(
+		ctx,
+		"generate recap metrics loaded",
+		"user_id", userID,
+		"year", year,
+		"buys_count", metrics.BuysCount,
+		"sells_count", metrics.SellsCount,
+		"views_count", metrics.ViewsCount,
+		"favorites_count", metrics.FavoritesCount,
+		"achievements_count", len(metrics.YearAchievements),
+		"operation", "generate_recap",
+	)
+
 	story, err := engine.Generate(*metrics)
 	if err != nil {
+		s.logger.ErrorContext(ctx, "generate recap engine failed", "user_id", userID, "year", year, "err", err, "operation", "generate_recap")
 		return recap.Recap{}, false, fmt.Errorf("generate recap: %w", err)
 	}
 	if len(story.Metrics) > recapMetricsLimit {
+		s.logger.InfoContext(
+			ctx,
+			"generate recap metrics truncated",
+			"user_id", userID,
+			"year", year,
+			"before", len(story.Metrics),
+			"limit", recapMetricsLimit,
+			"operation", "generate_recap",
+		)
 		story.Metrics = story.Metrics[:recapMetricsLimit]
 	}
 	story.UserID = userID
@@ -95,50 +121,111 @@ func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int
 
 	existing, err := s.recaps.GetUserRecapByIDAndYear(ctx, userID, year)
 	if err != nil {
+		s.logger.ErrorContext(ctx, "generate recap existing lookup failed", "user_id", userID, "year", year, "err", err, "operation", "generate_recap")
 		return recap.Recap{}, false, fmt.Errorf("get existing recap: %w", err)
 	}
 
 	if existing == nil {
 		if err := s.recaps.Create(ctx, &story); err != nil {
+			s.logger.ErrorContext(ctx, "generate recap create failed", "user_id", userID, "year", year, "err", err, "operation", "generate_recap")
 			return recap.Recap{}, false, fmt.Errorf("create recap: %w", err)
 		}
 
+		s.logger.InfoContext(
+			ctx,
+			"generate recap created",
+			"user_id", userID,
+			"year", year,
+			"recap_id", story.ID,
+			"role", story.Role.Code,
+			"metrics_count", len(story.Metrics),
+			"achievements_count", len(story.Achievements),
+			"action", story.Action.Type,
+			"operation", "generate_recap",
+		)
 		return story, true, nil
 	}
 
 	story.ID = existing.ID
 	story.CreatedAt = existing.CreatedAt
 	if err := s.recaps.Update(ctx, &story); err != nil {
+		s.logger.ErrorContext(ctx, "generate recap update failed", "user_id", userID, "year", year, "recap_id", story.ID, "err", err, "operation", "generate_recap")
 		return recap.Recap{}, false, fmt.Errorf("update recap: %w", err)
 	}
 
+	s.logger.InfoContext(
+		ctx,
+		"generate recap updated",
+		"user_id", userID,
+		"year", year,
+		"recap_id", story.ID,
+		"role", story.Role.Code,
+		"metrics_count", len(story.Metrics),
+		"achievements_count", len(story.Achievements),
+		"action", story.Action.Type,
+		"operation", "generate_recap",
+	)
 	return story, false, nil
 }
 
 func (s *RecapService) GetUserRecap(ctx context.Context, userID int64, year int) (recap.Recap, error) {
+	s.logger.InfoContext(ctx, "get user recap started", "user_id", userID, "year", year, "operation", "get_user_recap")
+
 	yearly, err := s.recaps.GetUserRecapByIDAndYear(ctx, userID, year)
 	if err != nil {
+		s.logger.ErrorContext(ctx, "get user recap failed", "user_id", userID, "year", year, "err", err, "operation", "get_user_recap")
 		return recap.Recap{}, fmt.Errorf("get recap: %w", err)
 	}
 
 	if yearly == nil {
+		s.logger.WarnContext(ctx, "get user recap not found", "user_id", userID, "year", year, "operation", "get_user_recap")
 		return recap.Recap{}, notFound("RECAP_NOT_FOUND", "recap not found")
 	}
 
-	return newRecapFromYearlyRecap(*yearly)
+	story, err := newRecapFromYearlyRecap(*yearly)
+	if err != nil {
+		s.logger.ErrorContext(ctx, "get user recap unmarshal failed", "user_id", userID, "year", year, "recap_id", yearly.ID, "err", err, "operation", "get_user_recap")
+		return recap.Recap{}, err
+	}
+
+	s.logger.InfoContext(
+		ctx,
+		"get user recap succeeded",
+		"user_id", userID,
+		"year", year,
+		"recap_id", story.ID,
+		"role", story.Role.Code,
+		"operation", "get_user_recap",
+	)
+	return story, nil
 }
 
 func (s *RecapService) GetUserStats(ctx context.Context, userID int64, year int) (recap.YearMetrics, error) {
+	s.logger.InfoContext(ctx, "get user stats started", "user_id", userID, "year", year, "operation", "get_user_stats")
+
 	user, err := s.users.GetByID(ctx, userID)
 	if err != nil {
+		s.logger.WarnContext(ctx, "get user stats user lookup failed", "user_id", userID, "year", year, "err", err, "operation", "get_user_stats")
 		return recap.YearMetrics{}, mapUserError(err)
 	}
 
 	metrics, err := s.metrics.GetByUserIDAndYear(ctx, *user, year)
 	if err != nil {
+		s.logger.ErrorContext(ctx, "get user stats failed", "user_id", userID, "year", year, "err", err, "operation", "get_user_stats")
 		return recap.YearMetrics{}, fmt.Errorf("get user stats: %w", err)
 	}
 
+	s.logger.InfoContext(
+		ctx,
+		"get user stats succeeded",
+		"user_id", userID,
+		"year", year,
+		"buys_count", metrics.BuysCount,
+		"sells_count", metrics.SellsCount,
+		"views_count", metrics.ViewsCount,
+		"active_days", metrics.ActiveDays,
+		"operation", "get_user_stats",
+	)
 	return *metrics, nil
 }
 

@@ -35,6 +35,7 @@ func NewRouter(deps Dependencies) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
+	r.Use(requestLogger(logger.With("component", "http")))
 
 	fileServer := http.FileServer(http.Dir("./static"))
 
