@@ -48,9 +48,7 @@ export function AchievementCard({
           <p className={`${styles.value} ${styles.achievementName}`}>
             {achievement.name}
           </p>
-          <p className={styles.text}>
-            {truncateText(achievement.description)}
-          </p>
+          <p className={styles.text}>{truncateText(achievement.description)}</p>
         </div>
       </div>
     </RecapCardShell>

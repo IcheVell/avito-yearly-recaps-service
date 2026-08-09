@@ -18,11 +18,7 @@ type AchievementsPanelProps = {
   onRetry: () => void;
 };
 
-function AchievementImage({
-  achievement,
-}: {
-  achievement: Achievement;
-}) {
+function AchievementImage({ achievement }: { achievement: Achievement }) {
   return (
     <div className={styles.imageFrame}>
       <SafeImage
@@ -134,9 +130,7 @@ export function AchievementsPanel({
 
   if (achievements === null) {
     return (
-      <p className={styles.emptyState}>
-        Данные о достижениях пока недоступны.
-      </p>
+      <p className={styles.emptyState}>Данные о достижениях пока недоступны.</p>
     );
   }
 

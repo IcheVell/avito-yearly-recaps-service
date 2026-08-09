@@ -1,7 +1,4 @@
-import {
-  type PropsWithChildren,
-  type KeyboardEvent,
-} from 'react';
+import { type PropsWithChildren, type KeyboardEvent } from 'react';
 
 import styles from './ProfileTabs.module.css';
 
@@ -26,10 +23,7 @@ export function ProfileTabs({
     event: KeyboardEvent<HTMLButtonElement>,
     currentIndex: number,
   ) {
-    if (
-      event.key !== 'ArrowLeft' &&
-      event.key !== 'ArrowRight'
-    ) {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
       return;
     }
 
@@ -37,8 +31,7 @@ export function ProfileTabs({
 
     const direction = event.key === 'ArrowRight' ? 1 : -1;
     const nextIndex =
-      (currentIndex + direction + PROFILE_TABS.length) %
-      PROFILE_TABS.length;
+      (currentIndex + direction + PROFILE_TABS.length) % PROFILE_TABS.length;
     const nextTab = PROFILE_TABS[nextIndex];
 
     onTabChange(nextTab.id);
@@ -65,18 +58,14 @@ export function ProfileTabs({
             <button
               key={tab.id}
               id={`profile-${tab.id}-tab`}
-              className={`${styles.tab} ${
-                isActive ? styles.tabActive : ''
-              }`}
+              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
               type="button"
               role="tab"
               aria-selected={isActive}
               aria-controls="profile-tab-panel"
               tabIndex={isActive ? 0 : -1}
               onClick={() => onTabChange(tab.id)}
-              onKeyDown={(event) =>
-                handleTabKeyDown(event, index)
-              }
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
             >
               {tab.label}
             </button>

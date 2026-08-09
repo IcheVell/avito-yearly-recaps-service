@@ -14,11 +14,7 @@ export function GenerateRecapButton({
   year,
   onGenerated,
 }: GenerateRecapButtonProps) {
-  const {
-    generateRecap,
-    isGenerating,
-    errorMessage,
-  } = useGenerateRecap({
+  const { generateRecap, isGenerating, errorMessage } = useGenerateRecap({
     userId,
     onGenerated,
   });

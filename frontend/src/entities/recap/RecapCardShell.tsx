@@ -25,9 +25,5 @@ export function RecapCardShell({
     .filter(Boolean)
     .join(' ');
 
-  return (
-    <article className={cardClassName}>
-      {children}
-    </article>
-  );
+  return <article className={cardClassName}>{children}</article>;
 }

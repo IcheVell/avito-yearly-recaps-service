@@ -14,9 +14,7 @@ export const achievementsApi = baseApi.injectEndpoints({
           return { data: getMockAchievements(userId) };
         }
 
-        const result = await fetchWithBQ(
-          `/users/${userId}/achievements`,
-        );
+        const result = await fetchWithBQ(`/users/${userId}/achievements`);
 
         if (result.error) {
           return { error: result.error };

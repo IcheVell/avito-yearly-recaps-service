@@ -80,10 +80,7 @@ function RecapHarness({ userId }: { userId: number }) {
       />
 
       {openRecap && (
-        <RecapOverlay
-          recap={openRecap}
-          onClose={() => setOpenRecap(null)}
-        />
+        <RecapOverlay recap={openRecap} onClose={() => setOpenRecap(null)} />
       )}
     </>
   );
@@ -97,11 +94,14 @@ function getGenerateButton() {
 
 describe('генерация итогов', () => {
   beforeEach(() => {
-    vi.stubGlobal('ResizeObserver', class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    });
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
   });
 
   afterEach(() => {
@@ -109,18 +109,12 @@ describe('генерация итогов', () => {
   });
 
   it('отправляет POST-запрос с userId', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      createJsonResponse(recap),
-    );
+    const fetchMock = vi.fn().mockResolvedValue(createJsonResponse(recap));
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
     renderWithApi(
-      <GenerateRecapButton
-        userId={42}
-        year={2025}
-        onGenerated={vi.fn()}
-      />,
+      <GenerateRecapButton userId={42} year={2025} onGenerated={vi.fn()} />,
     );
 
     await user.click(getGenerateButton());
@@ -132,9 +126,7 @@ describe('генерация итогов', () => {
     const request = fetchMock.mock.calls[0][0] as Request;
 
     expect(request.method).toBe('POST');
-    expect(request.url).toBe(
-      'http://localhost/api/recaps/generate',
-    );
+    expect(request.url).toBe('http://localhost/api/recaps/generate');
     await expect(request.json()).resolves.toEqual({ userId: 42 });
   });
 
@@ -143,18 +135,11 @@ describe('генерация итогов', () => {
     const pendingRequest = new Promise<Response>((resolve) => {
       resolveRequest = resolve;
     });
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockReturnValue(pendingRequest),
-    );
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(pendingRequest));
 
     const user = userEvent.setup();
     renderWithApi(
-      <GenerateRecapButton
-        userId={42}
-        year={2025}
-        onGenerated={vi.fn()}
-      />,
+      <GenerateRecapButton userId={42} year={2025} onGenerated={vi.fn()} />,
     );
 
     const button = getGenerateButton();
@@ -194,18 +179,14 @@ describe('генерация итогов', () => {
   it('показывает ошибку генерации пользователю', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
-        createJsonResponse(generationErrorResponse, 500),
-      ),
+      vi
+        .fn()
+        .mockResolvedValue(createJsonResponse(generationErrorResponse, 500)),
     );
 
     const user = userEvent.setup();
     renderWithApi(
-      <GenerateRecapButton
-        userId={42}
-        year={2025}
-        onGenerated={vi.fn()}
-      />,
+      <GenerateRecapButton userId={42} year={2025} onGenerated={vi.fn()} />,
     );
 
     await user.click(getGenerateButton());
@@ -219,13 +200,9 @@ describe('генерация итогов', () => {
     const fetchMock = vi
       .fn()
       .mockImplementationOnce(() =>
-        Promise.resolve(
-          createJsonResponse(generationErrorResponse, 500),
-        ),
+        Promise.resolve(createJsonResponse(generationErrorResponse, 500)),
       )
-      .mockImplementationOnce(() =>
-        Promise.resolve(createJsonResponse(recap)),
-      );
+      .mockImplementationOnce(() => Promise.resolve(createJsonResponse(recap)));
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();

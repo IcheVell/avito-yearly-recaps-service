@@ -1,5 +1,4 @@
-import {CARD_VARIANTS, type CardVariant} from './cardVariants';
-
+import { CARD_VARIANTS, type CardVariant } from './cardVariants';
 
 function createSeed(value: string): number {
   let hash = 0;

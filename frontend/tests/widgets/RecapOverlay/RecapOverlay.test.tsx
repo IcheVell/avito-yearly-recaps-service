@@ -72,12 +72,15 @@ function OverlayHarness() {
 
 describe('навигация по итогам', () => {
   beforeEach(() => {
-    vi.stubGlobal('ResizeObserver', class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    });
-    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
       configurable: true,
       value: vi.fn(),
     });
@@ -85,7 +88,7 @@ describe('навигация по итогам', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete HTMLElement.prototype.scrollIntoView;
+    delete HTMLElement.prototype.scrollTo;
     document.body.style.overflow = '';
   });
 

@@ -39,9 +39,7 @@ export function StatisticsSummary({ stats }: StatisticsSummaryProps) {
     <>
       <header className={styles.header}>
         <h2>Статистика профиля</h2>
-        <p>
-          С нами с {formatRegistrationDate(stats.registrationDate)}
-        </p>
+        <p>С нами с {formatRegistrationDate(stats.registrationDate)}</p>
       </header>
 
       <dl className={styles.summaryGrid}>

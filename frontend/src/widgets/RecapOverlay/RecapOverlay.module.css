@@ -7,16 +7,8 @@
   grid-template-rows: 76px minmax(0, 1fr) 66px;
 
   background:
-    radial-gradient(
-      circle at 18% 20%,
-      rgb(255 82 96 / 18%),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 82% 72%,
-      rgb(0 170 255 / 18%),
-      transparent 38%
-    ),
+    radial-gradient(circle at 18% 20%, rgb(255 82 96 / 18%), transparent 34%),
+    radial-gradient(circle at 82% 72%, rgb(0 170 255 / 18%), transparent 38%),
     rgb(0 0 0 / 78%);
 
   backdrop-filter: blur(3px);
@@ -192,10 +184,8 @@
 @keyframes overlayRocket {
   0% {
     opacity: 0;
-    transform:
-      translate(var(--rocket-start-x), var(--rocket-start-y))
-      rotate(var(--rocket-angle))
-      scale(0.65);
+    transform: translate(var(--rocket-start-x), var(--rocket-start-y))
+      rotate(var(--rocket-angle)) scale(0.65);
   }
 
   8% {
@@ -204,19 +194,13 @@
 
   55% {
     opacity: 1;
-    transform:
-      translate(0, 0)
-      rotate(var(--rocket-angle))
-      scale(1);
+    transform: translate(0, 0) rotate(var(--rocket-angle)) scale(1);
   }
 
   57%,
   100% {
     opacity: 0;
-    transform:
-      translate(0, 0)
-      rotate(var(--rocket-angle))
-      scale(0.3);
+    transform: translate(0, 0) rotate(var(--rocket-angle)) scale(0.3);
   }
 }
 

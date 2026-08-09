@@ -7,21 +7,12 @@ type RecapCardHeaderProps = {
   className?: string;
 };
 
-export function RecapCardHeader({
-  title,
-  className,
-}: RecapCardHeaderProps) {
-  const headerClassName = [styles.header, className]
-    .filter(Boolean)
-    .join(' ');
+export function RecapCardHeader({ title, className }: RecapCardHeaderProps) {
+  const headerClassName = [styles.header, className].filter(Boolean).join(' ');
 
   return (
     <header className={headerClassName}>
-      <img
-        src={logoSrc}
-        alt="Avito"
-        className={styles.logoImage}
-      />
+      <img src={logoSrc} alt="Avito" className={styles.logoImage} />
 
       <h2 className={styles.title}>{title}</h2>
     </header>

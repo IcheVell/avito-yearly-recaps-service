@@ -3,11 +3,7 @@
   padding: 24px;
 
   background:
-    radial-gradient(
-      circle at 12% 12%,
-      rgb(0 170 255 / 10%),
-      transparent 26%
-    ),
+    radial-gradient(circle at 12% 12%, rgb(0 170 255 / 10%), transparent 26%),
     #f5f5f7;
 }
 

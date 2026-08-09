@@ -26,10 +26,7 @@ function glueNumericPhrases(value: string): string {
     .replace(/(?<=[\d₽★%]) +| +(?=[\d₽★%])/g, '\u00A0');
 }
 
-function renderTextWithHighlight(
-  text: string,
-  highlight: string,
-): ReactNode {
+function renderTextWithHighlight(text: string, highlight: string): ReactNode {
   if (!highlight || !text.includes(highlight)) {
     return glueNumericPhrases(text);
   }
@@ -55,21 +52,14 @@ function renderTextWithHighlight(
   });
 }
 
-export function MetricCard({
-  metric,
-  variant,
-  isActive,
-}: MetricCardProps) {
+export function MetricCard({ metric, variant, isActive }: MetricCardProps) {
   const mainHighlight = metric.highlights[0] ?? '—';
   const displayHighlight = glueNumericPhrases(mainHighlight);
   const bodyText = truncateText(metric.text);
   const imageUrl = getPayloadString(metric.payload, 'imageUrl');
 
   return (
-    <RecapCardShell
-      variant={variant}
-      isActive={isActive}
-    >
+    <RecapCardShell variant={variant} isActive={isActive}>
       <RecapCardHeader title={metric.title} />
 
       {imageUrl && (

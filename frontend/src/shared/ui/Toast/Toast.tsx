@@ -10,21 +10,14 @@ type ToastProps = {
 
 const EXIT_DURATION = 180;
 
-export function Toast({
-  message,
-  onDismiss,
-  duration = 4_000,
-}: ToastProps) {
+export function Toast({ message, onDismiss, duration = 4_000 }: ToastProps) {
   const [isLeaving, setIsLeaving] = useState(false);
 
   useEffect(() => {
     const leaveTimer = window.setTimeout(() => {
       setIsLeaving(true);
     }, duration);
-    const dismissTimer = window.setTimeout(
-      onDismiss,
-      duration + EXIT_DURATION,
-    );
+    const dismissTimer = window.setTimeout(onDismiss, duration + EXIT_DURATION);
 
     return () => {
       window.clearTimeout(leaveTimer);
@@ -34,9 +27,7 @@ export function Toast({
 
   return (
     <div
-      className={`${styles.toast} ${
-        isLeaving ? styles.toastLeaving : ''
-      }`}
+      className={`${styles.toast} ${isLeaving ? styles.toastLeaving : ''}`}
       role="alert"
       aria-live="assertive"
     >

@@ -1,6 +1,5 @@
 import type { MetricPayload } from './types';
 
-
 export function getPayloadString(
   payload: MetricPayload,
   key: string,

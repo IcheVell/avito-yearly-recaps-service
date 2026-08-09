@@ -10,14 +10,8 @@ type BackendErrorBody = {
   };
 };
 
-function isFetchBaseQueryError(
-  error: unknown,
-): error is FetchBaseQueryError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'status' in error
-  );
+function isFetchBaseQueryError(error: unknown): error is FetchBaseQueryError {
+  return typeof error === 'object' && error !== null && 'status' in error;
 }
 
 export function getApiErrorMessage(error: unknown): string {

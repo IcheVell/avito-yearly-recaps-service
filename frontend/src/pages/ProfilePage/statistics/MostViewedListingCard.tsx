@@ -8,9 +8,7 @@ type MostViewedListingCardProps = {
   listing: StatsListing | null;
 };
 
-export function MostViewedListingCard({
-  listing,
-}: MostViewedListingCardProps) {
+export function MostViewedListingCard({ listing }: MostViewedListingCardProps) {
   if (!listing) {
     return (
       <section className={styles.detailCard}>
@@ -29,10 +27,7 @@ export function MostViewedListingCard({
           alt=""
           loading="lazy"
           fallback={
-            <span
-              className={styles.listingImageFallback}
-              aria-hidden="true"
-            >
+            <span className={styles.listingImageFallback} aria-hidden="true">
               Фото
             </span>
           }

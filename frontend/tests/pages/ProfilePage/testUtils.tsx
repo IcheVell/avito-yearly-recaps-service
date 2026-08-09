@@ -16,10 +16,7 @@ export const profiles: ProfilesResponse = {
   ],
 };
 
-export function createStats(
-  userId: number,
-  listingName: string,
-): YearMetrics {
+export function createStats(userId: number, listingName: string): YearMetrics {
   return {
     userId,
     registrationDate: '2020-01-01T00:00:00Z',
@@ -76,10 +73,7 @@ export function createAchievements(
   };
 }
 
-export function createJsonResponse(
-  data: unknown,
-  status = 200,
-): Response {
+export function createJsonResponse(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {

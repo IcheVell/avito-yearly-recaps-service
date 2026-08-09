@@ -15,25 +15,21 @@ import { AchievementsPanel } from './AchievementsPanel';
 import { ProfileList } from './ProfileList';
 import styles from './ProfilePage.module.css';
 import { ProfileSummary } from './ProfileSummary';
-import {
-  ProfileTabs,
-  type ProfileTab,
-} from './ProfileTabs';
+import { ProfileTabs, type ProfileTab } from './ProfileTabs';
 import { StatisticsPanel } from './StatisticsPanel';
 
 export function ProfilePage() {
-  const [selectedProfileId, setSelectedProfileId] =
-    useState<number | null>(null);
-  const [activeTab, setActiveTab] =
-    useState<ProfileTab>('statistics');
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(
+    null,
+  );
+  const [activeTab, setActiveTab] = useState<ProfileTab>('statistics');
   const [openRecap, setOpenRecap] = useState<Recap | null>(null);
 
   const { data, isLoading, error, refetch } = useGetProfilesQuery();
 
   const selectedProfile: Profile | undefined =
-    data?.items.find(
-      (profile) => profile.id === selectedProfileId,
-    ) ?? data?.items[0];
+    data?.items.find((profile) => profile.id === selectedProfileId) ??
+    data?.items[0];
 
   const shouldLoadStats =
     activeTab === 'statistics' && selectedProfile !== undefined;
@@ -63,11 +59,7 @@ export function ProfilePage() {
     <>
       <main className={styles.page}>
         <header className={styles.header}>
-          <img
-            className={styles.logo}
-            src={logoSrc}
-            alt="Avito"
-          />
+          <img className={styles.logo} src={logoSrc} alt="Avito" />
 
           <nav className={styles.navigation}>
             Бизнес 360 · Авто · Недвижимость · Работа · Услуги
@@ -82,9 +74,7 @@ export function ProfilePage() {
           <aside className={styles.profilesPanel}>
             <h1>Профили</h1>
 
-            {isLoading && (
-              <Loader label="Загружаем профили…" />
-            )}
+            {isLoading && <Loader label="Загружаем профили…" />}
 
             {error && (
               <ErrorMessage
@@ -112,10 +102,7 @@ export function ProfilePage() {
             )}
 
             <div className={styles.profileContentPanel}>
-              <ProfileTabs
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              >
+              <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab}>
                 {activeTab === 'statistics' ? (
                   <StatisticsPanel
                     stats={statsData ?? null}
@@ -144,10 +131,7 @@ export function ProfilePage() {
       </main>
 
       {openRecap && (
-        <RecapOverlay
-          recap={openRecap}
-          onClose={() => setOpenRecap(null)}
-        />
+        <RecapOverlay recap={openRecap} onClose={() => setOpenRecap(null)} />
       )}
     </>
   );

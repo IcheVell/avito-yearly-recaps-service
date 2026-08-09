@@ -15,14 +15,10 @@ describe('AchievementsPanel', () => {
     );
 
     expect(
-      screen.getByText(
-        'У выбранного профиля пока нет достижений.',
-      ),
+      screen.getByText('У выбранного профиля пока нет достижений.'),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'Все доступные достижения уже получены.',
-      ),
+      screen.getByText('Все доступные достижения уже получены.'),
     ).toBeInTheDocument();
   });
 

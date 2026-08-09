@@ -32,30 +32,26 @@ describe('ошибки загрузки страницы профиля', () => 
 
   it('повторно загружает список профилей после ошибки', async () => {
     let profilesAttempts = 0;
-    const fetchMock = vi.fn().mockImplementation(
-      (input: RequestInfo | URL) => {
-        const path = getPath(getRequest(input));
+    const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const path = getPath(getRequest(input));
 
-        if (path === '/api/profiles') {
-          profilesAttempts += 1;
+      if (path === '/api/profiles') {
+        profilesAttempts += 1;
 
-          return Promise.resolve(
-            profilesAttempts === 1
-              ? createJsonResponse(serverError, 503)
-              : createJsonResponse(profiles),
-          );
-        }
-        if (path === '/api/users/1/stats') {
-          return Promise.resolve(
-            createJsonResponse(
-              createStats(1, 'Статистика после повтора'),
-            ),
-          );
-        }
+        return Promise.resolve(
+          profilesAttempts === 1
+            ? createJsonResponse(serverError, 503)
+            : createJsonResponse(profiles),
+        );
+      }
+      if (path === '/api/users/1/stats') {
+        return Promise.resolve(
+          createJsonResponse(createStats(1, 'Статистика после повтора')),
+        );
+      }
 
-        throw new Error(`Неожиданный запрос: ${path}`);
-      },
-    );
+      throw new Error(`Неожиданный запрос: ${path}`);
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
@@ -65,9 +61,7 @@ describe('ошибки загрузки страницы профиля', () => 
       'Сервис временно недоступен.',
     );
 
-    await user.click(
-      screen.getByRole('button', { name: 'Попробовать снова' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
 
     expect(
       await screen.findByRole('button', { name: 'Альфа' }),
@@ -81,28 +75,24 @@ describe('ошибки загрузки страницы профиля', () => 
 
   it('повторно загружает статистику после ошибки', async () => {
     let statsAttempts = 0;
-    const fetchMock = vi.fn().mockImplementation(
-      (input: RequestInfo | URL) => {
-        const path = getPath(getRequest(input));
+    const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const path = getPath(getRequest(input));
 
-        if (path === '/api/profiles') {
-          return Promise.resolve(createJsonResponse(profiles));
-        }
-        if (path === '/api/users/1/stats') {
-          statsAttempts += 1;
+      if (path === '/api/profiles') {
+        return Promise.resolve(createJsonResponse(profiles));
+      }
+      if (path === '/api/users/1/stats') {
+        statsAttempts += 1;
 
-          return Promise.resolve(
-            statsAttempts === 1
-              ? createJsonResponse(serverError, 503)
-              : createJsonResponse(
-                  createStats(1, 'Статистика восстановлена'),
-                ),
-          );
-        }
+        return Promise.resolve(
+          statsAttempts === 1
+            ? createJsonResponse(serverError, 503)
+            : createJsonResponse(createStats(1, 'Статистика восстановлена')),
+        );
+      }
 
-        throw new Error(`Неожиданный запрос: ${path}`);
-      },
-    );
+      throw new Error(`Неожиданный запрос: ${path}`);
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
@@ -112,9 +102,7 @@ describe('ошибки загрузки страницы профиля', () => 
       'Сервис временно недоступен.',
     );
 
-    await user.click(
-      screen.getByRole('button', { name: 'Попробовать снова' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
 
     expect(
       await screen.findByText('Статистика восстановлена'),
@@ -125,53 +113,44 @@ describe('ошибки загрузки страницы профиля', () => 
 
   it('повторно загружает достижения после ошибки', async () => {
     let achievementsAttempts = 0;
-    const fetchMock = vi.fn().mockImplementation(
-      (input: RequestInfo | URL) => {
-        const path = getPath(getRequest(input));
+    const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const path = getPath(getRequest(input));
 
-        if (path === '/api/profiles') {
-          return Promise.resolve(createJsonResponse(profiles));
-        }
-        if (path === '/api/users/1/stats') {
-          return Promise.resolve(
-            createJsonResponse(createStats(1, 'Статистика Альфы')),
-          );
-        }
-        if (path === '/api/users/1/achievements') {
-          achievementsAttempts += 1;
+      if (path === '/api/profiles') {
+        return Promise.resolve(createJsonResponse(profiles));
+      }
+      if (path === '/api/users/1/stats') {
+        return Promise.resolve(
+          createJsonResponse(createStats(1, 'Статистика Альфы')),
+        );
+      }
+      if (path === '/api/users/1/achievements') {
+        achievementsAttempts += 1;
 
-          return Promise.resolve(
-            achievementsAttempts === 1
-              ? createJsonResponse(serverError, 503)
-              : createJsonResponse(
-                  createAchievements(
-                    1,
-                    'Достижение после повтора',
-                  ),
-                ),
-          );
-        }
+        return Promise.resolve(
+          achievementsAttempts === 1
+            ? createJsonResponse(serverError, 503)
+            : createJsonResponse(
+                createAchievements(1, 'Достижение после повтора'),
+              ),
+        );
+      }
 
-        throw new Error(`Неожиданный запрос: ${path}`);
-      },
-    );
+      throw new Error(`Неожиданный запрос: ${path}`);
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     const user = userEvent.setup();
     renderProfilePage();
 
     await screen.findByText('Статистика Альфы');
-    await user.click(
-      screen.getByRole('tab', { name: 'Достижения' }),
-    );
+    await user.click(screen.getByRole('tab', { name: 'Достижения' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Сервис временно недоступен.',
     );
 
-    await user.click(
-      screen.getByRole('button', { name: 'Попробовать снова' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Попробовать снова' }));
 
     expect(
       await screen.findByText('Достижение после повтора'),
