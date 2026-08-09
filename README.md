@@ -64,7 +64,7 @@ Backend агрегирует данные пользователя за выбр
 - выбор наиболее интересных метрик;
 - хранение готового recap в PostgreSQL;
 - получение статистики пользователя через API;
-- проверка achievement rules и выдача ачивок на основе накопленной статистики;
+- проверка правил получения ачивок и их выдача на основе накопленной статистики;
 - frontend-интерфейс для просмотра итоговых карточек;
 - запуск всего проекта через Docker Compose.
 
@@ -106,8 +106,8 @@ Backend агрегирует данные пользователя за выбр
 
 ## Используемые технологии
 
-**Frontend:** React, TypeScript, Redux Toolkit, Vite, Nginx.  
-**Тестирование frontend:** Vitest, React Testing Library.
+**Frontend:** React, TypeScript, Redux Toolkit, RTK Query, Vite, Nginx.  
+**Вид и тестирования frontend:** ESLint, Prettier, Vitest, React Testing Library.
 
 **Backend:** Go, Chi, GORM.
 
@@ -166,7 +166,7 @@ Engine  Repositories
 
 - `repository` — получение и агрегация данных из PostgreSQL;
 - `engine` — правила формирования роли, метрик и следующего действия;
-- `service` — orchestration бизнес-логики, работа с recap, статистикой и ачивками;
+- `service` — координация бизнес-логики, работа с recap, статистикой и ачивками;
 - `api` — HTTP-контракты, router и handlers.
 
 ## Структура проекта
@@ -186,6 +186,7 @@ Engine  Repositories
 │   ├── src/             Исходный код React-приложения
 │   └── README.md        Инструкция по frontend
 ├── docs/
+│   ├── CATALOG.md       Каталог ролей, метрик, ачивок и действий
 │   ├── CONTRACTS.md     Контракты данных и HTTP API
 │   └── RULES.md         Правила работы с Git и коммитами
 ├── docker-compose.yaml
@@ -304,14 +305,14 @@ RECAP_YEAR=2026
 
 ## API
 
-| Method | Endpoint | Назначение |
-| --- | --- | --- |
-| `GET` | `/api/health` | Проверка состояния сервиса |
-| `GET` | `/api/profiles` | Получение тестовых профилей и активного года |
-| `POST` | `/api/recaps/generate` | Генерация или перегенерация recap |
-| `GET` | `/api/users/{userId}/recap` | Получение готового recap |
-| `GET` | `/api/users/{userId}/achievements` | Получение ачивок пользователя |
-| `GET` | `/api/users/{userId}/stats` | Агрегированная статистика за активный год |
+| Method | Endpoint                           | Назначение                                   |
+| ------ | ---------------------------------- | -------------------------------------------- |
+| `GET`  | `/api/health`                      | Проверка состояния сервиса                   |
+| `GET`  | `/api/profiles`                    | Получение тестовых профилей и активного года |
+| `POST` | `/api/recaps/generate`             | Генерация или перегенерация recap            |
+| `GET`  | `/api/users/{userId}/recap`        | Получение готового recap                     |
+| `GET`  | `/api/users/{userId}/achievements` | Получение ачивок пользователя                |
+| `GET`  | `/api/users/{userId}/stats`        | Агрегированная статистика за активный год    |
 
 Подробные форматы запросов и ответов находятся в [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 
@@ -329,6 +330,7 @@ Frontend:
 ```bash
 cd frontend
 npm ci
+npm run format:check
 npm test
 npm run lint
 npm run build
@@ -405,17 +407,19 @@ npm run build
 - юнит-тесты engine и service;
 
 **Frontend / дизайн**
+
 - участие в дизайне интерфейса и карточек итогов.
 - бонус: вручную нарисовала картинки для ачивок :)
 
 ### Вклад [@Lunkova-Kate](https://github.com/Lunkova-Kate)
 
-**Frontend**
+**Frontend и дизайн**
 
 - весь frontend проекта;
+-  визуальный дизайн интерфейса;
+- основной дизайн итоговых recap-карточек и карусели;
 - структура frontend-приложения;
 - страницы и пользовательские сценарии;
-- React-компоненты;
 - работа с API;
 - Redux Toolkit / RTK Query;
 - отображение профилей и итогового recap;
@@ -446,5 +450,6 @@ MVP работает с тестовыми данными. В recap исполь
 ## Документация
 
 - [`frontend/README.md`](frontend/README.md) — установка, режим моков, запуск с API и команды frontend;
+- [`docs/CATALOG.md`](docs/CATALOG.md) — каталог ролей, метрик, ачивок и рекомендуемых действий;
 - [`docs/CONTRACTS.md`](docs/CONTRACTS.md) — контракты данных и HTTP API;
 - [`docs/RULES.md`](docs/RULES.md) — правила работы с Git и коммитами.
