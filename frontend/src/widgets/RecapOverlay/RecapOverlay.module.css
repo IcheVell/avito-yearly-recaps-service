@@ -296,7 +296,7 @@
   align-items: center;
   gap: 18px;
 
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: hidden;
 
   scroll-snap-type: x mandatory;

@@ -1,4 +1,10 @@
-import {  type RefObject, useCallback, useEffect, useRef, useState} from 'react';
+import {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 type UseRecapCarouselResult = {
   trackRef: RefObject<HTMLDivElement | null>;
@@ -23,6 +29,26 @@ function clampSlideIndex(
   return Math.max(
     0,
     Math.min(index, lastSlideIndex),
+  );
+}
+
+function getTargetScrollLeft(
+  track: HTMLDivElement,
+  target: HTMLElement,
+): number {
+  const centeredScrollLeft =
+    target.offsetLeft +
+    target.offsetWidth / 2 -
+    track.clientWidth / 2;
+
+  const maxScrollLeft = Math.max(
+    0,
+    track.scrollWidth - track.clientWidth,
+  );
+
+  return Math.max(
+    0,
+    Math.min(centeredScrollLeft, maxScrollLeft),
   );
 }
 
@@ -67,13 +93,16 @@ export function useRecapCarousel(
         safeIndex,
       ) as HTMLElement | null;
 
+      if (!target) {
+        return;
+      }
+
       programmaticSlideRef.current = safeIndex;
       selectSlide(safeIndex);
 
-      target?.scrollIntoView({
+      track.scrollTo({
+        left: getTargetScrollLeft(track, target),
         behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
       });
     },
     [selectSlide, slidesCount],
@@ -132,8 +161,6 @@ export function useRecapCarousel(
       window.setTimeout(() => {
         scrollEndTimerRef.current = null;
         programmaticSlideRef.current = null;
-
-        updateCurrentSlideFromTrack();
       }, 120);
   }, [updateCurrentSlideFromTrack]);
 
