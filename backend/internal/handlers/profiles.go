@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"v1/internal/api/dto"
 	"v1/internal/domain/entity"
+	applog "v1/internal/logger"
 )
 
 type ProfileProvider interface {
@@ -19,14 +20,10 @@ type ProfilesHandler struct {
 }
 
 func NewProfilesHandler(profiles ProfileProvider, currentYear int, logger *slog.Logger) *ProfilesHandler {
-	if logger == nil {
-		logger = slog.Default()
-	}
-
 	return &ProfilesHandler{
 		profiles:    profiles,
 		currentYear: currentYear,
-		logger:      logger.With("component", "profiles_handler"),
+		logger:      applog.WithComponent(logger, "profiles_handler"),
 	}
 }
 

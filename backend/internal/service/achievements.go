@@ -10,6 +10,7 @@ import (
 	"v1/internal/domain/entity"
 	"v1/internal/domain/recap"
 	enginerules "v1/internal/engine/rules"
+	applog "v1/internal/logger"
 	"v1/internal/repository"
 )
 
@@ -32,19 +33,11 @@ type AchievementService struct {
 }
 
 func NewAchievementService(achievementRepo AchievementRepository, userRepo UserRepository, userStatsRepo UserStatsRepository, logger *slog.Logger) *AchievementService {
-	if logger == nil {
-		return &AchievementService{
-			achievements: achievementRepo,
-			users:        userRepo,
-			userStats:    userStatsRepo,
-			logger:       slog.Default()}
-	}
-
 	return &AchievementService{
 		achievements: achievementRepo,
 		users:        userRepo,
 		userStats:    userStatsRepo,
-		logger:       logger.With("component", "achievement_service"),
+		logger:       applog.WithComponent(logger, "achievement_service"),
 	}
 }
 

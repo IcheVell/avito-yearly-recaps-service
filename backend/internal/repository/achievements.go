@@ -3,25 +3,32 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log/slog"
 	"v1/internal/domain/entity"
 	"v1/internal/domain/recap"
+	applog "v1/internal/logger"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 var (
-	ErrAchievementsNotFound     = fmt.Errorf("achievements not found")
-	ErrCantAddAchievementToUser = fmt.Errorf("can not add achievement to user")
+	ErrAchievementsNotFound     = errors.New("achievements not found")
+	ErrCantAddAchievementToUser = errors.New("can not add achievement to user")
 )
 
 type AchievementsRepository struct {
-	db *gorm.DB
+	db     *gorm.DB
+	logger *slog.Logger
 }
 
-func NewAchievementsRepository(db *gorm.DB) *AchievementsRepository {
-	return &AchievementsRepository{db: db}
+func NewAchievementsRepository(db *gorm.DB, logger *slog.Logger) *AchievementsRepository {
+	return &AchievementsRepository{
+		db:     db,
+		logger: applog.WithComponent(logger, "achievements_repository"),
+	}
 }
 
 func (r *AchievementsRepository) ListUserAchievements(ctx context.Context, userID int64) (earned []entity.UserAchievement, locked []entity.Achievement, err error) {
@@ -31,12 +38,14 @@ func (r *AchievementsRepository) ListUserAchievements(ctx context.Context, userI
 		Order("created_at DESC").
 		Find(&earned).Error
 	if err != nil {
+		r.logger.ErrorContext(ctx, "list earned achievements failed", "user_id", userID, "err", err, "operation", "list_user_achievements")
 		return nil, nil, fmt.Errorf("list earned achievements: %w", err)
 	}
 
 	var all []entity.Achievement
 	err = r.db.WithContext(ctx).Order("id ASC").Find(&all).Error
 	if err != nil {
+		r.logger.ErrorContext(ctx, "list all achievements failed", "user_id", userID, "err", err, "operation", "list_user_achievements")
 		return nil, nil, fmt.Errorf("list all achievements: %w", err)
 	}
 
@@ -71,6 +80,7 @@ func (r *AchievementsRepository) AddAchievementToUser(ctx context.Context, userI
 		Error
 
 	if err != nil {
+		r.logger.ErrorContext(ctx, "add achievement to user failed", "user_id", userID, "achievement_id", achievementID, "err", err, "operation", "add_achievement_to_user")
 		return fmt.Errorf("add achievement to user: %w", err)
 	}
 
@@ -91,6 +101,7 @@ func (r *AchievementsRepository) GetRulesForAchievements(ctx context.Context) ([
 		Error
 
 	if err != nil {
+		r.logger.ErrorContext(ctx, "get achievement rules failed", "err", err, "operation", "get_achievement_rules")
 		return nil, fmt.Errorf("get rules for achievements: %w", err)
 	}
 
@@ -100,6 +111,7 @@ func (r *AchievementsRepository) GetRulesForAchievements(ctx context.Context) ([
 		var ruleNode recap.RuleNode
 
 		if err := json.Unmarshal(row.Rule, &ruleNode); err != nil {
+			r.logger.ErrorContext(ctx, "unmarshal achievement rule failed", "achievement_id", row.AchievementID, "err", err, "operation", "get_achievement_rules")
 			return nil, fmt.Errorf("unmarshal rule for achievement %d: %w", row.AchievementID, err)
 		}
 

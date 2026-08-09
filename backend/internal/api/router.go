@@ -3,10 +3,12 @@ package api
 import (
 	"log/slog"
 	"net/http"
-	"v1/internal/api/handlers"
+	apimiddleware "v1/internal/api/middleware"
+	"v1/internal/handlers"
+	applog "v1/internal/logger"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
 type Dependencies struct {
@@ -19,10 +21,7 @@ type Dependencies struct {
 }
 
 func NewRouter(deps Dependencies) http.Handler {
-	logger := deps.Logger
-	if logger == nil {
-		logger = slog.Default()
-	}
+	logger := applog.OrDefault(deps.Logger)
 
 	if deps.CurrentYear <= 0 {
 		panic("api current year is required")
@@ -33,9 +32,9 @@ func NewRouter(deps Dependencies) http.Handler {
 	healthHandler := handlers.NewHealthHandler()
 
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Recoverer)
-	r.Use(requestLogger(logger.With("component", "http")))
+	r.Use(chimiddleware.RequestID)
+	r.Use(chimiddleware.Recoverer)
+	r.Use(apimiddleware.RequestLogger(applog.WithComponent(logger, "http")))
 
 	fileServer := http.FileServer(http.Dir("./static"))
 

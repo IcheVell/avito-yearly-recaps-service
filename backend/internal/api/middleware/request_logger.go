@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	"log/slog"
@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
-func requestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
+func RequestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if shouldSkipRequestLog(r.URL.Path) {
@@ -18,7 +18,7 @@ func requestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 			}
 
 			start := time.Now()
-			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+			ww := chimiddleware.NewWrapResponseWriter(w, r.ProtoMajor)
 			next.ServeHTTP(ww, r)
 
 			logger.InfoContext(
@@ -29,7 +29,7 @@ func requestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
 				"status", ww.Status(),
 				"bytes", ww.BytesWritten(),
 				"duration_ms", time.Since(start).Milliseconds(),
-				"request_id", middleware.GetReqID(r.Context()),
+				"request_id", chimiddleware.GetReqID(r.Context()),
 				"operation", "http_request",
 			)
 		})

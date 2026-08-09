@@ -31,11 +31,7 @@ func (c Config) DSN() string {
 }
 
 func NewConfig() (Config, error) {
-	_ = godotenv.Load(
-		".env",
-		"../.env",
-		"backend/.env",
-	)
+	LoadEnv()
 
 	cfg := Config{
 		Host:     os.Getenv("DB_HOST"),
@@ -77,6 +73,14 @@ func NewConfig() (Config, error) {
 	cfg.RecapYear = recapYear
 
 	return cfg, nil
+}
+
+func LoadEnv() {
+	_ = godotenv.Load(
+		".env",
+		"../.env",
+		"backend/.env",
+	)
 }
 
 func requiredPositiveInt(name string) (int, error) {
