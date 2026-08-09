@@ -3,25 +3,35 @@ package repository
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 	"v1/internal/domain/entity"
 	"v1/internal/domain/recap"
+	applog "v1/internal/logger"
 
 	"gorm.io/gorm"
 )
 
 type MetricsRepository struct {
-	db *gorm.DB
+	db     *gorm.DB
+	logger *slog.Logger
 }
 
-func NewMetricsRepository(db *gorm.DB) *MetricsRepository {
-	return &MetricsRepository{db: db}
+func NewMetricsRepository(db *gorm.DB, logger *slog.Logger) *MetricsRepository {
+	return &MetricsRepository{
+		db:     db,
+		logger: applog.WithComponent(logger, "metrics_repository"),
+	}
 }
 
-func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user entity.User, year int) (*recap.YearMetrics, error) {
+func (r *MetricsRepository) GetByUserIDAndYear(ctx context.Context, user entity.User, year int) (metrics *recap.YearMetrics, err error) {
+	defer func() {
+		if err != nil {
+			r.logger.ErrorContext(ctx, "get year metrics failed", "user_id", user.ID, "year", year, "err", err, "operation", "get_year_metrics")
+		}
+	}()
+
 	yearMetrics := &recap.YearMetrics{}
-
-	var err error
 
 	maxDate := time.Date(year+1, time.January, 1, 0, 0, 0, 0, time.UTC)
 	minDate := time.Date(year, time.January, 1, 0, 0, 0, 0, time.UTC)

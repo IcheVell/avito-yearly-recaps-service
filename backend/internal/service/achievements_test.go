@@ -3,18 +3,18 @@ package service
 import (
 	"context"
 	"errors"
-	"io"
 	"log/slog"
 	"testing"
 	"time"
 
 	"v1/internal/domain/entity"
 	"v1/internal/domain/recap"
+	applog "v1/internal/logger"
 	"v1/internal/repository"
 )
 
 func testLogger() *slog.Logger {
-	return slog.New(slog.NewTextHandler(io.Discard, nil))
+	return applog.NewDiscard()
 }
 
 func float64Ptr(v float64) *float64 {

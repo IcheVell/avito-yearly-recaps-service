@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"v1/internal/domain/entity"
+	applog "v1/internal/logger"
 
 	"gorm.io/gorm"
 )
@@ -14,17 +16,28 @@ import (
 var ErrUserStatsNotFound = errors.New("user stats not found")
 
 type UserStatsRepository struct {
-	db *gorm.DB
+	db     *gorm.DB
+	logger *slog.Logger
 }
 
-func NewUserStatsRepository(db *gorm.DB) *UserStatsRepository {
-	return &UserStatsRepository{db: db}
+func NewUserStatsRepository(db *gorm.DB, logger *slog.Logger) *UserStatsRepository {
+	return &UserStatsRepository{
+		db:     db,
+		logger: applog.WithComponent(logger, "user_stats_repository"),
+	}
 }
 
-func (r *UserStatsRepository) Update(ctx context.Context, userID int64, from time.Time, to time.Time) error {
+func (r *UserStatsRepository) Update(ctx context.Context, userID int64, from time.Time, to time.Time) (err error) {
+	defer func() {
+		if err != nil {
+			r.logger.ErrorContext(ctx, "update user stats failed", "user_id", userID, "from", from, "to", to, "err", err, "operation", "update_user_stats")
+		}
+	}()
+
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		repo := UserStatsRepository{
-			db: tx,
+			db:     tx,
+			logger: r.logger,
 		}
 
 		if err := repo.updateBuysCount(ctx, userID, from, to); err != nil {
@@ -89,6 +102,7 @@ func (r *UserStatsRepository) GetByUserID(ctx context.Context, userID int64) (*e
 		Error
 
 	if err != nil {
+		r.logger.ErrorContext(ctx, "get user stats failed", "user_id", userID, "err", err, "operation", "get_user_stats")
 		return nil, fmt.Errorf("get user stats: %w", err)
 	}
 

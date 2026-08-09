@@ -10,6 +10,7 @@ import (
 	"v1/internal/domain/entity"
 	"v1/internal/domain/recap"
 	"v1/internal/engine"
+	applog "v1/internal/logger"
 	"v1/internal/repository"
 )
 
@@ -49,16 +50,12 @@ func NewRecapService(
 	achievements AchievementServiceInterface,
 	logger *slog.Logger,
 ) *RecapService {
-	if logger == nil {
-		logger = slog.Default()
-	}
-
 	return &RecapService{
 		users:              users,
 		metrics:            metrics,
 		recaps:             recaps,
 		AchievementService: achievements,
-		logger:             logger.With("component", "recap_service"),
+		logger:             applog.WithComponent(logger, "recap_service"),
 	}
 }
 

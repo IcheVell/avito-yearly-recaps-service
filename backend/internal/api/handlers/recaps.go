@@ -7,6 +7,7 @@ import (
 	"v1/internal/api/dto"
 	"v1/internal/domain/entity"
 	"v1/internal/domain/recap"
+	applog "v1/internal/logger"
 )
 
 type RecapService interface {
@@ -37,16 +38,12 @@ func NewRecapsHandler(
 	currentYear int,
 	logger *slog.Logger,
 ) *RecapsHandler {
-	if logger == nil {
-		logger = slog.Default()
-	}
-
 	return &RecapsHandler{
 		recaps:       recaps,
 		achievements: achievements,
 		stats:        stats,
 		currentYear:  currentYear,
-		logger:       logger.With("component", "recaps_handler"),
+		logger:       applog.WithComponent(logger, "recaps_handler"),
 	}
 }
 
