@@ -1,0 +1,276 @@
+.page {
+  min-height: 100vh;
+  padding: 24px;
+
+  background:
+    radial-gradient(circle at 12% 12%, rgb(0 170 255 / 10%), transparent 26%),
+    #f5f5f7;
+}
+
+.header {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 24px;
+
+  padding: 18px 24px;
+
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 5%);
+}
+
+.logo {
+  display: block;
+  width: auto;
+  height: 28px;
+}
+
+.navigation {
+  color: #777;
+}
+
+.headerMessage {
+  min-width: 0;
+  margin-left: auto;
+
+  overflow: hidden;
+  color: #111;
+
+  font-weight: 400;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.workspace {
+  width: 100%;
+  margin-top: 24px;
+
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 24px;
+
+  height: calc(100dvh - 136px);
+  min-height: 520px;
+}
+
+.profilesPanel,
+.profileDetails,
+.profileContentPanel {
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 14px 36px rgb(0 0 0 / 6%);
+}
+
+.profilesPanel {
+  min-height: 0;
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.profilesPanel h1 {
+  margin: 0 0 20px;
+  font-size: 28px;
+}
+
+.contentColumn {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profileDetails {
+  flex: 0 0 auto;
+  padding: 32px;
+}
+
+.profileContentPanel {
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: 24px;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #111;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.profileDetails h2 {
+  margin-top: 0;
+}
+
+.profileList {
+  min-height: 0;
+  padding-right: 4px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.profileCard {
+  width: 100%;
+  padding: 16px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  border: 2px solid transparent;
+  border-radius: 18px;
+
+  background: #f3f3f5;
+  color: #111;
+
+  font: inherit;
+  font-weight: 800;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.profileName {
+  min-width: 0;
+  flex: 1;
+
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.profileCard img,
+.profileDetails img,
+.profileAvatarFallback {
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profileAvatarFallback {
+  min-width: max-content;
+  flex: 0 0 auto;
+  aspect-ratio: 1;
+
+  display: grid;
+  place-items: center;
+
+  background: linear-gradient(135deg, #d9f2ff, #e7d7ff);
+  color: #5b3f75;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.profileDetails .profileAvatarFallback {
+  font-size: 28px;
+}
+
+.profileCardSelected {
+  border-color: #00aaff;
+  background: #e8f7ff;
+}
+
+.profileDetails {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.profileDetails > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.profileDetails p {
+  overflow-wrap: anywhere;
+}
+
+.profileDetails h2 {
+  margin: 6px 0;
+  font-size: 32px;
+}
+
+.recapButtons {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .workspace {
+    height: auto;
+    min-height: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .profilesPanel {
+    max-height: 320px;
+  }
+
+  .profileContentPanel {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 14px;
+  }
+
+  .navigation {
+    display: none;
+  }
+
+  .header {
+    gap: 14px;
+    padding-inline: 18px;
+  }
+
+  .headerMessage {
+    font-size: 14px;
+  }
+
+  .workspace {
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .profilesPanel {
+    padding: 22px;
+  }
+
+  .profileDetails {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 22px;
+  }
+
+  .profileDetails > img,
+  .profileDetails > .profileAvatarFallback {
+    align-self: center;
+  }
+
+  .recapButtons {
+    flex-direction: column;
+  }
+
+  .profileContentPanel {
+    padding: 22px;
+  }
+}

@@ -1,0 +1,7 @@
+.git
+.env
+.env.local
+*.md
+.idea
+node_modules
+dist
