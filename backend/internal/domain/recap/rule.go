@@ -22,3 +22,16 @@ type Rule struct {
 	ID       int64
 	RuleNode RuleNode
 }
+type RuleEvaluation struct {
+	Type       RuleType
+	IsComplete bool
+
+	Condition *ConditionEvaluation
+	Children  []RuleEvaluation
+}
+type ConditionEvaluation struct {
+	Metric   string
+	Operator string
+	Actual   float64
+	Expected float64
+}
