@@ -103,7 +103,6 @@ BE2 не пишет SQL.
 
   "role": {
     "code": "seller",
-    "name": "Продавец",
     "title": "В этом году ты крутой продавец!",
     "subtitle": "Ты продал 9 товаров.",
     "why": "67% активности — создание объявлений и продажа товаров",
@@ -143,14 +142,12 @@ BE2 не пишет SQL.
     {
       "code": "clean_sale",
       "name": "Чистая продажа",
-      "description": "У тебя есть завершённые продажи в этом году.",
-      "imageUrl": "/static/achievements/clean-sale.png"
+      "description": "У тебя есть завершённые продажи в этом году."
     },
     {
       "code": "diplomat",
       "name": "Дипломат",
-      "description": "Ты вёл много диалогов относительно просмотров.",
-      "imageUrl": "/static/achievements/diplomat.png"
+      "description": "Ты вёл много диалогов относительно просмотров."
     }
   ],
 
@@ -172,21 +169,19 @@ BE2 не пишет SQL.
 ```
 ## Блок 1 — `role`
 
-| `code`    | `name`         | Когда                                                  |
-| --------- | -------------- | ------------------------------------------------------ |
-| `seller`  | `Продавец`     | доминируют listings + sells                            |
-| `buyer`   | `Покупатель`   | доминируют buys (+ сильный поиск/избранное к покупкам) |
-| `watcher` | `Наблюдатель`  | доминируют views/searches, мало сделок и сообщений     |
-
-Поля блока: `code`, `name`, `title`, `subtitle`, `why`, `activitySharePercent`.
-`name` — короткое человекочитаемое название роли (не путать с `title`).
+|           |                                                        |     |
+| --------- | ------------------------------------------------------ | --- |
+| `code`    | Когда                                                  |     |
+| `seller`  | доминируют listings + sells                            |     |
+| `buyer`   | доминируют buys (+ сильный поиск/избранное к покупкам) |     |
+| `watcher` | доминируют views/searches, мало сделок и сообщений     |     |
+|           |                                                        |     |
 
 ## Блок 2 — `metrics[]`
 Ровно **3** элемента.  
 `selector` выбирает случайно среди **доступных** типов.
 ## Блок 3 — `achievements[]`
-0…3 элемента.  
-Поля: `code`, `name`, `description`, `imageUrl`.
+0…3 элемента.
 ## Блок 4 — `action`
 Ровно **одно** действие.
 Действия обговорим позже
@@ -209,12 +204,12 @@ Base URL (в браузере):
     {
       "id": 1,
       "username": "seller_anna",
-      "imageUrl": "/static/users/seller_anna.png"
+      "imageUrl": "https://..."
     },
     {
       "id": 2,
       "username": "buyer_igor",
-      "imageUrl": "/static/users/buyer_igor.png"
+      "imageUrl": "https://..."
     }
   ]
 }
@@ -244,7 +239,6 @@ Base URL (в браузере):
 
   "role": {
     "code": "seller",
-    "name": "Продавец",
     "title": "В этом году ты крутой продавец!",
     "subtitle": "Ты продал 9 товаров.",
     "why": "67% активности — создание объявлений и продажа товаров",
@@ -284,14 +278,12 @@ Base URL (в браузере):
     {
       "code": "clean_sale",
       "name": "Чистая продажа",
-      "description": "У тебя есть завершённые продажи в этом году.",
-      "imageUrl": "/static/achievements/clean-sale.png"
+      "description": "У тебя есть завершённые продажи в этом году."
     },
     {
       "code": "diplomat",
       "name": "Дипломат",
-      "description": "Ты вёл много диалогов относительно просмотров.",
-      "imageUrl": "/static/achievements/diplomat.png"
+      "description": "Ты вёл много диалогов относительно просмотров."
     }
   ],
 
@@ -325,43 +317,189 @@ GET /api/users/1/recap
 
 Если recap пользователя за активный год ещё не был сгенерирован, возвращается `404 Not Found`.
 
-### 4) `GET /api/users/{userId}/achievements`
-Получить каталог ачивок пользователя: полученные (включая прошлые годы) и ещё не полученные.
+### 4) `GET /api/users/{userId}/achievements`
+Получить состояние достижений пользователя.
+
+Перед формированием ответа backend:
+1. обновляет накопительную статистику пользователя;
+2. проверяет правила достижений;
+3. выдаёт новые выполненные достижения;
+4. рассчитывает прогресс по каждому правилу;
+5. возвращает полученные, заблокированные достижения и дерево прогресса правил.
+
 #### Path params
-- `userId` (`int64`)
+- `userId` (`int64`) — идентификатор пользователя.
+
 #### Response `200`
-```
+
+```json
 {
   "earned": [
-    {
-      "code": "diplomat",
-      "name": "Дипломат",
-      "description": "Кажется ты перепутал Avito с мессенджером.",
-      "earnedAt": "2025-12-20T12:00:00Z",
-      "imageUrl": "/static/achievements/diplomat.png"
-    },
-    {
-      "code": "plot_twist",
-      "name": "Неожиданный поворот",
-      "description": "После паузы ты вернулся на площадку — сюжет года сделал виток.",
-      "earnedAt": "2023-05-18T12:00:00Z",
-      "imageUrl": "/static/achievements/plot-twist.png"
-    }
-  ],
-  "locked": [
     {
       "code": "streak_survivor",
       "name": "Несгибаемый",
       "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
-      "imageUrl": "/static/achievements/streak-survivor.png"
+      "earnedAt": "2026-08-12T12:00:00Z",
+      "imageUrl": "/static/achievements/streak_survivor.png"
+    }
+  ],
+  "locked": [
+    {
+      "code": "trust_badge",
+      "name": "Знак доверия",
+      "description": "Высокий рейтинг и успешные продажи.",
+      "imageUrl": "/static/achievements/trust_badge.png"
+    }
+  ],
+  "achievements_progress": [
+    {
+      "code": "trust_badge",
+      "type": "all",
+      "is_complete": false,
+      "progress": 50,
+      "children": [
+        {
+          "code": "trust_badge",
+          "type": "condition",
+          "is_complete": true,
+          "progress": 100,
+          "condition": {
+            "metric": "seller_rating",
+            "operator": ">=",
+            "current": "4.9",
+            "target": "4.8"
+          }
+        },
+        {
+          "code": "trust_badge",
+          "type": "condition",
+          "is_complete": false,
+          "progress": 50,
+          "condition": {
+            "metric": "sells_count",
+            "operator": ">=",
+            "current": "1",
+            "target": "2"
+          }
+        }
+      ]
     }
   ]
 }
 ```
-- `earned` — ачивки пользователя; сортируются по `earnedAt` от новых к старым; у каждого элемента есть `imageUrl`.
-- `locked` — ачивки из общего каталога, которых у пользователя ещё нет; без `earnedAt`; у каждого элемента есть `imageUrl`.
-- Если у пользователя нет полученных ачивок, `earned` = `[]`.
-- Если получены все ачивки каталога, `locked` = `[]`.
+
+#### `earned[]`
+Полученные пользователем достижения.
+
+Поля:
+- `code` — уникальный код достижения;
+- `name` — название;
+- `description` — описание;
+- `earnedAt` — дата и время получения;
+- `imageUrl` — URL изображения достижения.
+
+`earned` сортируется по `earnedAt` от новых к старым.
+
+#### `locked[]`
+Достижения, которые пользователь ещё не получил.
+
+Поля:
+- `code`;
+- `name`;
+- `description`;
+- `imageUrl`.
+
+#### `achievements_progress[]`
+Результаты вычисления achievement rules.
+
+Прогресс рассчитывает **backend**. Frontend не должен самостоятельно вычислять процент выполнения по `current` и `target`.
+
+Каждый элемент — рекурсивное дерево `AchievementProgressResponse`, связанное с конкретным достижением по полю `code`.
+
+Поля узла:
+
+| Поле | Тип | Описание |
+| --- | --- | --- |
+| `code` | `string` | Уникальный код достижения, к которому относится дерево прогресса |
+| `type` | `string` | Тип узла: `condition`, `all` или `any` |
+| `is_complete` | `boolean` | Выполнен ли узел правила |
+| `progress` | `number` | Прогресс узла в процентах от `0` до `100` |
+| `condition` | `object`, optional | Данные конечного условия. Присутствуют у `condition` |
+| `children` | `array`, optional | Дочерние правила. Присутствуют у составных `all` / `any` |
+
+##### `condition`
+
+```json
+{
+  "metric": "buys_count",
+  "operator": ">=",
+  "current": "3",
+  "target": "5"
+}
+```
+
+Поля:
+- `metric` — название метрики;
+- `operator` — оператор сравнения (`>=`, `>`, `<=`, `<`, `==`);
+- `current` — текущее значение метрики;
+- `target` — целевое значение из правила.
+
+`current` и `target` передаются как строки.
+
+Пример связи с заблокированным достижением:
+
+```json
+{
+  "locked": [
+    {
+      "code": "trust_badge",
+      "name": "Знак доверия",
+      "description": "Высокий рейтинг и успешные продажи.",
+      "imageUrl": "/static/achievements/trust_badge.png"
+    }
+  ],
+  "achievements_progress": [
+    {
+      "code": "trust_badge",
+      "type": "all",
+      "is_complete": false,
+      "progress": 75
+    }
+  ]
+}
+```
+
+Frontend сопоставляет достижение и его прогресс по `code`.
+
+##### Тип `condition`
+Лист дерева. Содержит `condition` и не содержит дочерних правил.
+
+```json
+{
+  "code": "shortlist_boarder",
+  "type": "condition",
+  "is_complete": false,
+  "progress": 60,
+  "condition": {
+    "metric": "buys_count",
+    "operator": ">=",
+    "current": "3",
+    "target": "5"
+  }
+}
+```
+
+##### Тип `all`
+Составное правило. Выполнено только тогда, когда выполнены все дочерние правила.
+
+##### Тип `any`
+Составное правило. Выполнено, если выполнено хотя бы одно дочернее правило.
+
+Дерево может быть вложенным: `all` и `any` могут содержать как `condition`, так и другие `all` / `any`.
+
+Поле `code` позволяет frontend напрямую связать элемент `achievements_progress[]` с объектом из `earned[]` или `locked[]`. Связывать массивы по индексу не требуется.
+
+В текущей реализации `code` передаётся также во вложенные узлы `children`, поэтому все узлы одного дерева содержат один и тот же код достижения.
 
 ### 5) `GET /api/users/{userId}/stats`
 Получить все агрегированные статы пользователя за активный год.
@@ -375,46 +513,7 @@ GET /api/users/1/stats
 #### Response `200`
 Тело ответа = Contract A `YearMetrics` для указанного пользователя и активного года.
 
-### 6) `GET /static/{path}`
-Получить статический файл изображения. Роут находится вне `/api` и используется браузером для загрузки картинок по значению `imageUrl`.
-
-В MVP через `/static` раздаются:
-
-- `/static/achievements/{filename}` — изображения ачивок;
-- `/static/users/{filename}` — аватарки пользователей.
-
-#### Examples
-```text
-GET /static/achievements/diplomat.png
-GET /static/users/seller_anna.png
-```
-
-#### Response `200`
-В ответ возвращается файл изображения с соответствующим `Content-Type`, например:
-
-```text
-Content-Type: image/png
-```
-
-В JSON-ответах backend поле `imageUrl` содержит HTTP-путь к нужному файлу, например:
-
-```json
-{
-  "imageUrl": "/static/achievements/diplomat.png"
-}
-```
-
-или для аватарки пользователя:
-
-```json
-{
-  "imageUrl": "/static/users/seller_anna.png"
-}
-```
-
-Если файл не найден, возвращается `404 Not Found`.
-
-### 7) `GET /api/health`
+### 6) `GET /api/health`
 Проверка живости сервиса.
 #### Response `200`
 ```
