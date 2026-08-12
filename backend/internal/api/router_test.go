@@ -53,16 +53,15 @@ func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (
 }
 
 type fakeAchievements struct {
-	userID      int64
-	earned      []entity.UserAchievement
-	locked      []entity.Achievement
-	evaluations []*recap.AchievementEvaluation
-	err         error
+	userID int64
+	earned []entity.UserAchievement
+	locked []entity.Achievement
+	err    error
 }
 
-func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, []*recap.AchievementEvaluation, error) {
+func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, error) {
 	f.userID = userID
-	return f.earned, f.locked, f.evaluations, f.err
+	return f.earned, f.locked, f.err
 }
 
 type fakeStats struct {
@@ -245,7 +244,7 @@ func TestRouter(t *testing.T) {
 			},
 		},
 		{
-			name:   "list user achievements with progress",
+			name:   "list user achievements",
 			method: http.MethodGet,
 			target: "/api/users/1/achievements",
 			achievements: &fakeAchievements{
@@ -276,79 +275,6 @@ func TestRouter(t *testing.T) {
 						Description: "Кажется ты перепутал Avito с мессенджером.",
 						ImageURL:    "https://images.example.test/achievements/diplomat.png",
 					},
-					{
-						Code:        "trust_badge",
-						Name:        "Знак доверия",
-						Description: "Высокий рейтинг и успешные продажи.",
-						ImageURL:    "https://images.example.test/achievements/trust-badge.png",
-					},
-				},
-				evaluations: []*recap.AchievementEvaluation{
-					{
-						Code: "diplomat",
-						Evaluation: recap.RuleEvaluation{
-							Type:       recap.RuleTypeCondition,
-							IsComplete: false,
-							Progress:   75,
-							Condition: &recap.ConditionEvaluation{
-								Metric:   "conversations_count",
-								Operator: ">=",
-								Actual:   3,
-								Expected: 4,
-							},
-							Children: []recap.RuleEvaluation{},
-						},
-					},
-					{
-						Code: "trust_badge",
-						Evaluation: recap.RuleEvaluation{
-							Type:       recap.RuleTypeAll,
-							IsComplete: false,
-							Progress:   50,
-							Children: []recap.RuleEvaluation{
-								{
-									Type:       recap.RuleTypeCondition,
-									IsComplete: true,
-									Progress:   100,
-									Condition: &recap.ConditionEvaluation{
-										Metric:   "seller_rating",
-										Operator: ">=",
-										Actual:   4.9,
-										Expected: 4.8,
-									},
-								},
-								{
-									Type:       recap.RuleTypeAny,
-									IsComplete: false,
-									Progress:   50,
-									Children: []recap.RuleEvaluation{
-										{
-											Type:       recap.RuleTypeCondition,
-											IsComplete: false,
-											Progress:   50,
-											Condition: &recap.ConditionEvaluation{
-												Metric:   "sells_count",
-												Operator: ">=",
-												Actual:   1,
-												Expected: 2,
-											},
-										},
-										{
-											Type:       recap.RuleTypeCondition,
-											IsComplete: false,
-											Progress:   0,
-											Condition: &recap.ConditionEvaluation{
-												Metric:   "buys_count",
-												Operator: ">=",
-												Actual:   0,
-												Expected: 1,
-											},
-										},
-									},
-								},
-							},
-						},
-					},
 				},
 			},
 			wantStatus: http.StatusOK,
@@ -369,115 +295,14 @@ func TestRouter(t *testing.T) {
 				if response.Earned[0].ImageURL == "" {
 					t.Fatal("earned imageUrl is empty")
 				}
-
-				if len(response.Locked) != 2 {
-					t.Fatalf("locked len = %d, want 2", len(response.Locked))
+				if len(response.Locked) != 1 {
+					t.Fatalf("locked len = %d, want 1", len(response.Locked))
 				}
 				if response.Locked[0].Code != "diplomat" {
-					t.Fatalf("first locked = %q, want diplomat", response.Locked[0].Code)
+					t.Fatalf("locked = %q, want diplomat", response.Locked[0].Code)
 				}
 				if response.Locked[0].ImageURL == "" {
 					t.Fatal("locked imageUrl is empty")
-				}
-
-				if len(response.AchievementsProgress) != 2 {
-					t.Fatalf("achievements progress len = %d, want 2", len(response.AchievementsProgress))
-				}
-
-				diplomatProgress := response.AchievementsProgress[0]
-				if diplomatProgress.Code != "diplomat" {
-					t.Fatalf("progress code = %q, want diplomat", diplomatProgress.Code)
-				}
-				if diplomatProgress.Type != string(recap.RuleTypeCondition) {
-					t.Fatalf("progress type = %q, want condition", diplomatProgress.Type)
-				}
-				if diplomatProgress.IsComplete {
-					t.Fatal("diplomat progress must not be complete")
-				}
-				if diplomatProgress.Progress != 75 {
-					t.Fatalf("diplomat progress = %v, want 75", diplomatProgress.Progress)
-				}
-				if diplomatProgress.Condition == nil {
-					t.Fatal("diplomat condition is nil")
-				}
-				if diplomatProgress.Condition.Metric != "conversations_count" {
-					t.Fatalf("diplomat metric = %q, want conversations_count", diplomatProgress.Condition.Metric)
-				}
-				if diplomatProgress.Condition.Current != "3" {
-					t.Fatalf("diplomat current = %q, want 3", diplomatProgress.Condition.Current)
-				}
-				if diplomatProgress.Condition.Target != "4" {
-					t.Fatalf("diplomat target = %q, want 4", diplomatProgress.Condition.Target)
-				}
-
-				trustProgress := response.AchievementsProgress[1]
-				if trustProgress.Code != "trust_badge" {
-					t.Fatalf("progress code = %q, want trust_badge", trustProgress.Code)
-				}
-				if trustProgress.Type != string(recap.RuleTypeAll) {
-					t.Fatalf("trust_badge type = %q, want all", trustProgress.Type)
-				}
-				if trustProgress.Progress != 50 {
-					t.Fatalf("trust_badge progress = %v, want 50", trustProgress.Progress)
-				}
-				if trustProgress.Condition != nil {
-					t.Fatal("all rule must not contain condition")
-				}
-				if len(trustProgress.Children) != 2 {
-					t.Fatalf("trust_badge children len = %d, want 2", len(trustProgress.Children))
-				}
-
-				ratingChild := trustProgress.Children[0]
-				if ratingChild.Code != "trust_badge" {
-					t.Fatalf("rating child code = %q, want trust_badge", ratingChild.Code)
-				}
-				if !ratingChild.IsComplete || ratingChild.Progress != 100 {
-					t.Fatalf("rating child = complete:%v progress:%v, want true/100", ratingChild.IsComplete, ratingChild.Progress)
-				}
-				if ratingChild.Condition == nil || ratingChild.Condition.Current != "4.9" || ratingChild.Condition.Target != "4.8" {
-					t.Fatalf("rating condition = %#v, want current=4.9 target=4.8", ratingChild.Condition)
-				}
-
-				anyChild := trustProgress.Children[1]
-				if anyChild.Type != string(recap.RuleTypeAny) {
-					t.Fatalf("nested child type = %q, want any", anyChild.Type)
-				}
-				if anyChild.Code != "trust_badge" {
-					t.Fatalf("nested child code = %q, want trust_badge", anyChild.Code)
-				}
-				if anyChild.Progress != 50 {
-					t.Fatalf("nested any progress = %v, want 50", anyChild.Progress)
-				}
-				if len(anyChild.Children) != 2 {
-					t.Fatalf("nested any children len = %d, want 2", len(anyChild.Children))
-				}
-				if anyChild.Children[0].Condition == nil || anyChild.Children[0].Condition.Metric != "sells_count" {
-					t.Fatalf("nested first condition = %#v, want sells_count", anyChild.Children[0].Condition)
-				}
-			},
-		},
-		{
-			name:   "list user achievements without evaluations",
-			method: http.MethodGet,
-			target: "/api/users/1/achievements",
-			achievements: &fakeAchievements{
-				earned:      []entity.UserAchievement{},
-				locked:      []entity.Achievement{},
-				evaluations: []*recap.AchievementEvaluation{},
-			},
-			wantStatus: http.StatusOK,
-			assert: func(t *testing.T, rr *httptest.ResponseRecorder, recaps *fakeRecaps, achievements *fakeAchievements, stats *fakeStats) {
-				var response dto.UserAchievementsResponse
-				decodeResponse(t, rr, &response)
-
-				if len(response.Earned) != 0 {
-					t.Fatalf("earned len = %d, want 0", len(response.Earned))
-				}
-				if len(response.Locked) != 0 {
-					t.Fatalf("locked len = %d, want 0", len(response.Locked))
-				}
-				if len(response.AchievementsProgress) != 0 {
-					t.Fatalf("achievements progress len = %d, want 0", len(response.AchievementsProgress))
 				}
 			},
 		},
