@@ -1,5 +1,3 @@
-import { useId } from 'react';
-
 import { FitText } from '../../shared/ui/FitText/FitText';
 
 import type { CardVariant } from './cardVariants';
@@ -17,34 +15,26 @@ type RoleCardProps = {
 };
 
 export function RoleCard({ role, variant, isActive }: RoleCardProps) {
-  const tooltipId = useId();
-
   return (
     <RecapCardShell
       variant={variant}
       isActive={isActive}
       className={styles.roleCard}
     >
-      <RecapCardHeader title="Роль" />
+      <RecapCardHeader title="Твоя роль года" />
 
       <div className={styles.roleHighlight}>
         <p className={styles.roleTitle}>В этом году ты</p>
 
-        <div className={styles.roleNameWrap}>
-          <FitText
-            className={`${styles.value} ${styles.roleName}`}
-            maxFontSize={76}
-            minFontSize={30}
-            tabIndex={isActive ? 0 : -1}
-            aria-describedby={tooltipId}
-          >
-            {role.name}
-          </FitText>
+        <FitText
+          className={`${styles.value} ${styles.roleName}`}
+          maxFontSize={72}
+          minFontSize={30}
+        >
+          {role.name}
+        </FitText>
 
-          <span id={tooltipId} className={styles.roleTooltip} role="tooltip">
-            {role.why}
-          </span>
-        </div>
+        <p className={styles.roleWhy}>{truncateText(role.why, 90)}</p>
       </div>
 
       <p className={`${styles.text} ${styles.roleSubtitle}`}>

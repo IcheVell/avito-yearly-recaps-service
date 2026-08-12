@@ -3,6 +3,8 @@ package api_test
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,7 +14,6 @@ import (
 	"v1/internal/api/dto"
 	"v1/internal/domain/entity"
 	"v1/internal/domain/recap"
-	applog "v1/internal/logger"
 )
 
 const testCurrentYear = 2026
@@ -549,7 +550,7 @@ func TestNewRouterRequiresCurrentYear(t *testing.T) {
 
 	_ = api.NewRouter(api.Dependencies{
 		Profiles: fakeProfiles{},
-		Logger:   applog.NewDiscard(),
+		Logger:   slog.New(slog.NewTextHandler(io.Discard, nil)),
 	})
 }
 
@@ -559,7 +560,7 @@ func newTestRouter(
 	achievements *fakeAchievements,
 	stats *fakeStats,
 ) http.Handler {
-	logger := applog.NewDiscard()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	return api.NewRouter(api.Dependencies{
 		Profiles:     profiles,
 		Recaps:       recaps,
