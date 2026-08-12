@@ -48,6 +48,21 @@ type RecapAction struct {
 type RecapActionTarget struct {
 	ListingIDs []int64
 	CategoryID int64
+	CategoryName string
+	Listings   []RecapActionListing
+}
+
+type RecapActionListing struct {
+	ID           int64
+	Name         string
+	ImageURL     string
+	Price        *int64
+	Status       string
+	CategoryID   int64
+	CategoryName string
+	ViewsCount   int
+	UpdatedAt    *time.Time
+	City         string
 }
 
 type RecapDebug struct {

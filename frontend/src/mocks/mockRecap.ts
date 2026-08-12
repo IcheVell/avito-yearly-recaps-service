@@ -73,6 +73,17 @@ export const mockRecap: Recap = {
     target: {
       listingIds: [11],
       categoryId: 3,
+      listings: [
+        {
+          id: 11,
+          name: 'iPhone 12 128GB',
+          status: 'active',
+          categoryId: 3,
+          categoryName: 'Электроника',
+          viewsCount: 3,
+          updatedAt: '2025-11-02T12:00:00Z',
+        },
+      ],
     },
   },
 
@@ -353,7 +364,19 @@ const buyerExplorerMockRecap: Recap = {
     type: 'listing_abandoned',
     label: 'Написать продавцу',
     reason: 'Есть объявление, к которому ты возвращался, но не написал.',
-    target: { listingIds: [205], categoryId: 1 },
+    target: {
+      listingIds: [205],
+      categoryId: 1,
+      listings: [
+        {
+          id: 205,
+          name: 'MacBook Air M1',
+          categoryId: 1,
+          categoryName: 'Электроника',
+          viewsCount: 12,
+        },
+      ],
+    },
   },
   debug: {
     generatorVersion: 'v1',
@@ -406,7 +429,33 @@ const watcherCollectorMockRecap: Recap = {
     type: 'compare_top',
     label: 'Сравнить топ-3',
     reason: 'У тебя уже есть три сильных кандидата — осталось сравнить.',
-    target: { listingIds: [301, 302, 303], categoryId: 1 },
+    target: {
+      listingIds: [301, 302, 303],
+      categoryId: 1,
+      listings: [
+        {
+          id: 301,
+          name: 'Велосипед Author',
+          categoryId: 1,
+          categoryName: 'Хобби',
+          viewsCount: 18,
+        },
+        {
+          id: 302,
+          name: 'Велосипед Stern',
+          categoryId: 1,
+          categoryName: 'Хобби',
+          viewsCount: 14,
+        },
+        {
+          id: 303,
+          name: 'Велосипед Stels',
+          categoryId: 1,
+          categoryName: 'Хобби',
+          viewsCount: 11,
+        },
+      ],
+    },
   },
   debug: {
     generatorVersion: 'v1',
@@ -459,7 +508,28 @@ const sellerVeteranMockRecap: Recap = {
     type: 'boost_listings',
     label: 'Обновить объявления',
     reason: 'Несколько активных объявлений пора снова поднять в выдаче.',
-    target: { listingIds: [401, 402], categoryId: 3 },
+    target: {
+      listingIds: [401, 402],
+      categoryId: 3,
+      listings: [
+        {
+          id: 401,
+          name: 'Диван угловой',
+          status: 'active',
+          viewsCount: 2,
+          updatedAt: '2025-10-12T09:00:00Z',
+          categoryName: 'Для дома',
+        },
+        {
+          id: 402,
+          name: 'Стол письменный',
+          status: 'active',
+          viewsCount: 4,
+          updatedAt: '2025-10-20T11:00:00Z',
+          categoryName: 'Для дома',
+        },
+      ],
+    },
   },
   debug: {
     generatorVersion: 'v1',

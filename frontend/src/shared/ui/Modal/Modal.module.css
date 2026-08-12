@@ -1,0 +1,96 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  background: rgb(0 0 0 / 52%);
+  cursor: pointer;
+}
+
+.dialog {
+  position: relative;
+  z-index: 1;
+
+  width: min(520px, 100%);
+  max-height: min(820px, calc(100dvh - 40px));
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 28%);
+}
+
+.dialogWide {
+  width: min(760px, 100%);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid rgb(17 17 17 / 8%);
+}
+
+.title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.closeButton {
+  flex-shrink: 0;
+
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  border-radius: 999px;
+  background: #f1f1f3;
+  color: #111;
+
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.closeButton:hover {
+  background: #e6e6ea;
+}
+
+.body {
+  padding: 16px 20px 8px;
+  overflow: auto;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding: 12px 20px 18px;
+  border-top: 1px solid rgb(17 17 17 / 8%);
+}

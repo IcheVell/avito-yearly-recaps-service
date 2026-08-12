@@ -24,11 +24,26 @@ type RecapActionBase = {
   reason: string;
 };
 
+export type ActionListingPreview = {
+  id: number;
+  name?: string | null;
+  imageUrl?: string | null;
+  price?: number | null;
+  city?: string | null;
+  status?: string | null;
+  categoryId?: number | null;
+  categoryName?: string | null;
+  viewsCount?: number | null;
+  updatedAt?: string | null;
+};
+
 export type BoostListingsAction = RecapActionBase & {
   type: 'boost_listings';
   target: {
     listingIds: number[];
     categoryId?: number;
+    categoryName?: string;
+    listings?: ActionListingPreview[];
   };
 };
 
@@ -42,6 +57,8 @@ export type ListingAbandonedAction = RecapActionBase & {
   target: {
     listingIds: number[];
     categoryId: number;
+    categoryName?: string;
+    listings?: ActionListingPreview[];
   };
 };
 
@@ -50,6 +67,8 @@ export type CompareTopAction = RecapActionBase & {
   target: {
     listingIds: number[];
     categoryId: number;
+    categoryName?: string;
+    listings?: ActionListingPreview[];
   };
 };
 
@@ -58,6 +77,8 @@ export type OpenFavoritesAction = RecapActionBase & {
   target: {
     listingIds?: number[];
     categoryId?: number;
+    categoryName?: string;
+    listings?: ActionListingPreview[];
   };
 };
 
@@ -66,6 +87,7 @@ export type ContinueSearchAction = RecapActionBase & {
   target: {
     listingIds?: number[];
     categoryId?: number;
+    categoryName?: string;
   };
 };
 
