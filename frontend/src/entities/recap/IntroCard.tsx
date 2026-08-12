@@ -19,6 +19,7 @@ export function IntroCard({ year, variant, isActive }: IntroCardProps) {
       <div className={styles.introDecor} aria-hidden="true">
         <span className={styles.snowflakeTop}>❄</span>
         <span className={styles.snowflakeBottom}>❄</span>
+
         <span className={styles.glowTop} />
         <span className={styles.glowMiddle} />
         <span className={styles.glowBottom} />
