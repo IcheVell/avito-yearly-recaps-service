@@ -9,13 +9,20 @@ import (
 )
 
 type Config struct {
-	Host      string
-	Port      string
-	User      string
-	Password  string
-	Name      string
-	SSLMode   string
-	RecapYear int
+	Host                       string
+	Port                       string
+	User                       string
+	Password                   string
+	Name                       string
+	SSLMode                    string
+	RecapYear                  int
+	GigaChatAuthKey            string
+	GigaChatScope              string
+	GigaChatModel              string
+	GigaChatAPIURL             string
+	GigaChatAuthURL            string
+	GigaChatInsecureSkipVerify bool
+	AITimeoutMS                int
 }
 
 func (c Config) DSN() string {
@@ -34,12 +41,17 @@ func NewConfig() (Config, error) {
 	LoadEnv()
 
 	cfg := Config{
-		Host:     os.Getenv("DB_HOST"),
-		Port:     os.Getenv("DB_PORT"),
-		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASSWORD"),
-		Name:     os.Getenv("DB_NAME"),
-		SSLMode:  os.Getenv("DB_SSLMODE"),
+		Host:            os.Getenv("DB_HOST"),
+		Port:            os.Getenv("DB_PORT"),
+		User:            os.Getenv("DB_USER"),
+		Password:        os.Getenv("DB_PASSWORD"),
+		Name:            os.Getenv("DB_NAME"),
+		SSLMode:         os.Getenv("DB_SSLMODE"),
+		GigaChatAuthKey: os.Getenv("GIGACHAT_AUTH_KEY"),
+		GigaChatScope:   os.Getenv("GIGACHAT_SCOPE"),
+		GigaChatModel:   os.Getenv("GIGACHAT_MODEL"),
+		GigaChatAPIURL:  os.Getenv("GIGACHAT_API_URL"),
+		GigaChatAuthURL: os.Getenv("GIGACHAT_AUTH_URL"),
 	}
 
 	if cfg.Host == "" {
@@ -72,6 +84,18 @@ func NewConfig() (Config, error) {
 	}
 	cfg.RecapYear = recapYear
 
+	aiTimeoutMS, err := optionalPositiveInt("AI_TIMEOUT_MS")
+	if err != nil {
+		return Config{}, err
+	}
+	cfg.AITimeoutMS = aiTimeoutMS
+
+	gigaChatInsecureSkipVerify, err := optionalBool("GIGACHAT_INSECURE_SKIP_VERIFY")
+	if err != nil {
+		return Config{}, err
+	}
+	cfg.GigaChatInsecureSkipVerify = gigaChatInsecureSkipVerify
+
 	return cfg, nil
 }
 
@@ -92,6 +116,34 @@ func requiredPositiveInt(name string) (int, error) {
 	value, err := strconv.Atoi(raw)
 	if err != nil || value <= 0 {
 		return 0, fmt.Errorf("%s must be a positive integer", name)
+	}
+
+	return value, nil
+}
+
+func optionalPositiveInt(name string) (int, error) {
+	raw := os.Getenv(name)
+	if raw == "" {
+		return 0, nil
+	}
+
+	value, err := strconv.Atoi(raw)
+	if err != nil || value <= 0 {
+		return 0, fmt.Errorf("%s must be a positive integer", name)
+	}
+
+	return value, nil
+}
+
+func optionalBool(name string) (bool, error) {
+	raw := os.Getenv(name)
+	if raw == "" {
+		return false, nil
+	}
+
+	value, err := strconv.ParseBool(raw)
+	if err != nil {
+		return false, fmt.Errorf("%s must be boolean: %w", name, err)
 	}
 
 	return value, nil
