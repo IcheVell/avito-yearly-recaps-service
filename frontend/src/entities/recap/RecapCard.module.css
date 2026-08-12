@@ -50,11 +50,6 @@
     box-shadow 420ms ease;
 }
 
-/*
-  Фон карточки сам формирует визуальный объём через градиент.
-  Дополнительные круги и крупные декоративные формы убраны.
-*/
-
 .card > * {
   position: relative;
   z-index: 1;
@@ -91,8 +86,6 @@
   }
 }
 
-/* Header */
-
 .header {
   min-height: 38px;
 
@@ -128,8 +121,6 @@
   padding-bottom: 17px;
   border-bottom: 2px solid rgb(12 12 13 / 13%);
 }
-
-/* Shared typography */
 
 .value {
   display: block;
@@ -172,8 +163,6 @@
   font-weight: 900;
   white-space: nowrap;
 }
-
-/* Intro */
 
 .introCard {
   grid-template-rows: minmax(0, 1fr) auto;
@@ -801,7 +790,6 @@
   );
 }
 
-/* Акцентные слова получают тот же насыщенный градиент, что и карточка. */
 .title,
 .value,
 .textHighlight,
