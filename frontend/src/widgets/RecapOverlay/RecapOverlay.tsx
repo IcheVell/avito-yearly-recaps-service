@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { RecapActionModal } from '../../features/recap-action/RecapActionModal';
 import { createCardVariants } from '../../entities/recap/createCardVariants';
-import type { Recap } from '../../entities/recap/types';
+import type { Recap, RecapAction } from '../../entities/recap/types';
 
 import { handleRecapAction } from './model/handleRecapAction';
 import { createRecapSlides } from './model/recapSlides';
@@ -20,6 +21,7 @@ type RecapOverlayProps = {
 export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
   const slides = useMemo(() => createRecapSlides(recap), [recap]);
   const slidesCount = slides.length;
+  const [activeAction, setActiveAction] = useState<RecapAction | null>(null);
 
   const {
     trackRef,
@@ -43,7 +45,15 @@ export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
+        if (activeAction) {
+          return;
+        }
+
         onClose();
+        return;
+      }
+
+      if (activeAction) {
         return;
       }
 
@@ -65,7 +75,14 @@ export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [goToNextSlide, goToPreviousSlide, onClose]);
+  }, [activeAction, goToNextSlide, goToPreviousSlide, onClose]);
+
+  function onAction(action: RecapAction) {
+    const result = handleRecapAction(action);
+    if (result.kind === 'modal') {
+      setActiveAction(result.action);
+    }
+  }
 
   return (
     <div
@@ -90,7 +107,7 @@ export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
             slide={slide}
             variant={variants[index]}
             isActive={currentSlide === index}
-            onAction={handleRecapAction}
+            onAction={onAction}
           />
         ))}
       </div>
@@ -103,6 +120,13 @@ export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
         onPrevious={goToPreviousSlide}
         onNext={goToNextSlide}
       />
+
+      {activeAction && (
+        <RecapActionModal
+          action={activeAction}
+          onClose={() => setActiveAction(null)}
+        />
+      )}
     </div>
   );
 }
