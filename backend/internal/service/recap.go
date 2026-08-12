@@ -29,7 +29,7 @@ type RecapRepository interface {
 }
 
 type AchievementServiceInterface interface {
-	UpdateUserAchievements(ctx context.Context, userID int64) error
+	UpdateUserAchievements(ctx context.Context, userID int64) ([]*recap.AchievementEvaluation, error)
 }
 
 const recapMetricsLimit = 4
@@ -71,7 +71,7 @@ func (s *RecapService) GenerateRecap(ctx context.Context, userID int64, year int
 		return recap.Recap{}, false, mapUserError(err)
 	}
 
-	if err := s.AchievementService.UpdateUserAchievements(ctx, userID); err != nil {
+	if _, err := s.AchievementService.UpdateUserAchievements(ctx, userID); err != nil {
 		s.logger.ErrorContext(ctx, "generate recap achievements sync failed", "user_id", userID, "year", year, "err", err, "operation", "generate_recap")
 		return recap.Recap{}, false, err
 	}

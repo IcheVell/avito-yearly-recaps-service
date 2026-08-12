@@ -27,6 +27,8 @@ func EvaluateRule(rule recap.RuleNode, stats entity.UserStats) (*recap.RuleEvalu
 		return evaluateCondition(rule, stats)
 
 	case recap.RuleTypeAll:
+		countCompleted := 0
+
 		for _, condition := range rule.Conditions {
 			newRule, err := EvaluateRule(condition, stats)
 			if err != nil {
@@ -35,14 +37,30 @@ func EvaluateRule(rule recap.RuleNode, stats entity.UserStats) (*recap.RuleEvalu
 
 			if !newRule.IsComplete {
 				mainRule.IsComplete = false
+			} else {
+				countCompleted++
 			}
 
 			mainRule.Children = append(mainRule.Children, *newRule)
 		}
 
+		if len(rule.Conditions) == 0 {
+			return nil, fmt.Errorf("no conditions found for rule type %s", rule.Type)
+		}
+
+		mainRule.Progress = (float64(countCompleted) / float64(len(rule.Conditions))) * 100
+
 		return mainRule, nil
 
 	case recap.RuleTypeAny:
+		if len(rule.Conditions) == 0 {
+			return nil, fmt.Errorf("no conditions found for rule type %s", rule.Type)
+		}
+
+		mainRule.IsComplete = false
+
+		var maxProgress float64
+
 		for _, condition := range rule.Conditions {
 			newRule, err := EvaluateRule(condition, stats)
 			if err != nil {
@@ -53,8 +71,14 @@ func EvaluateRule(rule recap.RuleNode, stats entity.UserStats) (*recap.RuleEvalu
 				mainRule.IsComplete = true
 			}
 
+			if newRule.Progress > maxProgress {
+				maxProgress = newRule.Progress
+			}
+
 			mainRule.Children = append(mainRule.Children, *newRule)
 		}
+
+		mainRule.Progress = maxProgress
 
 		return mainRule, nil
 
@@ -89,27 +113,26 @@ func evaluateCondition(rule recap.RuleNode, stats entity.UserStats) (*recap.Rule
 	switch rule.Operator {
 	case ">=":
 		ruleEvaluation.IsComplete = actual >= expected
-		return ruleEvaluation, nil
 
 	case ">":
 		ruleEvaluation.IsComplete = actual > expected
-		return ruleEvaluation, nil
 
 	case "<=":
 		ruleEvaluation.IsComplete = actual <= expected
-		return ruleEvaluation, nil
 
 	case "<":
 		ruleEvaluation.IsComplete = actual < expected
-		return ruleEvaluation, nil
 
 	case "==":
 		ruleEvaluation.IsComplete = actual == expected
-		return ruleEvaluation, nil
 
 	default:
 		return nil, fmt.Errorf("unknown operator: %s", rule.Operator)
 	}
+
+	ruleEvaluation.Progress = calculateProgress(ruleEvaluation)
+
+	return ruleEvaluation, nil
 }
 
 func getMetricValue(stats entity.UserStats, metric string) (float64, error) {
@@ -145,4 +168,83 @@ func getMetricValue(stats entity.UserStats, metric string) (float64, error) {
 	default:
 		return 0, fmt.Errorf("unknown metric: %s", metric)
 	}
+}
+
+func calculateProgress(rule *recap.RuleEvaluation) float64 {
+	if rule == nil || rule.Condition == nil {
+		return 0
+	}
+
+	if rule.IsComplete {
+		return 100
+	}
+
+	actual := rule.Condition.Actual
+	expected := rule.Condition.Expected
+
+	var progress float64
+
+	switch rule.Condition.Operator {
+	case ">=":
+		if expected == 0 {
+			return 0
+		}
+
+		progress = actual / expected * 100
+
+	case ">":
+		if expected == 0 {
+			return 0
+		}
+
+		progress = actual / expected * 100
+		if progress >= 100 {
+			progress = 99
+		}
+
+	case "<=":
+		if actual == 0 {
+			return 0
+		}
+
+		progress = expected / actual * 100
+
+	case "<":
+		if actual == 0 {
+			return 0
+		}
+
+		progress = expected / actual * 100
+		if progress >= 100 {
+			progress = 99
+		}
+
+	case "==":
+		if expected == 0 {
+			return 0
+		}
+
+		if actual < expected {
+			progress = actual / expected * 100
+		} else {
+			if actual == 0 {
+				return 0
+			}
+
+			progress = expected / actual * 100
+		}
+
+	default:
+		return 0
+	}
+
+	if progress < 0 {
+		return 0
+	}
+
+	if progress > 100 {
+		return 100
+	}
+
+	return progress
 }

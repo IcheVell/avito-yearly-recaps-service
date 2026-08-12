@@ -20,11 +20,18 @@ type RuleNode struct {
 
 type Rule struct {
 	ID       int64
+	Code     string
 	RuleNode RuleNode
+}
+
+type AchievementEvaluation struct {
+	Code       string
+	Evaluation RuleEvaluation
 }
 type RuleEvaluation struct {
 	Type       RuleType
 	IsComplete bool
+	Progress   float64 // value in percents from 0 to 100
 
 	Condition *ConditionEvaluation
 	Children  []RuleEvaluation

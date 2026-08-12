@@ -15,7 +15,7 @@ type RecapService interface {
 }
 
 type AchievementProvider interface {
-	ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, error)
+	ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, []*recap.AchievementEvaluation, error)
 }
 
 type StatsProvider interface {
@@ -192,7 +192,7 @@ func (h *RecapsHandler) ListAchievements(w http.ResponseWriter, r *http.Request)
 		"operation", "list_user_achievements",
 	)
 
-	earned, locked, err := h.achievements.ListUserAchievements(r.Context(), userID)
+	earned, locked, rules, err := h.achievements.ListUserAchievements(r.Context(), userID)
 	if err != nil {
 		if shouldLogServiceError(err) {
 			h.logger.ErrorContext(
@@ -224,7 +224,7 @@ func (h *RecapsHandler) ListAchievements(w http.ResponseWriter, r *http.Request)
 		"operation", "list_user_achievements",
 	)
 
-	writeJSON(w, http.StatusOK, dto.NewUserAchievementsResponse(earned, locked))
+	writeJSON(w, http.StatusOK, dto.NewUserAchievementsResponse(earned, locked, rules))
 }
 
 func (h *RecapsHandler) GetStats(w http.ResponseWriter, r *http.Request) {
