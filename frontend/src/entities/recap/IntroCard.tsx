@@ -1,3 +1,5 @@
+import { FitText } from '../../shared/ui/FitText/FitText';
+
 import type { CardVariant } from './cardVariants';
 import { RecapCardShell } from './RecapCardShell';
 
@@ -27,9 +29,13 @@ export function IntroCard({ year, variant, isActive }: IntroCardProps) {
 
       <div className={styles.introMain}>
         <p className={styles.introKicker}>Твой</p>
-        <strong className={`${styles.value} ${styles.introYear}`}>
+        <FitText
+          className={`${styles.value} ${styles.introYear}`}
+          maxFontSize={146}
+          minFontSize={68}
+        >
           {year}
-        </strong>
+        </FitText>
         <p className={styles.introTitle}>
           год на <span>Avito</span>
         </p>

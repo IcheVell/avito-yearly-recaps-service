@@ -9,8 +9,8 @@
   --surface-top: #fff4f5;
   --surface-bottom: #ff8b98;
 
-  flex: 0 0 min(390px, calc(100vw - 40px));
-  min-width: 360px;
+  flex: 0 0 var(--recap-card-width, min(430px, calc(100vw - 32px)));
+  min-width: 0;
 
   height: min(620px, calc(100vh - 190px));
   height: min(620px, calc(100dvh - 190px));
@@ -30,7 +30,11 @@
   border-radius: 34px;
 
   color: var(--ink);
-  background: linear-gradient(155deg, var(--surface-top), var(--surface-bottom));
+  background: linear-gradient(
+    155deg,
+    var(--surface-top),
+    var(--surface-bottom)
+  );
 
   box-shadow:
     0 28px 80px rgb(0 0 0 / 28%),
@@ -127,12 +131,19 @@
   width: 100%;
   max-width: 100%;
   margin: 0;
+  padding: 0.08em 0.06em 0.14em;
 
   color: var(--accent-deep);
-  font-family: 'Arial Black', ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family:
+    'Arial Black',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   font-size: clamp(62px, 7vw, 84px);
-  line-height: 0.9;
+  line-height: 1;
   font-weight: 900;
   letter-spacing: -0.064em;
   text-align: left;
@@ -199,9 +210,7 @@
     0 0 8px rgb(255 255 255 / 92%),
     0 0 18px rgb(255 255 255 / 58%);
 
-  filter:
-    blur(0.45px)
-    drop-shadow(0 2px 2px rgb(0 0 0 / 14%));
+  filter: blur(0.45px) drop-shadow(0 2px 2px rgb(0 0 0 / 14%));
 
   animation: snowFall var(--snow-duration, 7s) linear var(--snow-delay, 0s)
     infinite;
@@ -298,7 +307,6 @@
   --snow-rotate: -230deg;
 }
 
-
 @keyframes snowFall {
   0% {
     opacity: 0;
@@ -393,10 +401,10 @@
 }
 
 .introYear {
-  margin: 4px 0 8px;
+  margin: 0;
   color: var(--accent-deep);
   font-size: clamp(98px, 11vw, 146px);
-  line-height: 0.78;
+  line-height: 0.9;
   letter-spacing: -0.078em;
   white-space: nowrap;
 }
@@ -417,7 +425,8 @@
 
 .introThanks {
   justify-self: start;
-  max-width: 22ch;
+  width: 100%;
+  max-width: none;
   padding-top: 15px;
 
   border-top: 3px solid var(--ink);
@@ -727,14 +736,18 @@
   transform: translateY(0);
 }
 
-
 /* Variants */
 
 .red {
   --accent: #ff4053;
   --accent-deep: #8f1020;
   --accent-soft: rgb(255 64 83 / 18%);
-  --text-gradient: linear-gradient(135deg, #d83447 0%, #9f1629 52%, #5d0815 100%);
+  --text-gradient: linear-gradient(
+    135deg,
+    #d83447 0%,
+    #9f1629 52%,
+    #5d0815 100%
+  );
 
   background: linear-gradient(
     145deg,
@@ -749,7 +762,12 @@
   --accent: #00aaff;
   --accent-deep: #005f92;
   --accent-soft: rgb(0 170 255 / 17%);
-  --text-gradient: linear-gradient(135deg, #003b67 0%, #006aa8 52%, #009ee8 100%);
+  --text-gradient: linear-gradient(
+    135deg,
+    #003b67 0%,
+    #006aa8 52%,
+    #009ee8 100%
+  );
 
   background: linear-gradient(
     145deg,
@@ -764,7 +782,12 @@
   --accent: #00d170;
   --accent-deep: #00743e;
   --accent-soft: rgb(0 209 112 / 17%);
-  --text-gradient: linear-gradient(135deg, #07512d 0%, #087c43 52%, #00ae5e 100%);
+  --text-gradient: linear-gradient(
+    135deg,
+    #07512d 0%,
+    #087c43 52%,
+    #00ae5e 100%
+  );
 
   background: linear-gradient(
     145deg,
@@ -779,7 +802,12 @@
   --accent: #a169f7;
   --accent-deep: #5c2597;
   --accent-soft: rgb(161 105 247 / 18%);
-  --text-gradient: linear-gradient(135deg, #4f1d72 0%, #742eab 52%, #a154e0 100%);
+  --text-gradient: linear-gradient(
+    135deg,
+    #4f1d72 0%,
+    #742eab 52%,
+    #a154e0 100%
+  );
 
   background: linear-gradient(
     145deg,
@@ -808,13 +836,17 @@
     --card-pad-x: 24px;
     --card-pad-y: 24px;
 
-    flex-basis: calc(100vw - 28px);
-    min-width: min(360px, calc(100vw - 28px));
+    flex-basis: var(--recap-card-width, calc(100vw - 28px));
+    min-width: 0;
     min-height: min(430px, calc(100dvh - 190px));
     gap: 19px;
     border-radius: 28px;
   }
 
+  .cardActive {
+    transform: scale(1);
+    animation: none;
+  }
 
   .header {
     min-height: 36px;
@@ -868,6 +900,35 @@
 
   .actionBody {
     padding: 16px 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .card {
+    --card-pad-x: 18px;
+
+    gap: 15px;
+    border-radius: 24px;
+  }
+
+  .introCard {
+    padding-inline: 20px;
+  }
+
+  .header {
+    gap: 8px;
+  }
+
+  .logoImage {
+    height: 21px;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .valueSlot {
+    min-height: 76px;
   }
 }
 
