@@ -27,7 +27,7 @@ export function RecapCardShell({
     .join(' ');
 
   return (
-    <article className={cardClassName} aria-hidden={!isActive}>
+    <article className={cardClassName}>
       <RecapCardEffect />
       {children}
     </article>

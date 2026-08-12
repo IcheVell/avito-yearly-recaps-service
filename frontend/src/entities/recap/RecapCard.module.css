@@ -99,11 +99,10 @@
 .cardInactive {
   z-index: 1;
 
-  visibility: hidden;
-  opacity: 0;
-  filter: none;
-  transform: scale(0.92);
-  pointer-events: none;
+  visibility: visible;
+  opacity: 0.2;
+  filter: blur(1.5px) saturate(0.72);
+  transform: scale(0.76);
 
   box-shadow:
     0 12px 28px rgb(0 0 0 / 12%),
