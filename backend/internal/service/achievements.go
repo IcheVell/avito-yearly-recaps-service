@@ -116,7 +116,7 @@ func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID 
 
 	awarded := 0
 	for _, rule := range rules {
-		ok, err := enginerules.EvaluateRule(rule.RuleNode, *userStats)
+		ruleEvaluation, err := enginerules.EvaluateRule(rule.RuleNode, *userStats)
 		if err != nil {
 			s.logger.ErrorContext(
 				ctx,
@@ -129,7 +129,7 @@ func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID 
 			return fmt.Errorf("evaluate rule: %w", err)
 		}
 
-		if ok {
+		if ruleEvaluation.IsComplete {
 			if err := s.achievements.AddAchievementToUser(ctx, userID, rule.ID); err != nil {
 				s.logger.ErrorContext(
 					ctx,
