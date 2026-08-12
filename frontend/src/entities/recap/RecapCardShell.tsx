@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react';
 
 import type { CardVariant } from './cardVariants';
+import { RecapCardEffect } from './RecapCardEffect';
 
 import styles from './RecapCard.module.css';
 
@@ -25,5 +26,10 @@ export function RecapCardShell({
     .filter(Boolean)
     .join(' ');
 
-  return <article className={cardClassName}>{children}</article>;
+  return (
+    <article className={cardClassName}>
+      <RecapCardEffect />
+      {children}
+    </article>
+  );
 }
