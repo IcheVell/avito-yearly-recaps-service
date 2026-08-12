@@ -31,8 +31,8 @@ export function IntroCard({ year, variant, isActive }: IntroCardProps) {
         <p className={styles.introKicker}>Твой</p>
         <FitText
           className={`${styles.value} ${styles.introYear}`}
-          maxFontSize={146}
-          minFontSize={68}
+          maxFontSize={132}
+          minFontSize={62}
         >
           {year}
         </FitText>

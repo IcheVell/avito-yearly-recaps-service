@@ -403,7 +403,7 @@
 .introYear {
   margin: 0;
   color: var(--accent-deep);
-  font-size: clamp(98px, 11vw, 146px);
+  font-size: clamp(90px, 10vw, 132px);
   line-height: 0.9;
   letter-spacing: -0.078em;
   white-space: nowrap;
@@ -531,7 +531,7 @@
 
 .highlightValue {
   color: var(--accent-deep);
-  font-size: clamp(66px, 7.5vw, 88px);
+  font-size: clamp(60px, 7vw, 80px);
 }
 
 .image {
@@ -558,7 +558,7 @@
 }
 
 .metricCardWithImage .highlightValue {
-  font-size: clamp(38px, 4.4vw, 52px);
+  font-size: clamp(35px, 4vw, 48px);
   line-height: 0.94;
 }
 

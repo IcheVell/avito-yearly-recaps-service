@@ -79,8 +79,8 @@ export function MetricCard({ metric, variant, isActive }: MetricCardProps) {
         <div className={styles.valueSlot}>
           <FitText
             className={`${styles.value} ${styles.highlightValue}`}
-            maxFontSize={68}
-            minFontSize={18}
+            maxFontSize={62}
+            minFontSize={17}
           >
             {displayHighlight}
           </FitText>
