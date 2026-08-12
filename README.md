@@ -307,13 +307,13 @@ DB_PASSWORD=postgres
 DB_NAME=yearly_recaps
 DB_SSLMODE=disable
 RECAP_YEAR=2026
-GIGACHAT_AUTH_KEY=
-GIGACHAT_SCOPE=GIGACHAT_API_PERS
-GIGACHAT_MODEL=GigaChat-2
-GIGACHAT_API_URL=https://api.giga.chat
-GIGACHAT_AUTH_URL=https://ngw.devices.sberbank.ru:9443/api/v2/oauth
+AI_API_KEY=
+AI_SCOPE=
+AI_MODEL=
+AI_API_URL=
+AI_AUTH_URL=
 AI_TIMEOUT_MS=8000
-GIGACHAT_INSECURE_SKIP_VERIFY=false
+AI_INSECURE_SKIP_VERIFY=false
 LOG_LEVEL=info
 LOG_FORMAT=json
 LOG_ADD_SOURCE=false
@@ -321,6 +321,8 @@ SERVICE_NAME=avito-yearly-recaps-backend
 ```
 
 В `docker-compose.yaml` для основных параметров предусмотрены значения по умолчанию.
+
+`AI_API_KEY` опционален. Если ключ не задан, ручка предсказания использует локальные тексты и проект запускается без внешнего AI API.
 
 ## API
 
@@ -465,7 +467,7 @@ npm run build
 - единый логгер бэкенда на `log/slog`;
 - создание и передача логгера в запуск приложения, HTTP-сервер, API, сервисы, репозитории и подключение к PostgreSQL;
 - опция предсказания на следующий год;
-- подключение GigaChat API.
+- подключение внешнего AI API.
 
 **Контракты и интеграция**
 

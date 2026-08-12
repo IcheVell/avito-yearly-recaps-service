@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	mathrand "math/rand/v2"
 	"strings"
 	"unicode/utf8"
 
@@ -24,6 +25,13 @@ var (
 		"Следующий год может принести тебе ту самую вещь, которую ты давно искал.",
 		"Похоже, впереди год удачных находок и приятных сделок.",
 		"В следующем году старое объявление может неожиданно открыть новую возможность.",
+		"Иногда удачная покупка начинается с простого любопытства. В следующем году оно тебе пригодится.",
+		"Кажется, одна вещь на Avito скоро попадётся тебе ровно в нужный момент.",
+		"В следующем году твоя лента может подсказать идею для нового увлечения.",
+		"Одно короткое сообщение может стать началом приятной сделки.",
+		"Пора освободить место для нового: какая-то вещь найдёт своего человека.",
+		"Следующий год может удивить объявлением, которое захочется сохранить сразу.",
+		"Впереди год маленьких находок, которые делают обычный день удачнее.",
 	}
 )
 
@@ -141,15 +149,10 @@ func hasForbiddenFortuneTopic(text string) bool {
 	return false
 }
 
-func fallbackFortune(userID int64, year int) string {
+func fallbackFortune(_ int64, _ int) string {
 	if len(fallbackFortunes) == 0 {
 		return "В следующем году тебя ждёт удачная находка на Avito."
 	}
 
-	index := int((userID + int64(year)) % int64(len(fallbackFortunes)))
-	if index < 0 {
-		index = -index
-	}
-
-	return fallbackFortunes[index]
+	return fallbackFortunes[mathrand.IntN(len(fallbackFortunes))]
 }

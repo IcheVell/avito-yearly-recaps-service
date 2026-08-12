@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	mathrand "math/rand/v2"
 	"net/http"
 	"net/url"
 	"strings"
@@ -35,6 +36,30 @@ type GigaChatConfig struct {
 	Timeout            time.Duration
 	HTTPClient         *http.Client
 	InsecureSkipVerify bool
+}
+
+type Config struct {
+	APIKey             string
+	Scope              string
+	Model              string
+	APIURL             string
+	AuthURL            string
+	Timeout            time.Duration
+	HTTPClient         *http.Client
+	InsecureSkipVerify bool
+}
+
+func NewFortuneGenerator(cfg Config) *GigaChatFortuneGenerator {
+	return NewGigaChatFortuneGenerator(GigaChatConfig{
+		AuthKey:            cfg.APIKey,
+		Scope:              cfg.Scope,
+		Model:              cfg.Model,
+		APIURL:             cfg.APIURL,
+		AuthURL:            cfg.AuthURL,
+		Timeout:            cfg.Timeout,
+		HTTPClient:         cfg.HTTPClient,
+		InsecureSkipVerify: cfg.InsecureSkipVerify,
+	})
 }
 
 type GigaChatFortuneGenerator struct {
@@ -114,7 +139,7 @@ func transport(insecureSkipVerify bool) http.RoundTripper {
 
 func (g *GigaChatFortuneGenerator) Generate(ctx context.Context, year int) (string, error) {
 	if g == nil || g.authHeader == "" {
-		return "", errors.New("gigachat fortune generator is disabled")
+		return "", errors.New("ai fortune generator is disabled")
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, g.timeout)
@@ -129,20 +154,21 @@ func (g *GigaChatFortuneGenerator) Generate(ctx context.Context, year int) (stri
 		Model: g.model,
 		Messages: []gigaChatMessage{
 			{Role: "system", Content: fortunePrompt()},
-			{Role: "user", Content: fmt.Sprintf("Сгенерируй одно развлекательное предсказание для пользователя Avito на %d год.", year)},
+			{Role: "user", Content: fortuneUserPrompt(year)},
 		},
 		MaxTokens:   80,
-		Temperature: 0.8,
+		Temperature: 1.0,
+		TopP:        0.95,
 	}
 
 	payload, err := json.Marshal(requestBody)
 	if err != nil {
-		return "", fmt.Errorf("marshal gigachat request: %w", err)
+		return "", fmt.Errorf("marshal ai request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, g.apiURL+"/v1/chat/completions", bytes.NewReader(payload))
 	if err != nil {
-		return "", fmt.Errorf("create gigachat request: %w", err)
+		return "", fmt.Errorf("create ai request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
@@ -150,7 +176,7 @@ func (g *GigaChatFortuneGenerator) Generate(ctx context.Context, year int) (stri
 
 	resp, err := g.client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("call gigachat chat completions: %w", err)
+		return "", fmt.Errorf("call ai chat completions: %w", err)
 	}
 	defer func() {
 		_ = resp.Body.Close()
@@ -158,17 +184,17 @@ func (g *GigaChatFortuneGenerator) Generate(ctx context.Context, year int) (stri
 
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return "", fmt.Errorf("gigachat chat completions status %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+		return "", fmt.Errorf("ai chat completions status %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 
 	var response gigaChatCompletionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", fmt.Errorf("decode gigachat response: %w", err)
+		return "", fmt.Errorf("decode ai response: %w", err)
 	}
 
 	text := strings.TrimSpace(response.text())
 	if text == "" {
-		return "", errors.New("gigachat response text is empty")
+		return "", errors.New("ai response text is empty")
 	}
 
 	return text, nil
@@ -202,7 +228,7 @@ func (g *GigaChatFortuneGenerator) fetchToken(ctx context.Context) (string, time
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, g.authURL, strings.NewReader(form.Encode()))
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("create gigachat auth request: %w", err)
+		return "", time.Time{}, fmt.Errorf("create ai auth request: %w", err)
 	}
 	req.Header.Set("Authorization", g.authHeader)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -211,7 +237,7 @@ func (g *GigaChatFortuneGenerator) fetchToken(ctx context.Context) (string, time
 
 	resp, err := g.client.Do(req)
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("call gigachat oauth: %w", err)
+		return "", time.Time{}, fmt.Errorf("call ai oauth: %w", err)
 	}
 	defer func() {
 		_ = resp.Body.Close()
@@ -219,16 +245,16 @@ func (g *GigaChatFortuneGenerator) fetchToken(ctx context.Context) (string, time
 
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return "", time.Time{}, fmt.Errorf("gigachat oauth status %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+		return "", time.Time{}, fmt.Errorf("ai oauth status %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 
 	var response gigaChatAuthResponse
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", time.Time{}, fmt.Errorf("decode gigachat oauth response: %w", err)
+		return "", time.Time{}, fmt.Errorf("decode ai oauth response: %w", err)
 	}
 
 	if strings.TrimSpace(response.AccessToken) == "" {
-		return "", time.Time{}, errors.New("gigachat access token is empty")
+		return "", time.Time{}, errors.New("ai access token is empty")
 	}
 
 	return response.AccessToken, tokenExpiry(response.ExpiresAt), nil
@@ -274,6 +300,7 @@ type gigaChatCompletionRequest struct {
 	Messages    []gigaChatMessage `json:"messages"`
 	MaxTokens   int               `json:"max_tokens,omitempty"`
 	Temperature float64           `json:"temperature,omitempty"`
+	TopP        float64           `json:"top_p,omitempty"`
 }
 
 type gigaChatMessage struct {
@@ -322,8 +349,8 @@ func requestID() string {
 }
 
 func fortunePrompt() string {
-	return `Ты генерируешь короткое развлекательное предсказание для пользователя Avito на следующий год.
-Это аналог печенья с предсказанием, а не аналитический или ML-прогноз.
+	return `Ты генерируешь короткое предсказание для пользователя Avito на следующий год.
+Это аналог печенья с предсказанием.
 Требования:
 - язык: русский;
 - длина: максимум 1–2 коротких предложения;
@@ -341,4 +368,57 @@ func fortunePrompt() string {
 - не обещать конкретный заработок;
 - не использовать персональные данные пользователя.
 Верни только текст предсказания без Markdown и дополнительных комментариев.`
+}
+
+func fortuneUserPrompt(year int) string {
+	return fmt.Sprintf(
+		"Сгенерируй одно предсказание для пользователя Avito на %d год.\nТема: %s.\nТон: %s.\nОбраз: %s.\nСделай текст новым и не используй шаблонные формулировки.",
+		year,
+		randomChoice(fortuneThemes),
+		randomChoice(fortuneTones),
+		randomChoice(fortuneImages),
+	)
+}
+
+func randomChoice(items []string) string {
+	if len(items) == 0 {
+		return ""
+	}
+
+	return items[mathrand.IntN(len(items))]
+}
+
+var fortuneThemes = []string{
+	"выгодная находка",
+	"быстрая продажа",
+	"редкая вещь",
+	"удачная переписка",
+	"расхламление",
+	"новое увлечение",
+	"сезонная покупка",
+	"вещь для дома",
+	"неожиданная сделка",
+	"объявление, которое заметят",
+}
+
+var fortuneTones = []string{
+	"лёгкий и добрый",
+	"немного загадочный",
+	"с лёгким юмором",
+	"как короткий совет",
+	"как приятное предчувствие",
+	"теплый и спокойный",
+	"энергичный",
+	"ироничный, но позитивный",
+}
+
+var fortuneImages = []string{
+	"случайная находка в ленте",
+	"сообщение от подходящего покупателя",
+	"вещь, которую давно хотелось найти",
+	"объявление, которое вовремя попалось на глаза",
+	"удачное обновление старого объявления",
+	"маленькая покупка, которая радует весь год",
+	"коробка с вещами, которым пора найти нового владельца",
+	"новое хобби, начавшееся с простой покупки",
 }

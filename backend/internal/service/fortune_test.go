@@ -3,11 +3,13 @@ package service
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"testing"
 
 	"v1/internal/domain/entity"
 	"v1/internal/domain/fortune"
+	applog "v1/internal/logger"
 	"v1/internal/repository"
 )
 
@@ -27,6 +29,7 @@ func TestFortuneService_GetUserFortune(t *testing.T) {
 		name          string
 		generator     *fakeFortuneGenerator
 		wantText      string
+		wantFallback  bool
 		wantGenerated bool
 	}{
 		{
@@ -36,23 +39,23 @@ func TestFortuneService_GetUserFortune(t *testing.T) {
 			wantGenerated: true,
 		},
 		{
-			name:      "ai generator error uses fallback",
-			generator: &fakeFortuneGenerator{err: errors.New("ai unavailable")},
-			wantText:  fallbackFortune(910001, 2027),
+			name:         "ai generator error uses fallback",
+			generator:    &fakeFortuneGenerator{err: errors.New("ai unavailable")},
+			wantFallback: true,
 		},
 		{
-			name:      "ai generator empty text uses fallback",
-			generator: &fakeFortuneGenerator{text: "  "},
-			wantText:  fallbackFortune(910001, 2027),
+			name:         "ai generator empty text uses fallback",
+			generator:    &fakeFortuneGenerator{text: "  "},
+			wantFallback: true,
 		},
 		{
-			name:      "ai generator invalid text uses fallback",
-			generator: &fakeFortuneGenerator{text: "В следующем году ты заработаешь 1000 ₽."},
-			wantText:  fallbackFortune(910001, 2027),
+			name:         "ai generator invalid text uses fallback",
+			generator:    &fakeFortuneGenerator{text: "В следующем году ты заработаешь 1000 ₽."},
+			wantFallback: true,
 		},
 		{
-			name:     "nil generator uses fallback",
-			wantText: fallbackFortune(910001, 2027),
+			name:         "nil generator uses fallback",
+			wantFallback: true,
 		},
 	}
 
@@ -63,7 +66,7 @@ func TestFortuneService_GetUserFortune(t *testing.T) {
 				generator = tt.generator
 			}
 
-			svc := NewFortuneService(fakeUsers{user: testFortuneUser()}, generator, testLogger())
+			svc := NewFortuneService(fakeFortuneUsers{user: testFortuneUser()}, generator, testFortuneLogger())
 
 			got, err := svc.GetUserFortune(context.Background(), 910001, 2026)
 			if err != nil {
@@ -79,7 +82,11 @@ func TestFortuneService_GetUserFortune(t *testing.T) {
 			if got.Title != "Твоё предсказание на 2027" {
 				t.Fatalf("Title = %q, want year title", got.Title)
 			}
-			if got.Text != tt.wantText {
+			if tt.wantFallback {
+				if !isFallbackFortune(got.Text) {
+					t.Fatalf("Text = %q, want fallback fortune", got.Text)
+				}
+			} else if got.Text != tt.wantText {
 				t.Fatalf("Text = %q, want %q", got.Text, tt.wantText)
 			}
 			if got.Type != fortune.TypeFortune {
@@ -94,9 +101,9 @@ func TestFortuneService_GetUserFortune(t *testing.T) {
 
 func TestFortuneService_UserNotFound(t *testing.T) {
 	svc := NewFortuneService(
-		fakeUsers{err: repository.ErrUserNotFound},
+		fakeFortuneUsers{err: repository.ErrUserNotFound},
 		&fakeFortuneGenerator{text: "В следующем году на Avito тебя ждёт редкая находка."},
-		testLogger(),
+		testFortuneLogger(),
 	)
 
 	_, err := svc.GetUserFortune(context.Background(), 1, 2026)
@@ -123,6 +130,44 @@ func TestNormalizeFortuneText_BrandName(t *testing.T) {
 	if got != want {
 		t.Fatalf("normalizeFortuneText() = %q, want %q", got, want)
 	}
+}
+
+func isFallbackFortune(text string) bool {
+	for _, fallback := range fallbackFortunes {
+		if text == fallback {
+			return true
+		}
+	}
+
+	return false
+}
+
+func testFortuneLogger() *slog.Logger {
+	return applog.NewDiscard()
+}
+
+type fakeFortuneUsers struct {
+	user *entity.User
+	err  error
+}
+
+func (f fakeFortuneUsers) GetByID(ctx context.Context, id int64) (*entity.User, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	if f.user == nil || f.user.ID != id {
+		return nil, repository.ErrUserNotFound
+	}
+
+	return f.user, nil
+}
+
+func (f fakeFortuneUsers) ListProfiles(ctx context.Context) ([]entity.User, error) {
+	if f.user == nil {
+		return nil, nil
+	}
+
+	return []entity.User{*f.user}, nil
 }
 
 func testFortuneUser() *entity.User {

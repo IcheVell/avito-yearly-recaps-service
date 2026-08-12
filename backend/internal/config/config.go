@@ -9,20 +9,20 @@ import (
 )
 
 type Config struct {
-	Host                       string
-	Port                       string
-	User                       string
-	Password                   string
-	Name                       string
-	SSLMode                    string
-	RecapYear                  int
-	GigaChatAuthKey            string
-	GigaChatScope              string
-	GigaChatModel              string
-	GigaChatAPIURL             string
-	GigaChatAuthURL            string
-	GigaChatInsecureSkipVerify bool
-	AITimeoutMS                int
+	Host                 string
+	Port                 string
+	User                 string
+	Password             string
+	Name                 string
+	SSLMode              string
+	RecapYear            int
+	AIAPIKey             string
+	AIScope              string
+	AIModel              string
+	AIAPIURL             string
+	AIAuthURL            string
+	AIInsecureSkipVerify bool
+	AITimeoutMS          int
 }
 
 func (c Config) DSN() string {
@@ -41,17 +41,17 @@ func NewConfig() (Config, error) {
 	LoadEnv()
 
 	cfg := Config{
-		Host:            os.Getenv("DB_HOST"),
-		Port:            os.Getenv("DB_PORT"),
-		User:            os.Getenv("DB_USER"),
-		Password:        os.Getenv("DB_PASSWORD"),
-		Name:            os.Getenv("DB_NAME"),
-		SSLMode:         os.Getenv("DB_SSLMODE"),
-		GigaChatAuthKey: os.Getenv("GIGACHAT_AUTH_KEY"),
-		GigaChatScope:   os.Getenv("GIGACHAT_SCOPE"),
-		GigaChatModel:   os.Getenv("GIGACHAT_MODEL"),
-		GigaChatAPIURL:  os.Getenv("GIGACHAT_API_URL"),
-		GigaChatAuthURL: os.Getenv("GIGACHAT_AUTH_URL"),
+		Host:      os.Getenv("DB_HOST"),
+		Port:      os.Getenv("DB_PORT"),
+		User:      os.Getenv("DB_USER"),
+		Password:  os.Getenv("DB_PASSWORD"),
+		Name:      os.Getenv("DB_NAME"),
+		SSLMode:   os.Getenv("DB_SSLMODE"),
+		AIAPIKey:  os.Getenv("AI_API_KEY"),
+		AIScope:   os.Getenv("AI_SCOPE"),
+		AIModel:   os.Getenv("AI_MODEL"),
+		AIAPIURL:  os.Getenv("AI_API_URL"),
+		AIAuthURL: os.Getenv("AI_AUTH_URL"),
 	}
 
 	if cfg.Host == "" {
@@ -90,11 +90,11 @@ func NewConfig() (Config, error) {
 	}
 	cfg.AITimeoutMS = aiTimeoutMS
 
-	gigaChatInsecureSkipVerify, err := optionalBool("GIGACHAT_INSECURE_SKIP_VERIFY")
+	aiInsecureSkipVerify, err := optionalBool("AI_INSECURE_SKIP_VERIFY")
 	if err != nil {
 		return Config{}, err
 	}
-	cfg.GigaChatInsecureSkipVerify = gigaChatInsecureSkipVerify
+	cfg.AIInsecureSkipVerify = aiInsecureSkipVerify
 
 	return cfg, nil
 }

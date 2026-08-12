@@ -95,19 +95,19 @@ func Run(ctx context.Context) error {
 }
 
 func newFortuneGenerator(cfg config.Config) service.FortuneGenerator {
-	if cfg.GigaChatAuthKey == "" {
+	if cfg.AIAPIKey == "" {
 		return nil
 	}
 
 	timeout := time.Duration(cfg.AITimeoutMS) * time.Millisecond
 
-	return ai.NewGigaChatFortuneGenerator(ai.GigaChatConfig{
-		AuthKey:            cfg.GigaChatAuthKey,
-		Scope:              cfg.GigaChatScope,
-		Model:              cfg.GigaChatModel,
-		APIURL:             cfg.GigaChatAPIURL,
-		AuthURL:            cfg.GigaChatAuthURL,
+	return ai.NewFortuneGenerator(ai.Config{
+		APIKey:             cfg.AIAPIKey,
+		Scope:              cfg.AIScope,
+		Model:              cfg.AIModel,
+		APIURL:             cfg.AIAPIURL,
+		AuthURL:            cfg.AIAuthURL,
 		Timeout:            timeout,
-		InsecureSkipVerify: cfg.GigaChatInsecureSkipVerify,
+		InsecureSkipVerify: cfg.AIInsecureSkipVerify,
 	})
 }

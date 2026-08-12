@@ -60,11 +60,22 @@ func TestGigaChatFortuneGenerator_Generate(t *testing.T) {
 		if request.Model != "GigaChat-2" {
 			t.Fatalf("model = %q, want GigaChat-2", request.Model)
 		}
+		if request.Temperature != 1.0 {
+			t.Fatalf("temperature = %v, want 1.0", request.Temperature)
+		}
+		if request.TopP != 0.95 {
+			t.Fatalf("topP = %v, want 0.95", request.TopP)
+		}
 		if len(request.Messages) != 2 {
 			t.Fatalf("messages len = %d, want 2", len(request.Messages))
 		}
 		if !strings.Contains(request.Messages[1].Content, "2027") {
 			t.Fatalf("user prompt = %q, want year", request.Messages[1].Content)
+		}
+		for _, want := range []string{"Тема:", "Тон:", "Образ:"} {
+			if !strings.Contains(request.Messages[1].Content, want) {
+				t.Fatalf("user prompt = %q, want %q", request.Messages[1].Content, want)
+			}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
