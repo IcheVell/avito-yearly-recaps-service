@@ -47,6 +47,44 @@
     box-shadow 420ms ease;
 }
 
+.card > .cardEffect {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.snowEffect span {
+  position: absolute;
+  top: -12%;
+  left: var(--snow-left);
+
+  color: rgb(255 255 255 / var(--snow-opacity));
+  font-size: var(--snow-size);
+  line-height: 1;
+  text-shadow: 0 0 8px rgb(255 255 255 / 72%);
+
+  animation: snowFall var(--snow-duration) linear var(--snow-delay) infinite;
+  will-change: transform;
+}
+
+.cardInactive .snowEffect span {
+  animation-play-state: paused;
+}
+
+@keyframes snowFall {
+  from {
+    transform: translate3d(0, -40px, 0) rotate(0deg);
+  }
+
+  to {
+    transform: translate3d(var(--snow-drift), 720px, 0) rotate(360deg);
+  }
+}
+
 .cardActive {
   z-index: 2;
 
@@ -662,5 +700,9 @@
   .cardActive {
     animation: none;
     transition: none;
+  }
+
+  .snowEffect {
+    display: none;
   }
 }
