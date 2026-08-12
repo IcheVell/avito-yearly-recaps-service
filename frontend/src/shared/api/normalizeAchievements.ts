@@ -6,15 +6,12 @@ import type {
   EarnedAchievement,
 } from '../../entities/achievement/types';
 
-type UnknownRecord = Record<string, unknown>;
-
-function isRecord(value: unknown): value is UnknownRecord {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function readString(record: UnknownRecord, key: string): string | null {
-  return typeof record[key] === 'string' ? record[key] : null;
-}
+import {
+  isRecord,
+  parseArray,
+  readString,
+  type UnknownRecord,
+} from './runtimeDto';
 
 function readImageUrl(record: UnknownRecord): string | null {
   const imageUrl = record.imageUrl;
@@ -109,15 +106,6 @@ function parseProgress(value: unknown): AchievementProgress | null {
     condition: parseCondition(value.condition),
     children,
   };
-}
-
-function parseArray<T>(
-  value: unknown,
-  parser: (item: unknown) => T | null,
-): T[] {
-  return Array.isArray(value)
-    ? value.map(parser).filter((item): item is T => item !== null)
-    : [];
 }
 
 export function normalizeAchievementsResponse(

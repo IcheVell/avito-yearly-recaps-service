@@ -11,6 +11,9 @@ import type { MockAchievementsResponseDto } from '../../../src/mocks/mockAchieve
 import { achievementsApi } from '../../../src/shared/api/achievementsApi';
 import { baseApi } from '../../../src/shared/api/baseApi';
 import { normalizeAchievementsResponse } from '../../../src/shared/api/normalizeAchievements';
+import { profilesApi } from '../../../src/shared/api/profilesApi';
+import { recapApi } from '../../../src/shared/api/recapApi';
+import { statsApi } from '../../../src/shared/api/statsApi';
 
 function readData<T>(result: ReturnType<typeof resolveMockRequest>): T {
   if ('error' in result && result.error) {
@@ -21,20 +24,28 @@ function readData<T>(result: ReturnType<typeof resolveMockRequest>): T {
 }
 
 describe('mockBaseQuery contract', () => {
-  it('runs through RTK Query and applies the same API-boundary transform', async () => {
+  it('runs all responses through RTK Query API-boundary transforms', async () => {
     const store = configureStore({
       reducer: { [baseApi.reducerPath]: baseApi.reducer },
       middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(baseApi.middleware),
     });
 
-    const result = await store.dispatch(
-      achievementsApi.endpoints.getAchievements.initiate(1),
-    );
+    const [profiles, stats, achievements, recap] = await Promise.all([
+      store.dispatch(profilesApi.endpoints.getProfiles.initiate()),
+      store.dispatch(statsApi.endpoints.getStats.initiate(1)),
+      store.dispatch(achievementsApi.endpoints.getAchievements.initiate(1)),
+      store.dispatch(recapApi.endpoints.getRecap.initiate(1)),
+    ]);
 
-    expect(result.data?.achievementsProgress).toHaveLength(7);
-    expect(result.data?.achievementsProgress[0]).toHaveProperty('isComplete');
-    expect(result.data).not.toHaveProperty('achievements_progress');
+    expect(profiles.data?.items).toHaveLength(9);
+    expect(stats.data).toMatchObject({ userId: 1, viewsCount: 467 });
+    expect(achievements.data?.achievementsProgress).toHaveLength(7);
+    expect(achievements.data?.achievementsProgress[0]).toHaveProperty(
+      'isComplete',
+    );
+    expect(achievements.data).not.toHaveProperty('achievements_progress');
+    expect(recap.data?.action.target.listings[0]).toHaveProperty('price', null);
     store.dispatch(baseApi.util.resetApiState());
   });
 

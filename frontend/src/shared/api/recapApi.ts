@@ -1,6 +1,7 @@
 import type { GenerateRecapRequest, Recap } from '../../entities/recap/types';
 
 import { baseApi } from './baseApi';
+import { normalizeRecapResponse } from './normalizeRecap';
 
 export const recapApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -10,6 +11,7 @@ export const recapApi = baseApi.injectEndpoints({
         method: 'POST',
         body: request,
       }),
+      transformResponse: normalizeRecapResponse,
       invalidatesTags: (_result, error, { userId }) =>
         error
           ? []
@@ -21,6 +23,7 @@ export const recapApi = baseApi.injectEndpoints({
 
     getRecap: builder.query<Recap, number>({
       query: (userId) => `/users/${userId}/recap`,
+      transformResponse: normalizeRecapResponse,
       providesTags: (_result, _error, userId) => [
         { type: 'Recap', id: userId },
       ],
