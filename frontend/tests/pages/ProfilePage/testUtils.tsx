@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 
 import type { AchievementsResponse } from '../../../src/entities/achievement/types';
 import type { ProfilesResponse } from '../../../src/entities/profile/types';
+import type { Recap } from '../../../src/entities/recap/types';
 import type { YearMetrics } from '../../../src/entities/stats/types';
 import { ProfilePage } from '../../../src/pages/ProfilePage/ProfilePage';
 import { baseApi } from '../../../src/shared/api/baseApi';
@@ -70,7 +71,32 @@ export function createAchievements(
       },
     ],
     locked: [],
-    achievements_progress: [],
+    achievementsProgress: [],
+  };
+}
+
+export function createRecap(userId: number): Recap {
+  return {
+    id: userId,
+    userId,
+    year: profiles.currentYear,
+    createdAt: '2026-01-10T12:00:00Z',
+    role: {
+      code: 'seller',
+      name: `Роль профиля ${userId}`,
+      title: 'Продавец года',
+      subtitle: 'Ты отлично продавал',
+      why: 'Много успешных объявлений',
+      activitySharePercent: 67,
+    },
+    metrics: [],
+    achievements: [],
+    action: {
+      type: 'create_listing',
+      label: 'Создать объявление',
+      reason: 'Продолжить продажи',
+      target: { listingIds: [], categoryId: 0, listings: [] },
+    },
   };
 }
 

@@ -6,6 +6,7 @@ import {
   createAchievements,
   createDeferredResponse,
   createJsonResponse,
+  createRecap,
   createStats,
   getPath,
   getRequest,
@@ -248,5 +249,100 @@ describe('смена профиля', () => {
       expect(screen.getByText('Актуальные данные')).toBeInTheDocument();
       expect(screen.queryByText('Запоздавшие данные')).not.toBeInTheDocument();
     });
+  });
+
+  it('не открывает запоздавший recap прошлого профиля', async () => {
+    const alphaRecap = createDeferredResponse();
+    let recapRequested = false;
+    const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const path = getPath(getRequest(input));
+
+      if (path === '/api/profiles') {
+        return Promise.resolve(createJsonResponse(profiles));
+      }
+      if (path === '/api/users/1/stats') {
+        return Promise.resolve(
+          createJsonResponse(createStats(1, 'Объявление Альфы')),
+        );
+      }
+      if (path === '/api/users/2/stats') {
+        return Promise.resolve(
+          createJsonResponse(createStats(2, 'Объявление Беты')),
+        );
+      }
+      if (path === '/api/users/1/recap') {
+        recapRequested = true;
+        return alphaRecap.promise;
+      }
+
+      throw new Error(`Неожиданный запрос: ${path}`);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const user = userEvent.setup();
+    renderProfilePage();
+
+    await screen.findByText('Объявление Альфы');
+    await user.click(
+      screen.getByRole('button', { name: /посмотреть итоги года/i }),
+    );
+    await waitFor(() => expect(recapRequested).toBe(true));
+
+    await user.click(screen.getByRole('button', { name: 'Бета' }));
+    await screen.findByText('Объявление Беты');
+
+    await act(async () => {
+      alphaRecap.resolve(createJsonResponse(createRecap(1)));
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
+
+  it('обновляет достижения после успешной генерации recap', async () => {
+    let achievementsAttempts = 0;
+    const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL) => {
+      const request = getRequest(input);
+      const path = getPath(request);
+
+      if (path === '/api/profiles') {
+        return Promise.resolve(createJsonResponse(profiles));
+      }
+      if (path === '/api/users/1/stats') {
+        return Promise.resolve(
+          createJsonResponse(createStats(1, 'Объявление Альфы')),
+        );
+      }
+      if (path === '/api/users/1/achievements') {
+        achievementsAttempts += 1;
+        return Promise.resolve(
+          createJsonResponse(
+            createAchievements(1, `Достижения, запрос ${achievementsAttempts}`),
+          ),
+        );
+      }
+      if (path === '/api/recaps/generate' && request.method === 'POST') {
+        return Promise.resolve(createJsonResponse(createRecap(1), 201));
+      }
+
+      throw new Error(`Неожиданный запрос: ${path}`);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const user = userEvent.setup();
+    renderProfilePage();
+
+    await screen.findByText('Объявление Альфы');
+    await user.click(screen.getByRole('tab', { name: 'Достижения' }));
+    await screen.findByText('Достижения, запрос 1');
+
+    await user.click(
+      screen.getByRole('button', {
+        name: /сгенерировать итоги за 2025 год/i,
+      }),
+    );
+
+    await waitFor(() => expect(achievementsAttempts).toBe(2));
   });
 });

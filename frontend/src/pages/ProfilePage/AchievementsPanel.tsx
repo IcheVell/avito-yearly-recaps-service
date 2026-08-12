@@ -188,7 +188,7 @@ export function AchievementsPanel({
   }
 
   const progressByCode = new Map(
-    achievements.achievements_progress.map((progress) => [
+    achievements.achievementsProgress.map((progress) => [
       progress.code,
       progress,
     ]),

@@ -19,7 +19,7 @@ export type AchievementProgressCondition = {
 export type AchievementProgress = {
   code: string;
   type: 'condition' | 'all' | 'any';
-  is_complete: boolean;
+  isComplete: boolean;
   progress: number;
   condition?: AchievementProgressCondition;
   children?: AchievementProgress[];
@@ -28,5 +28,5 @@ export type AchievementProgress = {
 export type AchievementsResponse = {
   earned: EarnedAchievement[];
   locked: Achievement[];
-  achievements_progress: AchievementProgress[];
+  achievementsProgress: AchievementProgress[];
 };

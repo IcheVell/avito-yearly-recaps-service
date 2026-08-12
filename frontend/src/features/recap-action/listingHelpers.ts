@@ -1,14 +1,14 @@
 import type { ActionListingPreview } from '../../entities/recap/types';
 
 export function resolveActionListings(
-  listingIds: number[] | undefined,
-  listings: ActionListingPreview[] | undefined,
+  listingIds: number[],
+  listings: ActionListingPreview[],
 ): ActionListingPreview[] {
-  if (listings && listings.length > 0) {
+  if (listings.length > 0) {
     return listings;
   }
 
-  return (listingIds ?? []).map((id) => ({ id }));
+  return listingIds.map((id) => ({ id }));
 }
 
 export function formatListingPrice(price: number | null | undefined): string {

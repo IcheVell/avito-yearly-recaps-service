@@ -4,7 +4,6 @@ import { RecapActionModal } from '../../features/recap-action/RecapActionModal';
 import { createCardVariants } from '../../entities/recap/createCardVariants';
 import type { Recap, RecapAction } from '../../entities/recap/types';
 
-import { handleRecapAction } from './model/handleRecapAction';
 import { createRecapSlides } from './model/recapSlides';
 import { useRecapCarousel } from './model/useRecapCarousel';
 import { RecapControls } from './RecapControls';
@@ -78,10 +77,7 @@ export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
   }, [activeAction, goToNextSlide, goToPreviousSlide, onClose]);
 
   function onAction(action: RecapAction) {
-    const result = handleRecapAction(action);
-    if (result.kind === 'modal') {
-      setActiveAction(result.action);
-    }
+    setActiveAction(action);
   }
 
   return (

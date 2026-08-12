@@ -51,20 +51,9 @@ export const mockRecap: Recap = {
     },
   ],
 
-  achievements: [
-    {
-      code: 'shortlist_hoarder',
-      name: 'Коллекционер',
-      description: 'Много в избранном',
-      imageUrl: '/mock-achievements/shortlist_boarder.png',
-    },
-    {
-      code: 'diplomat',
-      name: 'Дипломат',
-      description: 'Много собеседников',
-      imageUrl: '/mock-achievements/diplomat.png',
-    },
-  ],
+  achievements: mockAchievementCatalog.filter(({ code }) =>
+    ['shortlist_boarder', 'diplomat'].includes(code),
+  ),
 
   action: {
     type: 'boost_listings',
@@ -77,6 +66,7 @@ export const mockRecap: Recap = {
         {
           id: 11,
           name: 'iPhone 12 128GB',
+          price: null,
           status: 'active',
           categoryId: 3,
           categoryName: 'Электроника',
@@ -142,27 +132,16 @@ const buyerMockRecap: Recap = {
     },
   ],
 
-  achievements: [
-    {
-      code: 'wallet_whisperer',
-      name: 'Шепот кошелька',
-      description: 'Много потратил как покупатель',
-      imageUrl: '/mock-achievements/wallet_whisperer.png',
-    },
-    {
-      code: 'trust_badge',
-      name: 'Знак доверия',
-      description: 'Высокий рейтинг',
-      imageUrl: '/mock-achievements/trust_badge.png',
-    },
-  ],
+  achievements: mockAchievementCatalog.filter(({ code }) =>
+    ['wallet_whisperer', 'trust_badge'].includes(code),
+  ),
 
   action: {
     type: 'open_favorites',
     label: 'Вернуться к сохранённым',
     reason:
       'У тебя есть избранные объявления, к которым ты давно не возвращался.',
-    target: {},
+    target: { listingIds: [], categoryId: 0, listings: [] },
   },
 
   debug: {
@@ -230,27 +209,16 @@ const watcherMockRecap: Recap = {
     },
   ],
 
-  achievements: [
-    {
-      code: 'streak_survivor',
-      name: 'Несгибаемый',
-      description: 'Длинная серия заходов',
-      imageUrl: '/mock-achievements/streak_survivor.png',
-    },
-    {
-      code: 'plot_twist',
-      name: 'Неожиданный поворот',
-      description: 'Вернулся после паузы',
-      imageUrl: '/mock-achievements/plot_twist.png',
-    },
-  ],
+  achievements: mockAchievementCatalog.filter(({ code }) =>
+    ['streak_survivor', 'plot_twist'].includes(code),
+  ),
 
   action: {
     type: 'continue_search',
     label: 'Продолжить поиск',
     reason:
       'Ты активно смотрел и искал — осталось сузить выбор и найти подходящий вариант.',
-    target: {},
+    target: { listingIds: [], categoryId: 0, listings: [] },
   },
 
   debug: {
@@ -311,7 +279,7 @@ const sellerCreatorMockRecap: Recap = {
     type: 'create_listing',
     label: 'Разместить новое',
     reason: 'У тебя уже были успешные продажи — самое время продолжить.',
-    target: {},
+    target: { listingIds: [], categoryId: 0, listings: [] },
   },
   debug: {
     generatorVersion: 'v1',
@@ -356,7 +324,7 @@ const buyerExplorerMockRecap: Recap = {
     },
   ],
   achievements: selectAchievements(
-    'shortlist_hoarder',
+    'shortlist_boarder',
     'wallet_whisperer',
     'plot_twist',
   ),
@@ -371,6 +339,7 @@ const buyerExplorerMockRecap: Recap = {
         {
           id: 205,
           name: 'MacBook Air M1',
+          price: null,
           categoryId: 1,
           categoryName: 'Электроника',
           viewsCount: 12,
@@ -422,7 +391,7 @@ const watcherCollectorMockRecap: Recap = {
   ],
   achievements: selectAchievements(
     'streak_survivor',
-    'shortlist_hoarder',
+    'shortlist_boarder',
     'diplomat',
   ),
   action: {
@@ -436,6 +405,7 @@ const watcherCollectorMockRecap: Recap = {
         {
           id: 301,
           name: 'Велосипед Author',
+          price: null,
           categoryId: 1,
           categoryName: 'Хобби',
           viewsCount: 18,
@@ -443,6 +413,7 @@ const watcherCollectorMockRecap: Recap = {
         {
           id: 302,
           name: 'Велосипед Stern',
+          price: null,
           categoryId: 1,
           categoryName: 'Хобби',
           viewsCount: 14,
@@ -450,6 +421,7 @@ const watcherCollectorMockRecap: Recap = {
         {
           id: 303,
           name: 'Велосипед Stels',
+          price: null,
           categoryId: 1,
           categoryName: 'Хобби',
           viewsCount: 11,
@@ -502,7 +474,7 @@ const sellerVeteranMockRecap: Recap = {
   achievements: selectAchievements(
     'streak_survivor',
     'two_faced_market',
-    'shortlist_hoarder',
+    'shortlist_boarder',
   ),
   action: {
     type: 'boost_listings',
@@ -515,6 +487,7 @@ const sellerVeteranMockRecap: Recap = {
         {
           id: 401,
           name: 'Диван угловой',
+          price: null,
           status: 'active',
           viewsCount: 2,
           updatedAt: '2025-10-12T09:00:00Z',
@@ -523,6 +496,7 @@ const sellerVeteranMockRecap: Recap = {
         {
           id: 402,
           name: 'Стол письменный',
+          price: null,
           status: 'active',
           viewsCount: 4,
           updatedAt: '2025-10-20T11:00:00Z',
@@ -580,7 +554,7 @@ const buyerBalancedMockRecap: Recap = {
     type: 'open_favorites',
     label: 'Вернуться к сохранённым',
     reason: 'В избранном остались варианты, которые стоит проверить.',
-    target: { categoryId: 2 },
+    target: { listingIds: [], categoryId: 2, listings: [] },
   },
   debug: {
     generatorVersion: 'v1',
@@ -630,7 +604,7 @@ const watcherReturningMockRecap: Recap = {
     label: 'Продолжить поиск',
     reason:
       'Новые объявления уже появились — можно продолжить с лучшего места.',
-    target: { categoryId: 4 },
+    target: { listingIds: [], categoryId: 4, listings: [] },
   },
   debug: {
     generatorVersion: 'v1',

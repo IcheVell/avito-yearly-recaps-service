@@ -10,7 +10,7 @@ describe('AchievementsPanel', () => {
         achievements={{
           earned: [],
           locked: [],
-          achievements_progress: [],
+          achievementsProgress: [],
         }}
         isLoading={false}
         errorMessage={null}
@@ -39,7 +39,7 @@ describe('AchievementsPanel', () => {
               imageUrl: null,
             },
           ],
-          achievements_progress: [],
+          achievementsProgress: [],
         }}
         isLoading={false}
         errorMessage={null}
@@ -75,18 +75,18 @@ describe('AchievementsPanel', () => {
               imageUrl: null,
             },
           ],
-          achievements_progress: [
+          achievementsProgress: [
             {
               code: 'second',
               type: 'all',
-              is_complete: false,
+              isComplete: false,
               progress: 64.4,
               children: [],
             },
             {
               code: 'first',
               type: 'condition',
-              is_complete: false,
+              isComplete: false,
               progress: 25,
               condition: {
                 metric: 'favorites_count',

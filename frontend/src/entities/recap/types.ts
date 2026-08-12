@@ -19,11 +19,6 @@ export type RecapMetric = {
   payload: MetricPayload;
 };
 
-type RecapActionBase = {
-  label: string;
-  reason: string;
-};
-
 export type ActionListingPreview = {
   id: number;
   name?: string | null;
@@ -37,58 +32,41 @@ export type ActionListingPreview = {
   updatedAt?: string | null;
 };
 
+export type RecapActionTarget = {
+  listingIds: number[];
+  categoryId: number;
+  categoryName?: string;
+  listings: ActionListingPreview[];
+};
+
+type RecapActionBase = {
+  label: string;
+  reason: string;
+  target: RecapActionTarget;
+};
+
 export type BoostListingsAction = RecapActionBase & {
   type: 'boost_listings';
-  target: {
-    listingIds: number[];
-    categoryId?: number;
-    categoryName?: string;
-    listings?: ActionListingPreview[];
-  };
 };
 
 export type CreateListingAction = RecapActionBase & {
   type: 'create_listing';
-  target: Record<string, never>;
 };
 
 export type ListingAbandonedAction = RecapActionBase & {
   type: 'listing_abandoned';
-  target: {
-    listingIds: number[];
-    categoryId: number;
-    categoryName?: string;
-    listings?: ActionListingPreview[];
-  };
 };
 
 export type CompareTopAction = RecapActionBase & {
   type: 'compare_top';
-  target: {
-    listingIds: number[];
-    categoryId: number;
-    categoryName?: string;
-    listings?: ActionListingPreview[];
-  };
 };
 
 export type OpenFavoritesAction = RecapActionBase & {
   type: 'open_favorites';
-  target: {
-    listingIds?: number[];
-    categoryId?: number;
-    categoryName?: string;
-    listings?: ActionListingPreview[];
-  };
 };
 
 export type ContinueSearchAction = RecapActionBase & {
   type: 'continue_search';
-  target: {
-    listingIds?: number[];
-    categoryId?: number;
-    categoryName?: string;
-  };
 };
 
 export type RecapAction =
