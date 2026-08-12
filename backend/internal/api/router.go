@@ -16,6 +16,7 @@ type Dependencies struct {
 	Recaps       handlers.RecapService
 	Achievements handlers.AchievementProvider
 	Stats        handlers.StatsProvider
+	Fortunes     handlers.FortuneProvider
 	CurrentYear  int
 	Logger       *slog.Logger
 }
@@ -29,6 +30,7 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	profilesHandler := handlers.NewProfilesHandler(deps.Profiles, deps.CurrentYear, logger)
 	recapsHandler := handlers.NewRecapsHandler(deps.Recaps, deps.Achievements, deps.Stats, deps.CurrentYear, logger)
+	fortunesHandler := handlers.NewFortunesHandler(deps.Fortunes, deps.CurrentYear, logger)
 	healthHandler := handlers.NewHealthHandler()
 
 	r := chi.NewRouter()
@@ -47,6 +49,7 @@ func NewRouter(deps Dependencies) http.Handler {
 		r.Get("/users/{userId}/recap", recapsHandler.GetUserRecap)
 		r.Get("/users/{userId}/achievements", recapsHandler.ListAchievements)
 		r.Get("/users/{userId}/stats", recapsHandler.GetStats)
+		r.Get("/users/{userId}/prediction", fortunesHandler.GetUserPrediction)
 	})
 
 	return r

@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"v1/internal/ai"
 	"v1/internal/api"
 	"v1/internal/config"
 	applog "v1/internal/logger"
@@ -72,12 +73,14 @@ func Run(ctx context.Context) error {
 
 	achievementsService := service.NewAchievementService(achievementsRepo, userRepo, userStatsRepo, logger)
 	recapService := service.NewRecapService(userRepo, metricsRepo, recapRepo, achievementsService, logger)
+	fortuneService := service.NewFortuneService(userRepo, newFortuneGenerator(cfg), logger)
 
 	handler := api.NewRouter(api.Dependencies{
 		Profiles:     userRepo,
 		Recaps:       recapService,
 		Achievements: achievementsService,
 		Stats:        recapService,
+		Fortunes:     fortuneService,
 		CurrentYear:  cfg.RecapYear,
 		Logger:       logger,
 	})
@@ -89,4 +92,22 @@ func Run(ctx context.Context) error {
 	appLogger.Info("application stopped", "operation", "shutdown_application")
 
 	return nil
+}
+
+func newFortuneGenerator(cfg config.Config) service.FortuneGenerator {
+	if cfg.AIAPIKey == "" {
+		return nil
+	}
+
+	timeout := time.Duration(cfg.AITimeoutMS) * time.Millisecond
+
+	return ai.NewFortuneGenerator(ai.Config{
+		APIKey:             cfg.AIAPIKey,
+		Scope:              cfg.AIScope,
+		Model:              cfg.AIModel,
+		APIURL:             cfg.AIAPIURL,
+		AuthURL:            cfg.AIAuthURL,
+		Timeout:            timeout,
+		InsecureSkipVerify: cfg.AIInsecureSkipVerify,
+	})
 }
