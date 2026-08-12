@@ -54,10 +54,10 @@ type RecapActionResponse struct {
 }
 
 type RecapActionTargetResponse struct {
-	ListingIDs []int64                      `json:"listingIds"`
-	CategoryID int64                        `json:"categoryId"`
-	CategoryName string                     `json:"categoryName,omitempty"`
-	Listings   []RecapActionListingResponse `json:"listings"`
+	ListingIDs   []int64                      `json:"listingIds"`
+	CategoryID   int64                        `json:"categoryId"`
+	CategoryName string                       `json:"categoryName,omitempty"`
+	Listings     []RecapActionListingResponse `json:"listings"`
 }
 
 type RecapActionListingResponse struct {
@@ -99,10 +99,10 @@ func NewRecapResponse(story recap.Recap) RecapResponse {
 			Label:  story.Action.Label,
 			Reason: story.Action.Reason,
 			Target: RecapActionTargetResponse{
-				ListingIDs: emptyInt64SliceIfNil(story.Action.Target.ListingIDs),
-				CategoryID: story.Action.Target.CategoryID,
+				ListingIDs:   emptyInt64SliceIfNil(story.Action.Target.ListingIDs),
+				CategoryID:   story.Action.Target.CategoryID,
 				CategoryName: story.Action.Target.CategoryName,
-				Listings:   newRecapActionListingResponses(story.Action.Target.Listings),
+				Listings:     newRecapActionListingResponses(story.Action.Target.Listings),
 			},
 		},
 		Debug: RecapDebugResponse{

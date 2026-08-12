@@ -46,10 +46,10 @@ type RecapAction struct {
 }
 
 type RecapActionTarget struct {
-	ListingIDs []int64
-	CategoryID int64
+	ListingIDs   []int64
+	CategoryID   int64
 	CategoryName string
-	Listings   []RecapActionListing
+	Listings     []RecapActionListing
 }
 
 type RecapActionListing struct {

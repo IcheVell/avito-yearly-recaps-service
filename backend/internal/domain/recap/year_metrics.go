@@ -102,14 +102,14 @@ type YearMetricsListingCount struct {
 }
 
 type YearMetricsOwnListing struct {
-	ID            int64 // ListingID
-	Name          string
-	ImageURL      string
-	Price         *int64
-	City          string
-	CategoryID    int64
-	CategoryName  string
-	Status        string
-	UpdatedAt     time.Time
-	ViewsCount    int
+	ID           int64 // ListingID
+	Name         string
+	ImageURL     string
+	Price        *int64
+	City         string
+	CategoryID   int64
+	CategoryName string
+	Status       string
+	UpdatedAt    time.Time
+	ViewsCount   int
 }

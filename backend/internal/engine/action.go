@@ -20,9 +20,9 @@ const (
 	createListing    = "create_listing"
 	compareTop       = "compare_top"
 
-	minAbandonedViews   = 15
-	staleDays           = 14
-	minSellsForCreate   = 5
+	minAbandonedViews = 15
+	staleDays         = 14
+	minSellsForCreate = 5
 
 	scoreWeightBoostListing    = 10 // за каждое stale own listing
 	scoreWeightCreateListing   = 8  // за каждую продажу
@@ -51,18 +51,18 @@ func ResolveAction(metrics recap.YearMetrics) (recap.RecapAction, error) {
 		Label:  copyStat.Label,
 		Reason: copyStat.Reason,
 		Target: recap.RecapActionTarget{
-			ListingIDs: selected.ListingIDs,
-			CategoryID: selected.CategoryID,
+			ListingIDs:   selected.ListingIDs,
+			CategoryID:   selected.CategoryID,
 			CategoryName: selected.CategoryName,
-			Listings:   buildActionListings(metrics, selected),
+			Listings:     buildActionListings(metrics, selected),
 		},
 	}, nil
 }
 
 type selectedAction struct {
-	Type       string
-	ListingIDs []int64
-	CategoryID int64
+	Type         string
+	ListingIDs   []int64
+	CategoryID   int64
 	CategoryName string
 }
 
@@ -252,9 +252,9 @@ func buildTarget(actionType string, metrics recap.YearMetrics) selectedAction {
 	case listingAbandoned:
 		if listingID, categoryID, ok := findAbandonedListing(metrics); ok {
 			return selectedAction{
-				Type:       listingAbandoned,
-				ListingIDs: []int64{listingID},
-				CategoryID: categoryID,
+				Type:         listingAbandoned,
+				ListingIDs:   []int64{listingID},
+				CategoryID:   categoryID,
 				CategoryName: resolveCategoryName(categoryID),
 			}
 		}
@@ -262,18 +262,18 @@ func buildTarget(actionType string, metrics recap.YearMetrics) selectedAction {
 	case compareTop:
 		if categoryID, listingIDs, ok := findCompareTopTargets(metrics); ok {
 			return selectedAction{
-				Type:       compareTop,
-				CategoryID: categoryID,
+				Type:         compareTop,
+				CategoryID:   categoryID,
 				CategoryName: resolveCategoryName(categoryID),
-				ListingIDs: listingIDs,
+				ListingIDs:   listingIDs,
 			}
 		}
 
 	case openFavorites:
 		if categoryID, ok := findOpenFavoritesCategory(metrics); ok {
 			return selectedAction{
-				Type:       openFavorites,
-				CategoryID: categoryID,
+				Type:         openFavorites,
+				CategoryID:   categoryID,
 				CategoryName: resolveCategoryName(categoryID),
 			}
 		}
@@ -284,16 +284,16 @@ func buildTarget(actionType string, metrics recap.YearMetrics) selectedAction {
 	case continueSearch:
 		categoryID := findContinueSearchCategory(metrics)
 		return selectedAction{
-			Type:       continueSearch,
-			CategoryID: categoryID,
+			Type:         continueSearch,
+			CategoryID:   categoryID,
 			CategoryName: resolveCategoryName(categoryID),
 		}
 	}
 
 	fallbackCategoryID := findContinueSearchCategory(metrics)
 	return selectedAction{
-		Type:       continueSearch,
-		CategoryID: fallbackCategoryID,
+		Type:         continueSearch,
+		CategoryID:   fallbackCategoryID,
 		CategoryName: resolveCategoryName(fallbackCategoryID),
 	}
 }
