@@ -65,6 +65,7 @@ Backend агрегирует данные пользователя за выбр
 - хранение готового recap в PostgreSQL;
 - получение статистики пользователя через API;
 - проверка правил получения ачивок и их выдача на основе накопленной статистики;
+- предсказание на следующий год;
 - frontend-интерфейс для просмотра итоговых карточек;
 - запуск всего проекта через Docker Compose.
 
@@ -306,6 +307,13 @@ DB_PASSWORD=postgres
 DB_NAME=yearly_recaps
 DB_SSLMODE=disable
 RECAP_YEAR=2026
+GIGACHAT_AUTH_KEY=
+GIGACHAT_SCOPE=GIGACHAT_API_PERS
+GIGACHAT_MODEL=GigaChat-2
+GIGACHAT_API_URL=https://api.giga.chat
+GIGACHAT_AUTH_URL=https://ngw.devices.sberbank.ru:9443/api/v2/oauth
+AI_TIMEOUT_MS=8000
+GIGACHAT_INSECURE_SKIP_VERIFY=false
 LOG_LEVEL=info
 LOG_FORMAT=json
 LOG_ADD_SOURCE=false
@@ -324,6 +332,7 @@ SERVICE_NAME=avito-yearly-recaps-backend
 | `GET`  | `/api/users/{userId}/recap`        | Получение готового recap                     |
 | `GET`  | `/api/users/{userId}/achievements` | Получение ачивок пользователя                |
 | `GET`  | `/api/users/{userId}/stats`        | Агрегированная статистика за активный год    |
+| `GET`  | `/api/users/{userId}/prediction`   | Предсказание на следующий год                |
 
 Подробные форматы запросов и ответов находятся в [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 
@@ -454,7 +463,9 @@ npm run build
 - отделение API-моделей от доменных моделей;
 - логирование HTTP-запросов;
 - единый логгер бэкенда на `log/slog`;
-- создание и передача логгера в запуск приложения, HTTP-сервер, API, сервисы, репозитории и подключение к PostgreSQL.
+- создание и передача логгера в запуск приложения, HTTP-сервер, API, сервисы, репозитории и подключение к PostgreSQL;
+- опция предсказания на следующий год;
+- подключение GigaChat API.
 
 **Контракты и интеграция**
 
