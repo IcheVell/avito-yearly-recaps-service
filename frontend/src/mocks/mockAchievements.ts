@@ -98,5 +98,27 @@ export function getMockAchievements(userId: number): AchievementsResponse {
     (achievement) => !earnedCodes.has(achievement.code),
   );
 
-  return { earned, locked };
+  const achievements_progress = mockAchievementCatalog.map(
+    (achievement, index) => {
+      const isComplete = earnedCodes.has(achievement.code);
+      const progress = isComplete
+        ? 100
+        : Math.min(95, 10 + ((userId * 17 + index * 13) % 85));
+
+      return {
+        code: achievement.code,
+        type: 'condition' as const,
+        is_complete: isComplete,
+        progress,
+        condition: {
+          metric: 'mock_activity',
+          operator: '>=',
+          current: String(progress),
+          target: '100',
+        },
+      };
+    },
+  );
+
+  return { earned, locked, achievements_progress };
 }

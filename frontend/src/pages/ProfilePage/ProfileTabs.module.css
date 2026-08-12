@@ -196,6 +196,39 @@
   color: #666;
 }
 
+.achievementProgress {
+  display: grid;
+  gap: 6px;
+}
+
+.achievementProgressLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: #666;
+  font-size: 12px;
+}
+
+.achievementProgressLabel strong {
+  color: #333;
+  font-size: 13px;
+}
+
+.achievementProgressTrack {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d9d9de;
+}
+
+.achievementProgressValue {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #00aaff, #965eeb);
+}
+
 .achievementTooltip {
   position: absolute;
   right: 12px;

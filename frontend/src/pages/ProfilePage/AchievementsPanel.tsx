@@ -2,6 +2,7 @@ import { useId } from 'react';
 
 import type {
   Achievement,
+  AchievementProgress,
   AchievementsResponse,
   EarnedAchievement,
 } from '../../entities/achievement/types';
@@ -43,6 +44,7 @@ function AchievementImage({ achievement }: { achievement: Achievement }) {
 type AchievementListProps = {
   achievements: Array<Achievement | EarnedAchievement>;
   locked?: boolean;
+  progressByCode?: ReadonlyMap<string, AchievementProgress>;
 };
 
 const achievementDateFormatter = new Intl.DateTimeFormat('ru-RU', {
@@ -59,12 +61,54 @@ function formatEarnedAt(value: string): string {
     : `Получено ${achievementDateFormatter.format(date)}`;
 }
 
+function normalizeProgress(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.round(Math.max(0, Math.min(value, 100)));
+}
+
+function AchievementProgressBar({
+  achievementName,
+  progress,
+}: {
+  achievementName: string;
+  progress: AchievementProgress;
+}) {
+  const value = normalizeProgress(progress.progress);
+
+  return (
+    <div className={styles.achievementProgress}>
+      <div className={styles.achievementProgressLabel}>
+        <span>Прогресс</span>
+        <strong>{value}%</strong>
+      </div>
+      <div
+        className={styles.achievementProgressTrack}
+        role="progressbar"
+        aria-label={`Прогресс достижения «${achievementName}»`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={value}
+      >
+        <span
+          className={styles.achievementProgressValue}
+          style={{ width: `${value}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function AchievementListItem({
   achievement,
   locked,
+  progress,
 }: {
   achievement: Achievement | EarnedAchievement;
   locked: boolean;
+  progress?: AchievementProgress;
 }) {
   const tooltipId = useId();
   const earnedAt = 'earnedAt' in achievement ? achievement.earnedAt : null;
@@ -84,6 +128,13 @@ function AchievementListItem({
         {locked ? 'Ещё не получено' : 'Получено'}
       </span>
 
+      {locked && progress && (
+        <AchievementProgressBar
+          achievementName={achievement.name}
+          progress={progress}
+        />
+      )}
+
       {earnedAt && (
         <span
           id={tooltipId}
@@ -100,6 +151,7 @@ function AchievementListItem({
 function AchievementList({
   achievements,
   locked = false,
+  progressByCode,
 }: AchievementListProps) {
   return (
     <ul className={styles.achievementList}>
@@ -108,6 +160,7 @@ function AchievementList({
           key={achievement.code}
           achievement={achievement}
           locked={locked}
+          progress={progressByCode?.get(achievement.code)}
         />
       ))}
     </ul>
@@ -134,6 +187,13 @@ export function AchievementsPanel({
     );
   }
 
+  const progressByCode = new Map(
+    achievements.achievements_progress.map((progress) => [
+      progress.code,
+      progress,
+    ]),
+  );
+
   return (
     <div className={styles.achievementSections}>
       <section className={styles.achievementSection}>
@@ -150,7 +210,11 @@ export function AchievementsPanel({
       <section className={styles.achievementSection}>
         <h2>Ещё не получены</h2>
         {achievements.locked.length > 0 ? (
-          <AchievementList achievements={achievements.locked} locked />
+          <AchievementList
+            achievements={achievements.locked}
+            locked
+            progressByCode={progressByCode}
+          />
         ) : (
           <p className={styles.emptyState}>
             Все доступные достижения уже получены.
