@@ -9,7 +9,7 @@
   --surface-top: #fff4f5;
   --surface-bottom: #ff8b98;
 
-  flex: 0 0 var(--recap-card-width, min(430px, calc(100vw - 32px)));
+  flex: 0 0 var(--recap-card-width, min(390px, calc(100vw - 32px)));
   min-width: 0;
 
   height: min(620px, calc(100vh - 190px));

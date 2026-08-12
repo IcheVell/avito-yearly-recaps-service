@@ -80,8 +80,33 @@ describe('AchievementsPanel', () => {
               code: 'second',
               type: 'all',
               isComplete: false,
-              progress: 64.4,
-              children: [],
+              progress: 50,
+              children: [
+                {
+                  code: 'second',
+                  type: 'condition',
+                  isComplete: true,
+                  progress: 100,
+                  condition: {
+                    metric: 'seller_rating',
+                    operator: '>=',
+                    current: '4.9',
+                    target: '4.8',
+                  },
+                },
+                {
+                  code: 'second',
+                  type: 'condition',
+                  isComplete: false,
+                  progress: 50,
+                  condition: {
+                    metric: 'sells_count',
+                    operator: '>=',
+                    current: '1',
+                    target: '2',
+                  },
+                },
+              ],
             },
             {
               code: 'first',
@@ -112,6 +137,23 @@ describe('AchievementsPanel', () => {
       screen.getByRole('progressbar', {
         name: 'Прогресс достижения «Второе достижение»',
       }),
-    ).toHaveAttribute('aria-valuenow', '64');
+    ).toHaveAttribute('aria-valuenow', '50');
+
+    expect(screen.getByText('Условие достижения')).toBeInTheDocument();
+    expect(screen.getByText('Избранное')).toBeInTheDocument();
+    expect(
+      screen.getByText('Сейчас 1 · нужно не меньше 4'),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText('Нужно выполнить все условия')).toBeInTheDocument();
+    expect(screen.getByText('Рейтинг продавца')).toBeInTheDocument();
+    expect(screen.getByText('Продажи')).toBeInTheDocument();
+    expect(screen.getByText('Выполнено · 100%')).toBeInTheDocument();
+    expect(screen.getByText('В процессе · 50%')).toBeInTheDocument();
+
+    expect(screen.getByText('Первое достижение').closest('li')).toHaveAttribute(
+      'tabindex',
+      '0',
+    );
   });
 });

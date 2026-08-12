@@ -1,5 +1,5 @@
 .overlay {
-  --recap-card-width: min(430px, calc(100vw - 32px));
+  --recap-card-width: min(390px, calc(100vw - 32px));
 
   position: fixed;
   inset: 0;

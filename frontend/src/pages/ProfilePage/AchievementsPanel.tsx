@@ -53,6 +53,35 @@ const achievementDateFormatter = new Intl.DateTimeFormat('ru-RU', {
   year: 'numeric',
 });
 
+const achievementValueFormatter = new Intl.NumberFormat('ru-RU', {
+  maximumFractionDigits: 1,
+});
+
+const achievementCurrencyFormatter = new Intl.NumberFormat('ru-RU', {
+  style: 'currency',
+  currency: 'RUB',
+  maximumFractionDigits: 0,
+});
+
+const metricLabels: Record<string, string> = {
+  max_streak_days: 'Серия активности',
+  buys_count: 'Покупки',
+  sells_count: 'Продажи',
+  favorites_count: 'Избранное',
+  spent_amount: 'Потраченная сумма',
+  seller_rating: 'Рейтинг продавца',
+  conversations_count: 'Диалоги',
+  max_inactive_gap_days: 'Перерыв между активностями',
+};
+
+const operatorLabels: Record<string, string> = {
+  '>=': 'не меньше',
+  '>': 'больше',
+  '<=': 'не больше',
+  '<': 'меньше',
+  '==': 'равно',
+};
+
 function formatEarnedAt(value: string): string {
   const date = new Date(value);
 
@@ -67,6 +96,96 @@ function normalizeProgress(value: number): number {
   }
 
   return Math.round(Math.max(0, Math.min(value, 100)));
+}
+
+function formatConditionValue(metric: string, value: string): string {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return value;
+  }
+
+  if (metric === 'spent_amount') {
+    return achievementCurrencyFormatter.format(numericValue);
+  }
+
+  const formattedValue = achievementValueFormatter.format(numericValue);
+  if (metric === 'max_streak_days' || metric === 'max_inactive_gap_days') {
+    return `${formattedValue} дн.`;
+  }
+
+  return formattedValue;
+}
+
+function collectConditionProgress(
+  progress: AchievementProgress,
+): AchievementProgress[] {
+  return [
+    ...(progress.condition ? [progress] : []),
+    ...(progress.children ?? []).flatMap(collectConditionProgress),
+  ];
+}
+
+function getProgressRuleDescription(progress: AchievementProgress): string {
+  if (progress.type === 'all') {
+    return 'Нужно выполнить все условия';
+  }
+
+  if (progress.type === 'any') {
+    return 'Достаточно выполнить одно условие';
+  }
+
+  return 'Условие достижения';
+}
+
+function AchievementProgressTooltip({
+  progress,
+}: {
+  progress: AchievementProgress;
+}) {
+  const conditions = collectConditionProgress(progress);
+
+  return (
+    <>
+      <strong className={styles.achievementTooltipTitle}>
+        {getProgressRuleDescription(progress)}
+      </strong>
+
+      {conditions.length > 0 ? (
+        <ul className={styles.achievementTooltipConditions}>
+          {conditions.map((conditionProgress, index) => {
+            const condition = conditionProgress.condition;
+            if (!condition) {
+              return null;
+            }
+
+            const metricLabel =
+              metricLabels[condition.metric] ?? condition.metric;
+            const operatorLabel =
+              operatorLabels[condition.operator] ?? condition.operator;
+
+            return (
+              <li key={`${condition.metric}-${index}`}>
+                <strong>{metricLabel}</strong>
+                <span>
+                  Сейчас{' '}
+                  {formatConditionValue(condition.metric, condition.current)}
+                  {' · '}нужно {operatorLabel}{' '}
+                  {formatConditionValue(condition.metric, condition.target)}
+                </span>
+                <span>
+                  {conditionProgress.isComplete ? 'Выполнено' : 'В процессе'}
+                  {' · '}
+                  {normalizeProgress(conditionProgress.progress)}%
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <span>Подробности условий пока недоступны.</span>
+      )}
+    </>
+  );
 }
 
 function AchievementProgressBar({
@@ -112,14 +231,15 @@ function AchievementListItem({
 }) {
   const tooltipId = useId();
   const earnedAt = 'earnedAt' in achievement ? achievement.earnedAt : null;
+  const hasTooltip = earnedAt !== null || progress !== undefined;
 
   return (
     <li
       className={`${styles.achievement} ${
         locked ? styles.achievementLocked : ''
       }`}
-      tabIndex={earnedAt ? 0 : undefined}
-      aria-describedby={earnedAt ? tooltipId : undefined}
+      tabIndex={hasTooltip ? 0 : undefined}
+      aria-describedby={hasTooltip ? tooltipId : undefined}
     >
       <h3>{achievement.name}</h3>
       <AchievementImage achievement={achievement} />
@@ -135,13 +255,17 @@ function AchievementListItem({
         />
       )}
 
-      {earnedAt && (
+      {hasTooltip && (
         <span
           id={tooltipId}
           className={styles.achievementTooltip}
           role="tooltip"
         >
-          {formatEarnedAt(earnedAt)}
+          {earnedAt ? (
+            formatEarnedAt(earnedAt)
+          ) : progress ? (
+            <AchievementProgressTooltip progress={progress} />
+          ) : null}
         </span>
       )}
     </li>
