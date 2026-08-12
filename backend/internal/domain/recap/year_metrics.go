@@ -81,20 +81,35 @@ type YearMetricsSearches struct {
 }
 
 type YearMetricsFavorite struct {
-	ListingID  int64
-	CategoryID int64
+	ListingID       int64
+	ListingName     string
+	ListingImageURL string
+	ListingPrice    *int64
+	ListingCity     string
+	CategoryID      int64
+	CategoryName    string
 }
 
 type YearMetricsListingCount struct {
-	ListingID  int64
-	CategoryID int64
-	Views      int
+	ListingID       int64
+	ListingName     string
+	ListingImageURL string
+	ListingPrice    *int64
+	ListingCity     string
+	CategoryID      int64
+	CategoryName    string
+	Views           int
 }
 
 type YearMetricsOwnListing struct {
-	ID         int64 // ListingID
-	CategoryID int64
-	Status     string
-	UpdatedAt  time.Time
-	ViewsCount int
+	ID           int64 // ListingID
+	Name         string
+	ImageURL     string
+	Price        *int64
+	City         string
+	CategoryID   int64
+	CategoryName string
+	Status       string
+	UpdatedAt    time.Time
+	ViewsCount   int
 }

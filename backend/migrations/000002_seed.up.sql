@@ -71,30 +71,30 @@ VALUES
 INSERT INTO listings (id, seller_id, category_id, image_url, name, city, status, created_at, updated_at, price)
 OVERRIDING SYSTEM VALUE
 VALUES
-    (930001, 910001, 920002, 'https://images.example.test/listings/iphone-13.jpg', 'iPhone 13 128GB', 'Москва', 'sold', '2026-01-10 09:00:00+00', '2026-02-15 17:00:00+00', 55000.00),
-    (930002, 910001, 920003, 'https://images.example.test/listings/gaming-laptop.jpg', 'Игровой ноутбук ASUS', 'Москва', 'sold', '2026-02-20 10:00:00+00', '2026-03-18 18:30:00+00', 89000.00),
-    (930003, 910001, 920005, 'https://images.example.test/listings/wardrobe.jpg', 'Шкаф из массива', 'Москва', 'sold', '2026-04-05 11:00:00+00', '2026-05-20 16:00:00+00', 24000.00),
-    (930004, 910001, 920009, 'https://images.example.test/listings/ps5.jpg', 'PlayStation 5 Slim', 'Москва', 'sold', '2026-06-12 12:00:00+00', '2026-08-05 19:00:00+00', 47000.00),
-    (930005, 910001, 920001, 'https://images.example.test/listings/airpods.jpg', 'AirPods Pro 2', 'Москва', 'active', '2026-09-10 13:00:00+00', '2026-12-20 14:00:00+00', 12000.00),
-    (930006, 910001, 920007, 'https://images.example.test/listings/sneakers.jpg', 'Кроссовки Nike', 'Москва', 'cancelled', '2026-10-10 14:00:00+00', '2026-10-28 15:00:00+00', 7000.00),
-    (930007, 910002, 920010, 'https://images.example.test/listings/camera.jpg', 'Фотоаппарат Sony Alpha', 'Санкт-Петербург', 'sold', '2026-03-01 09:30:00+00', '2026-04-12 16:20:00+00', 65000.00),
-    (930008, 910002, 920005, 'https://images.example.test/listings/desk.jpg', 'Письменный стол', 'Санкт-Петербург', 'sold', '2026-05-15 10:30:00+00', '2026-07-02 18:00:00+00', 18000.00),
-    (930009, 910002, 920003, 'https://images.example.test/listings/monitor.jpg', 'Монитор 27 дюймов', 'Санкт-Петербург', 'sold', '2026-07-04 11:30:00+00', '2026-08-22 20:00:00+00', 28000.00),
-    (930018, 910002, 920009, 'https://images.example.test/listings/nintendo-switch.jpg', 'Nintendo Switch OLED', 'Санкт-Петербург', 'active', '2026-11-05 12:30:00+00', '2026-12-15 13:00:00+00', 31000.00),
-    (930010, 910003, 920008, 'https://images.example.test/listings/bicycle.jpg', 'Городской велосипед', 'Казань', 'sold', '2026-04-01 08:00:00+00', '2026-06-15 17:45:00+00', 35000.00),
-    (930011, 910003, 920006, 'https://images.example.test/listings/jacket.jpg', 'Зимняя куртка', 'Казань', 'active', '2026-09-01 09:00:00+00', '2026-12-10 10:00:00+00', 9000.00),
-    (930015, 910003, 920010, 'https://images.example.test/listings/lens.jpg', 'Объектив Sigma 30mm', 'Казань', 'sold', '2026-10-01 10:00:00+00', '2026-12-10 18:00:00+00', 22000.00),
-    (930012, 910004, 920003, 'https://images.example.test/listings/macbook.jpg', 'MacBook Air M2', 'Екатеринбург', 'sold', '2026-07-15 09:15:00+00', '2026-09-20 17:30:00+00', 115000.00),
-    (930013, 910004, 920002, 'https://images.example.test/listings/iphone-11.jpg', 'iPhone 11 128GB', 'Екатеринбург', 'sold', '2026-08-10 10:15:00+00', '2026-11-03 19:30:00+00', 30000.00),
-    (930014, 910004, 920005, 'https://images.example.test/listings/gaming-chair.jpg', 'Игровое кресло', 'Екатеринбург', 'active', '2026-09-18 11:15:00+00', '2026-12-21 12:00:00+00', 22000.00),
-    (930016, 910004, 920005, 'https://images.example.test/listings/dining-table.jpg', 'Обеденный стол', 'Екатеринбург', 'sold', '2026-09-25 12:15:00+00', '2026-10-11 18:10:00+00', 40000.00),
-    (930017, 910001, 920010, 'https://images.example.test/listings/vintage-camera.jpg', 'Плёночный фотоаппарат', 'Москва', 'active', '2026-11-20 15:00:00+00', '2026-12-25 16:00:00+00', 15000.00),
-    (930019, 910005, 920002, 'https://images.example.test/listings/pixel-8.jpg', 'Google Pixel 8', 'Новосибирск', 'sold', '2026-02-01 09:00:00+00', '2026-02-20 17:00:00+00', 48000.00),
-    (930020, 910005, 920003, 'https://images.example.test/listings/mechanical-keyboard.jpg', 'Механическая клавиатура', 'Новосибирск', 'sold', '2026-04-05 10:00:00+00', '2026-04-17 18:00:00+00', 12000.00),
-    (930021, 910005, 920010, 'https://images.example.test/listings/canon-camera.jpg', 'Фотоаппарат Canon', 'Новосибирск', 'active', '2026-06-10 11:00:00+00', '2026-07-20 16:00:00+00', 45000.00),
-    (930022, 910005, 920007, 'https://images.example.test/listings/adidas-sneakers.jpg', 'Кроссовки Adidas', 'Новосибирск', 'cancelled', '2026-07-01 12:00:00+00', '2026-07-15 12:00:00+00', 8500.00),
-    (930023, 910001, 920003, 'https://images.example.test/listings/macbook-pro-m1.jpg', 'MacBook Pro M1', 'Москва', 'sold', '2026-05-01 09:30:00+00', '2026-05-25 18:00:00+00', 115000.00),
-    (930024, 910002, 920001, 'https://images.example.test/listings/ipad-air.jpg', 'iPad Air', 'Санкт-Петербург', 'sold', '2026-06-20 10:00:00+00', '2026-07-15 19:00:00+00', 34000.00);
+    (930001, 910001, 920002, '/static/listings/iphone.jpg', 'iPhone 13 128GB', 'Москва', 'sold', '2026-01-10 09:00:00+00', '2026-02-15 17:00:00+00', 55000.00),
+    (930002, 910001, 920003, '/static/listings/laptop.jpg', 'Игровой ноутбук ASUS', 'Москва', 'sold', '2026-02-20 10:00:00+00', '2026-03-18 18:30:00+00', 89000.00),
+    (930003, 910001, 920005, '/static/listings/wood-furniture.jpg', 'Шкаф из массива', 'Москва', 'sold', '2026-04-05 11:00:00+00', '2026-05-20 16:00:00+00', 24000.00),
+    (930004, 910001, 920009, '/static/listings/playstation.jpg', 'PlayStation 5 Slim', 'Москва', 'sold', '2026-06-12 12:00:00+00', '2026-08-05 19:00:00+00', 47000.00),
+    (930005, 910001, 920001, '/static/listings/headphones.jpg', 'AirPods Pro 2', 'Москва', 'active', '2026-09-10 13:00:00+00', '2026-12-20 14:00:00+00', 12000.00),
+    (930006, 910001, 920007, '/static/listings/nike-sneakers.jpg', 'Кроссовки Nike', 'Москва', 'cancelled', '2026-10-10 14:00:00+00', '2026-10-28 15:00:00+00', 7000.00),
+    (930007, 910002, 920010, '/static/listings/camera.jpg', 'Фотоаппарат Sony Alpha', 'Санкт-Петербург', 'sold', '2026-03-01 09:30:00+00', '2026-04-12 16:20:00+00', 65000.00),
+    (930008, 910002, 920005, '/static/listings/desk.jpg', 'Письменный стол', 'Санкт-Петербург', 'sold', '2026-05-15 10:30:00+00', '2026-07-02 18:00:00+00', 18000.00),
+    (930009, 910002, 920003, '/static/listings/monitor.jpg', 'Монитор 27 дюймов', 'Санкт-Петербург', 'sold', '2026-07-04 11:30:00+00', '2026-08-22 20:00:00+00', 28000.00),
+    (930018, 910002, 920009, '/static/listings/nintendo.jpg', 'Nintendo Switch OLED', 'Санкт-Петербург', 'active', '2026-11-05 12:30:00+00', '2026-12-15 13:00:00+00', 31000.00),
+    (930010, 910003, 920008, '/static/listings/bike.jpg', 'Городской велосипед', 'Казань', 'sold', '2026-04-01 08:00:00+00', '2026-06-15 17:45:00+00', 35000.00),
+    (930011, 910003, 920006, '/static/listings/winter-coat.jpg', 'Зимняя куртка', 'Казань', 'active', '2026-09-01 09:00:00+00', '2026-12-10 10:00:00+00', 9000.00),
+    (930015, 910003, 920010, '/static/listings/sigma.jpg', 'Объектив Sigma 30mm', 'Казань', 'sold', '2026-10-01 10:00:00+00', '2026-12-10 18:00:00+00', 22000.00),
+    (930012, 910004, 920003, '/static/listings/macbook.jpg', 'MacBook Air M2', 'Екатеринбург', 'active', '2026-07-15 09:15:00+00', '2026-06-20 17:30:00+00', 115000.00),
+    (930013, 910004, 920002, '/static/listings/iphone_11.jpg', 'iPhone 11 128GB', 'Екатеринбург', 'active', '2026-08-10 10:15:00+00', '2026-06-24 19:30:00+00', 30000.00),
+    (930014, 910004, 920005, '/static/listings/gaming_chair.jpg', 'Игровое кресло', 'Екатеринбург', 'active', '2026-09-18 11:15:00+00', '2026-06-27 12:00:00+00', 22000.00),
+    (930016, 910004, 920005, '/static/listings/table.jpg', 'Обеденный стол', 'Екатеринбург', 'active', '2026-09-25 12:15:00+00', '2026-07-01 18:10:00+00', 40000.00),
+    (930017, 910001, 920010, '/static/listings/ilm_camera.jpg', 'Плёночный фотоаппарат', 'Москва', 'active', '2026-11-20 15:00:00+00', '2026-12-25 16:00:00+00', 15000.00),
+    (930019, 910005, 920002, '/static/listings/google_pixel.jpg', 'Google Pixel 8', 'Новосибирск', 'sold', '2026-02-01 09:00:00+00', '2026-02-20 17:00:00+00', 48000.00),
+    (930020, 910005, 920003, '/static/listings/clipboard.jpg', 'Механическая клавиатура', 'Новосибирск', 'sold', '2026-04-05 10:00:00+00', '2026-04-17 18:00:00+00', 12000.00),
+    (930021, 910005, 920010, '/static/listings/canon-camera.jpg', 'Фотоаппарат Canon', 'Новосибирск', 'active', '2026-06-10 11:00:00+00', '2026-07-20 16:00:00+00', 45000.00),
+    (930022, 910005, 920007, '/static/listings/adidas.jpg', 'Кроссовки Adidas', 'Новосибирск', 'cancelled', '2026-07-01 12:00:00+00', '2026-07-15 12:00:00+00', 8500.00),
+    (930023, 910001, 920003, '/static/listings/macbook-pro.jpg', 'MacBook Pro M1', 'Москва', 'sold', '2026-05-01 09:30:00+00', '2026-05-25 18:00:00+00', 115000.00),
+    (930024, 910002, 920001, '/static/listings/ipad-air.jpg', 'iPad Air', 'Санкт-Петербург', 'sold', '2026-06-20 10:00:00+00', '2026-07-15 19:00:00+00', 34000.00);
 
 INSERT INTO deals (id, buyer_id, listing_id, status, created_at, updated_at, price, completed_at)
 OVERRIDING SYSTEM VALUE
@@ -204,11 +204,19 @@ VALUES
     (930010, 910002, '2026-05-25 11:00:00+00'),
     (930013, 910002, '2026-09-18 12:00:00+00'),
     (930015, 910002, '2026-11-25 13:00:00+00'),
+    (930005, 910002, '2026-09-22 13:15:00+00'),
+    (930011, 910002, '2026-10-05 14:10:00+00'),
+    (930014, 910002, '2026-10-28 11:25:00+00'),
+    (930017, 910002, '2026-11-03 12:40:00+00'),
+    (930021, 910002, '2026-11-18 10:50:00+00'),
+    (930022, 910002, '2026-12-01 09:30:00+00'),
+    (930003, 910002, '2026-12-12 15:20:00+00'),
     (930002, 910003, '2026-02-25 09:00:00+00'),
     (930001, 910003, '2026-02-12 10:00:00+00'),
     (930007, 910003, '2026-03-12 11:00:00+00'),
     (930003, 910003, '2026-04-12 12:00:00+00'),
     (930009, 910003, '2026-07-12 13:00:00+00'),
+    (930020, 910003, '2026-09-01 13:30:00+00'),
     (930004, 910004, '2026-06-22 09:00:00+00'),
     (930008, 910004, '2026-06-28 10:00:00+00'),
     (930010, 910004, '2026-07-22 11:00:00+00'),
@@ -245,7 +253,7 @@ FROM generate_series(0, 4) AS n;
 
 INSERT INTO listing_views (user_id, listing_id, created_at)
 SELECT 910003, 930001, '2026-01-11 08:00:00+00'::timestamptz + n * interval '5 days'
-FROM generate_series(0, 14) AS n;
+FROM generate_series(0, 13) AS n;
 
 INSERT INTO listing_views (user_id, listing_id, created_at)
 SELECT 910003, 930012, '2026-07-16 09:00:00+00'::timestamptz + n * interval '6 days'
@@ -258,6 +266,10 @@ FROM generate_series(0, 7) AS n;
 INSERT INTO listing_views (user_id, listing_id, created_at)
 SELECT 910003, 930009, '2026-07-05 11:00:00+00'::timestamptz + n * interval '6 days'
 FROM generate_series(0, 6) AS n;
+
+INSERT INTO listing_views (user_id, listing_id, created_at)
+SELECT 910003, 930018, '2026-01-08 10:30:00+00'::timestamptz + n * interval '2 days'
+FROM generate_series(0, 11) AS n;
 
 INSERT INTO listing_views (user_id, listing_id, created_at)
 SELECT 910004, 930004, '2026-06-13 09:00:00+00'::timestamptz + n * interval '7 days'
@@ -286,6 +298,10 @@ FROM generate_series(0, 6) AS n;
 INSERT INTO listing_views (user_id, listing_id, created_at)
 SELECT 910005, 930021, '2026-07-01 11:00:00+00'::timestamptz + n * interval '5 days'
 FROM generate_series(0, 5) AS n;
+
+INSERT INTO listing_views (user_id, listing_id, created_at)
+SELECT 910005, 930024, '2026-09-01 10:00:00+00'::timestamptz + n * interval '2 days'
+FROM generate_series(0, 18) AS n;
 
 INSERT INTO listing_views (user_id, listing_id, created_at)
 VALUES

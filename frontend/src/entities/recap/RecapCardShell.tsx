@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react';
 
 import type { CardVariant } from './cardVariants';
+import { RecapCardEffect } from './RecapCardEffect';
 
 import styles from './RecapCard.module.css';
 

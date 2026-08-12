@@ -643,11 +643,11 @@ func (r *MetricsRepository) getUserFavorites(ctx context.Context, user entity.Us
 		Table("favorite_listings").
 		Joins("JOIN listings ON listings.id = favorite_listings.listing_id").
 		Joins("JOIN categories ON categories.id = listings.category_id").
-		Select("favorite_listings.listing_id, categories.id AS category_id").
+		Select("favorite_listings.listing_id, listings.name AS listing_name, listings.image_url AS listing_image_url, CAST(listings.price AS BIGINT) AS listing_price, listings.city AS listing_city, categories.id AS category_id, categories.name AS category_name").
 		Where("favorite_listings.user_id = ?", user.ID).
 		Where("favorite_listings.created_at < ?", maxDate).
 		Where("favorite_listings.created_at >= ?", minDate).
-		Group("favorite_listings.listing_id, categories.id").
+		Group("favorite_listings.listing_id, listings.name, listings.image_url, listings.price, listings.city, categories.id, categories.name").
 		Scan(&categories).
 		Error
 
@@ -666,11 +666,11 @@ func (r *MetricsRepository) getUserListingCount(ctx context.Context, user entity
 		Table("listing_views").
 		Joins("JOIN listings ON listings.id = listing_views.listing_id").
 		Joins("JOIN categories ON categories.id = listings.category_id").
-		Select("listing_views.listing_id, categories.id AS category_id, COUNT(listing_views.id) AS views").
+		Select("listing_views.listing_id, listings.name AS listing_name, listings.image_url AS listing_image_url, CAST(listings.price AS BIGINT) AS listing_price, listings.city AS listing_city, categories.id AS category_id, categories.name AS category_name, COUNT(listing_views.id) AS views").
 		Where("listing_views.created_at < ?", maxDate).
 		Where("listing_views.created_at >= ?", minDate).
 		Where("listing_views.user_id = ?", user.ID).
-		Group("listing_views.listing_id, categories.id").
+		Group("listing_views.listing_id, listings.name, listings.image_url, listings.price, listings.city, categories.id, categories.name").
 		Order("COUNT(listing_views.id) DESC"). // mb limit
 		Scan(&listingCount).
 		Error
@@ -713,11 +713,11 @@ func (r *MetricsRepository) getUserOwnListings(ctx context.Context, user entity.
 		Table("listings").
 		Joins("JOIN categories ON categories.id = listings.category_id").
 		Joins("LEFT JOIN listing_views ON listing_views.listing_id = listings.id AND listing_views.created_at >= ? AND listing_views.created_at < ?", minDate, maxDate).
-		Select("listings.id, categories.id AS category_id, listings.status, listings.updated_at, COUNT(listing_views.id) AS views_count").
+		Select("listings.id, listings.name, listings.image_url, CAST(listings.price AS BIGINT) AS price, listings.city, categories.id AS category_id, categories.name AS category_name, listings.status, listings.updated_at, COUNT(listing_views.id) AS views_count").
 		Where("listings.created_at < ?", maxDate).
 		Where("listings.created_at >= ?", minDate).
 		Where("listings.seller_id = ?", user.ID).
-		Group("listings.id, categories.id, listings.status, listings.updated_at").
+		Group("listings.id, listings.name, listings.image_url, listings.price, listings.city, categories.id, categories.name, listings.status, listings.updated_at").
 		Scan(&listings).
 		Error
 
