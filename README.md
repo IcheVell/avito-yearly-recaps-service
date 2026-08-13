@@ -201,6 +201,7 @@ Engine  Repositories
 ├── docs/
 │   ├── CATALOG.md       Каталог ролей, метрик, ачивок и действий
 │   ├── CONTRACTS.md     Контракты данных и HTTP API
+│   ├── ER_MODEL.md      Актуальная ER-модель по SQL-схеме
 │   └── RULES.md         Правила работы с Git и коммитами
 ├── docker-compose.yaml
 └── README.md
@@ -352,7 +353,7 @@ VITE_PUBLIC_ORIGIN=
 | `GET`  | `/api/users/{userId}/stats`              | Агрегированная статистика за активный год       |
 | `GET`  | `/api/users/{userId}/prediction`         | Предсказание на следующий год                   |
 
-Подробные форматы основных запросов и ответов находятся в [`docs/CONTRACTS.md`](docs/CONTRACTS.md). Публичные share-маршруты пока отражены в таблице выше и в актуальных DTO backend.
+Подробные форматы запросов и ответов, включая публичные share-маршруты, находятся в [`docs/CONTRACTS.md`](docs/CONTRACTS.md).
 
 ## Тесты
 
@@ -541,4 +542,5 @@ MVP работает с тестовыми данными. В recap исполь
 - [`frontend/README.md`](frontend/README.md) — установка, режим моков, запуск с API и команды frontend;
 - [`docs/CATALOG.md`](docs/CATALOG.md) — каталог ролей, метрик, ачивок и рекомендуемых действий;
 - [`docs/CONTRACTS.md`](docs/CONTRACTS.md) — контракты данных и HTTP API;
+- [`docs/ER_MODEL.md`](docs/ER_MODEL.md) — актуальная ER-модель и ограничения схемы;
 - [`docs/RULES.md`](docs/RULES.md) — правила работы с Git и коммитами.
