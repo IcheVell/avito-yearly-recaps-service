@@ -12,6 +12,7 @@ import { achievementsApi } from '../../../src/shared/api/achievementsApi';
 import { baseApi } from '../../../src/shared/api/baseApi';
 import { normalizeAchievementsResponse } from '../../../src/shared/api/normalizeAchievements';
 import { profilesApi } from '../../../src/shared/api/profilesApi';
+import { predictionApi } from '../../../src/shared/api/predictionApi';
 import { recapApi } from '../../../src/shared/api/recapApi';
 import { statsApi } from '../../../src/shared/api/statsApi';
 
@@ -31,12 +32,14 @@ describe('mockBaseQuery contract', () => {
         getDefaultMiddleware().concat(baseApi.middleware),
     });
 
-    const [profiles, stats, achievements, recap] = await Promise.all([
-      store.dispatch(profilesApi.endpoints.getProfiles.initiate()),
-      store.dispatch(statsApi.endpoints.getStats.initiate(1)),
-      store.dispatch(achievementsApi.endpoints.getAchievements.initiate(1)),
-      store.dispatch(recapApi.endpoints.getRecap.initiate(1)),
-    ]);
+    const [profiles, stats, achievements, recap, prediction] =
+      await Promise.all([
+        store.dispatch(profilesApi.endpoints.getProfiles.initiate()),
+        store.dispatch(statsApi.endpoints.getStats.initiate(1)),
+        store.dispatch(achievementsApi.endpoints.getAchievements.initiate(1)),
+        store.dispatch(recapApi.endpoints.getRecap.initiate(1)),
+        store.dispatch(predictionApi.endpoints.getPrediction.initiate(1)),
+      ]);
 
     expect(profiles.data?.items).toHaveLength(9);
     expect(stats.data).toMatchObject({ userId: 1, viewsCount: 467 });
@@ -46,6 +49,11 @@ describe('mockBaseQuery contract', () => {
     );
     expect(achievements.data).not.toHaveProperty('achievements_progress');
     expect(recap.data?.action.target.listings[0]).toHaveProperty('price', null);
+    expect(prediction.data).toMatchObject({
+      userId: 1,
+      year: 2027,
+      type: 'fortune',
+    });
     store.dispatch(baseApi.util.resetApiState());
   });
 

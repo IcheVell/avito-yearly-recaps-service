@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { normalizeProfilesResponse } from '../../../src/shared/api/normalizeProfiles';
+import { normalizePredictionResponse } from '../../../src/shared/api/normalizePrediction';
 import { normalizeRecapResponse } from '../../../src/shared/api/normalizeRecap';
 import { normalizeStatsResponse } from '../../../src/shared/api/normalizeStats';
 
@@ -151,6 +152,32 @@ describe('soft API response normalization', () => {
         type: 'continue_search',
         target: { listingIds: [], categoryId: 0, listings: [] },
       },
+    });
+  });
+
+  it('normalizes a prediction into a render-safe shape', () => {
+    expect(
+      normalizePredictionResponse({
+        userId: 42,
+        year: 2027,
+        title: 'Твоё предсказание на 2027',
+        text: 'Тебя ждёт удачная находка.',
+        type: 'fortune',
+      }),
+    ).toEqual({
+      userId: 42,
+      year: 2027,
+      title: 'Твоё предсказание на 2027',
+      text: 'Тебя ждёт удачная находка.',
+      type: 'fortune',
+    });
+
+    expect(normalizePredictionResponse(null)).toEqual({
+      userId: 0,
+      year: 0,
+      title: '',
+      text: '',
+      type: 'fortune',
     });
   });
 });

@@ -156,6 +156,32 @@ export function resolveMockRequest(args: string | FetchArgs): MockQueryResult {
       : error(404, 'RECAP_NOT_FOUND', 'recap not found');
   }
 
+  const predictionRoute = findUserId(url, 'prediction');
+  if (predictionRoute.matched && method === 'GET') {
+    if (predictionRoute.userId === null) {
+      return error(
+        400,
+        'VALIDATION_ERROR',
+        'userId must be a positive integer',
+        { field: 'userId' },
+      );
+    }
+    if (!userExists(predictionRoute.userId)) {
+      return error(404, 'USER_NOT_FOUND', 'user not found');
+    }
+
+    const predictionYear = mockProfiles.currentYear + 1;
+    return {
+      data: {
+        userId: predictionRoute.userId,
+        year: predictionYear,
+        title: `Твоё предсказание на ${predictionYear}`,
+        text: 'В следующем году тебя ждёт неожиданно удачная находка. Главное — не пролистать её мимо.',
+        type: 'fortune',
+      },
+    };
+  }
+
   if (url === '/recaps/generate' && method === 'POST') {
     const userId =
       typeof body === 'object' && body !== null
