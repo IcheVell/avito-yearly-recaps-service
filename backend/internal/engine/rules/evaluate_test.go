@@ -47,8 +47,12 @@ func TestEvaluateRule_ConditionOperators(t *testing.T) {
 			if err != nil {
 				t.Fatalf("EvaluateRule() error = %v", err)
 			}
-			if ok != tt.want {
-				t.Fatalf("EvaluateRule() = %v, want %v", ok, tt.want)
+			if ok == nil {
+				t.Fatal("EvaluateRule() returned nil evaluation")
+			}
+
+			if ok.IsComplete != tt.want {
+				t.Fatalf("EvaluateRule().IsComplete = %v, want %v", ok.IsComplete, tt.want)
 			}
 		})
 	}
@@ -89,8 +93,12 @@ func TestEvaluateRule_Metrics(t *testing.T) {
 			if err != nil {
 				t.Fatalf("EvaluateRule() error = %v", err)
 			}
-			if !ok {
-				t.Fatalf("EvaluateRule() = false, want true for metric %s", tt.metric)
+			if ok == nil {
+				t.Fatal("EvaluateRule() returned nil evaluation")
+			}
+
+			if !ok.IsComplete {
+				t.Fatalf("EvaluateRule().IsComplete = false, want true for metric %s", tt.metric)
 			}
 		})
 	}
@@ -101,8 +109,12 @@ func TestEvaluateRule_SellerRatingWithoutReviews(t *testing.T) {
 	if err != nil {
 		t.Fatalf("EvaluateRule() error = %v", err)
 	}
-	if !ok {
-		t.Fatal("EvaluateRule() = false, want true for zero rating without reviews")
+	if ok == nil {
+		t.Fatal("EvaluateRule() returned nil evaluation")
+	}
+
+	if !ok.IsComplete {
+		t.Fatal("EvaluateRule().IsComplete = false, want true for zero rating without reviews")
 	}
 }
 
@@ -120,8 +132,12 @@ func TestEvaluateRule_AllAndAny(t *testing.T) {
 		if err != nil {
 			t.Fatalf("EvaluateRule() error = %v", err)
 		}
-		if !ok {
-			t.Fatal("EvaluateRule() = false, want true")
+		if ok == nil {
+			t.Fatal("EvaluateRule() returned nil evaluation")
+		}
+
+		if !ok.IsComplete {
+			t.Fatal("EvaluateRule().IsComplete = false, want true")
 		}
 	})
 
@@ -136,8 +152,12 @@ func TestEvaluateRule_AllAndAny(t *testing.T) {
 		if err != nil {
 			t.Fatalf("EvaluateRule() error = %v", err)
 		}
-		if ok {
-			t.Fatal("EvaluateRule() = true, want false")
+		if ok == nil {
+			t.Fatal("EvaluateRule() returned nil evaluation")
+		}
+
+		if ok.IsComplete {
+			t.Fatal("EvaluateRule().IsComplete = true, want false")
 		}
 	})
 
@@ -152,8 +172,12 @@ func TestEvaluateRule_AllAndAny(t *testing.T) {
 		if err != nil {
 			t.Fatalf("EvaluateRule() error = %v", err)
 		}
-		if !ok {
-			t.Fatal("EvaluateRule() = false, want true")
+		if ok == nil {
+			t.Fatal("EvaluateRule() returned nil evaluation")
+		}
+
+		if !ok.IsComplete {
+			t.Fatal("EvaluateRule().IsComplete = false, want true")
 		}
 	})
 
@@ -168,8 +192,12 @@ func TestEvaluateRule_AllAndAny(t *testing.T) {
 		if err != nil {
 			t.Fatalf("EvaluateRule() error = %v", err)
 		}
-		if ok {
-			t.Fatal("EvaluateRule() = true, want false")
+		if ok == nil {
+			t.Fatal("EvaluateRule() returned nil evaluation")
+		}
+
+		if ok.IsComplete {
+			t.Fatal("EvaluateRule().IsComplete = true, want false")
 		}
 	})
 
@@ -190,8 +218,12 @@ func TestEvaluateRule_AllAndAny(t *testing.T) {
 		if err != nil {
 			t.Fatalf("EvaluateRule() error = %v", err)
 		}
-		if !ok {
-			t.Fatal("EvaluateRule() = false, want true")
+		if ok == nil {
+			t.Fatal("EvaluateRule() returned nil evaluation")
+		}
+
+		if !ok.IsComplete {
+			t.Fatal("EvaluateRule().IsComplete = false, want true")
 		}
 	})
 }

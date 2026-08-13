@@ -15,6 +15,7 @@ import (
 	"v1/internal/domain/entity"
 	domainfortune "v1/internal/domain/fortune"
 	"v1/internal/domain/recap"
+	applog "v1/internal/logger"
 )
 
 const testCurrentYear = 2026
@@ -54,15 +55,16 @@ func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (
 }
 
 type fakeAchievements struct {
-	userID int64
-	earned []entity.UserAchievement
-	locked []entity.Achievement
-	err    error
+	userID      int64
+	earned      []entity.UserAchievement
+	locked      []entity.Achievement
+	evaluations []*recap.AchievementEvaluation
+	err         error
 }
 
-func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, error) {
+func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, []*recap.AchievementEvaluation, error) {
 	f.userID = userID
-	return f.earned, f.locked, f.err
+	return f.earned, f.locked, f.evaluations, f.err
 }
 
 type fakeStats struct {

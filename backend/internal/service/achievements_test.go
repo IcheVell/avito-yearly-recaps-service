@@ -166,8 +166,12 @@ func TestUpdateUserAchievements_AwardsMatchingRules(t *testing.T) {
 	}
 
 	svc := NewAchievementService(achievements, users, statsRepo, testLogger())
-	if err := svc.UpdateUserAchievements(context.Background(), 42); err != nil {
+	evaluations, err := svc.UpdateUserAchievements(context.Background(), 42)
+	if err != nil {
 		t.Fatalf("UpdateUserAchievements() error = %v", err)
+	}
+	if len(evaluations) != 3 {
+		t.Fatalf("evaluations len = %d, want 3", len(evaluations))
 	}
 
 	if statsRepo.updateCalls != 1 {
@@ -189,7 +193,7 @@ func TestUpdateUserAchievements_UserNotFound(t *testing.T) {
 		testLogger(),
 	)
 
-	err := svc.UpdateUserAchievements(context.Background(), 1)
+	_, err := svc.UpdateUserAchievements(context.Background(), 1)
 	var httpErr HTTPError
 	if !errors.As(err, &httpErr) {
 		t.Fatalf("error type = %T, want HTTPError", err)
@@ -219,7 +223,7 @@ func TestListUserAchievements_SyncsThenLists(t *testing.T) {
 	}
 
 	svc := NewAchievementService(achievements, users, statsRepo, testLogger())
-	earned, locked, err := svc.ListUserAchievements(context.Background(), 7)
+	earned, locked, evaluations, err := svc.ListUserAchievements(context.Background(), 7)
 	if err != nil {
 		t.Fatalf("ListUserAchievements() error = %v", err)
 	}
@@ -234,5 +238,8 @@ func TestListUserAchievements_SyncsThenLists(t *testing.T) {
 	}
 	if len(locked) != 1 || locked[0].ID != 12 {
 		t.Fatalf("locked = %+v", locked)
+	}
+	if len(evaluations) != 1 {
+		t.Fatalf("evaluations len = %d, want 1", len(evaluations))
 	}
 }
