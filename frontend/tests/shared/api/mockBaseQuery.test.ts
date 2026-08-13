@@ -5,13 +5,14 @@ vi.mock('../../../src/shared/config/env', () => ({
   env: { apiBaseUrl: '/api', useMocks: true },
 }));
 
-import type { Recap } from '../../../src/entities/recap/types';
+import type { Recap, ShareRecap } from '../../../src/entities/recap/types';
 import { resolveMockRequest } from '../../../src/mocks/mockBaseQuery';
 import type { MockAchievementsResponseDto } from '../../../src/mocks/mockAchievements';
 import { achievementsApi } from '../../../src/shared/api/achievementsApi';
 import { baseApi } from '../../../src/shared/api/baseApi';
 import { normalizeAchievementsResponse } from '../../../src/shared/api/normalizeAchievements';
 import { profilesApi } from '../../../src/shared/api/profilesApi';
+import { predictionApi } from '../../../src/shared/api/predictionApi';
 import { recapApi } from '../../../src/shared/api/recapApi';
 import { statsApi } from '../../../src/shared/api/statsApi';
 
@@ -31,12 +32,14 @@ describe('mockBaseQuery contract', () => {
         getDefaultMiddleware().concat(baseApi.middleware),
     });
 
-    const [profiles, stats, achievements, recap] = await Promise.all([
-      store.dispatch(profilesApi.endpoints.getProfiles.initiate()),
-      store.dispatch(statsApi.endpoints.getStats.initiate(1)),
-      store.dispatch(achievementsApi.endpoints.getAchievements.initiate(1)),
-      store.dispatch(recapApi.endpoints.getRecap.initiate(1)),
-    ]);
+    const [profiles, stats, achievements, recap, prediction] =
+      await Promise.all([
+        store.dispatch(profilesApi.endpoints.getProfiles.initiate()),
+        store.dispatch(statsApi.endpoints.getStats.initiate(1)),
+        store.dispatch(achievementsApi.endpoints.getAchievements.initiate(1)),
+        store.dispatch(recapApi.endpoints.getRecap.initiate(1)),
+        store.dispatch(predictionApi.endpoints.getPrediction.initiate(1)),
+      ]);
 
     expect(profiles.data?.items).toHaveLength(9);
     expect(stats.data).toMatchObject({ userId: 1, viewsCount: 467 });
@@ -46,6 +49,11 @@ describe('mockBaseQuery contract', () => {
     );
     expect(achievements.data).not.toHaveProperty('achievements_progress');
     expect(recap.data?.action.target.listings[0]).toHaveProperty('price', null);
+    expect(prediction.data).toMatchObject({
+      userId: 1,
+      year: 2027,
+      type: 'fortune',
+    });
     store.dispatch(baseApi.util.resetApiState());
   });
 
@@ -128,5 +136,36 @@ describe('mockBaseQuery contract', () => {
         data: { error: { code: 'USER_NOT_FOUND' } },
       },
     });
+  });
+
+  it('creates and returns a share recap by token', () => {
+    expect(
+      resolveMockRequest({
+        url: '/users/1/recap/share',
+        method: 'POST',
+      }),
+    ).toEqual({
+      data: { shareUrl: '/share/mock-share-1' },
+    });
+
+    const share = readData<ShareRecap>(
+      resolveMockRequest('/share/mock-share-1'),
+    );
+
+    expect(share.year).toBeGreaterThan(0);
+    expect(share.role.name).toBeTruthy();
+    expect(share).not.toHaveProperty('action');
+    expect(share).not.toHaveProperty('userId');
+  });
+
+  it('restores a deterministic mock share after an application reload', () => {
+    const share = readData<ShareRecap>(
+      resolveMockRequest('/share/mock-share-2'),
+    );
+
+    expect(share.year).toBeGreaterThan(0);
+    expect(share.role.name).toBeTruthy();
+    expect(share).not.toHaveProperty('action');
+    expect(share).not.toHaveProperty('userId');
   });
 });

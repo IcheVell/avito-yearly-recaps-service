@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { normalizeProfilesResponse } from '../../../src/shared/api/normalizeProfiles';
+import { normalizePredictionResponse } from '../../../src/shared/api/normalizePrediction';
 import { normalizeRecapResponse } from '../../../src/shared/api/normalizeRecap';
+import { normalizeShareRecapResponse } from '../../../src/shared/api/normalizeShareRecap';
 import { normalizeStatsResponse } from '../../../src/shared/api/normalizeStats';
 
 describe('soft API response normalization', () => {
@@ -151,6 +153,80 @@ describe('soft API response normalization', () => {
         type: 'continue_search',
         target: { listingIds: [], categoryId: 0, listings: [] },
       },
+    });
+  });
+
+  it('normalizes a prediction into a render-safe shape', () => {
+    expect(
+      normalizePredictionResponse({
+        userId: 42,
+        year: 2027,
+        title: 'Твоё предсказание на 2027',
+        text: 'Тебя ждёт удачная находка.',
+        type: 'fortune',
+      }),
+    ).toEqual({
+      userId: 42,
+      year: 2027,
+      title: 'Твоё предсказание на 2027',
+      text: 'Тебя ждёт удачная находка.',
+      type: 'fortune',
+    });
+
+    expect(normalizePredictionResponse(null)).toEqual({
+      userId: 0,
+      year: 0,
+      title: '',
+      text: '',
+      type: 'fortune',
+    });
+  });
+
+  it('keeps a share recap render-safe when nested structures are malformed', () => {
+    expect(
+      normalizeShareRecapResponse({
+        year: 2026,
+        role: {
+          code: 'seller',
+          name: 'Продавец',
+          title: 'В этом году ты крутой продавец!',
+        },
+        metrics: [
+          {
+            type: 'favorites_count',
+            title: 'Избранное',
+            text: 'Коллекция избранного за год — 3 объявлений.',
+            highlights: ['3 объявлений', 12],
+          },
+          { type: 'broken' },
+        ],
+        achievements: [
+          { code: 'diplomat', name: 'Дипломат', imageUrl: 'static/a.png' },
+          { code: 'broken' },
+        ],
+      }),
+    ).toEqual({
+      year: 2026,
+      role: {
+        code: 'seller',
+        name: 'Продавец',
+        title: 'В этом году ты крутой продавец!',
+      },
+      metrics: [
+        {
+          type: 'favorites_count',
+          title: 'Избранное',
+          text: 'Коллекция избранного за год — 3 объявлений.',
+          highlights: ['3 объявлений'],
+        },
+      ],
+      achievements: [
+        {
+          code: 'diplomat',
+          name: 'Дипломат',
+          imageUrl: '/static/a.png',
+        },
+      ],
     });
   });
 });

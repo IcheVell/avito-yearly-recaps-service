@@ -6,11 +6,17 @@ type ToastProps = {
   message: string;
   onDismiss: () => void;
   duration?: number;
+  variant?: 'error' | 'success';
 };
 
 const EXIT_DURATION = 180;
 
-export function Toast({ message, onDismiss, duration = 4_000 }: ToastProps) {
+export function Toast({
+  message,
+  onDismiss,
+  duration = 4_000,
+  variant = 'error',
+}: ToastProps) {
   const [isLeaving, setIsLeaving] = useState(false);
 
   useEffect(() => {
@@ -27,7 +33,7 @@ export function Toast({ message, onDismiss, duration = 4_000 }: ToastProps) {
 
   return (
     <div
-      className={`${styles.toast} ${isLeaving ? styles.toastLeaving : ''}`}
+      className={`${styles.toast} ${styles[variant]} ${isLeaving ? styles.toastLeaving : ''}`}
       role="alert"
       aria-live="assertive"
     >

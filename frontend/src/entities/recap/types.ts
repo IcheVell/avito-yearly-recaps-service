@@ -97,3 +97,33 @@ export type Recap = {
 export type GenerateRecapRequest = {
   userId: number;
 };
+
+export type ShareRecapRole = {
+  code: string;
+  name: string;
+  title: string;
+};
+
+export type ShareRecapMetric = {
+  type: string;
+  title: string;
+  text: string;
+  highlights: string[];
+};
+
+export type ShareRecapAchievement = {
+  code: string;
+  name: string;
+  imageUrl: string | null;
+};
+
+export type ShareRecap = {
+  year: number;
+  role: ShareRecapRole;
+  metrics: ShareRecapMetric[];
+  achievements: ShareRecapAchievement[];
+};
+
+export type CreateShareRecapResponse = {
+  shareUrl: string;
+};
