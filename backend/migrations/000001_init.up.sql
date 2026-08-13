@@ -65,6 +65,29 @@ CREATE TABLE yearly_recaps(
         UNIQUE (user_id, year)
 );
 
+CREATE TABLE share_recaps(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    token TEXT NOT NULL,
+    user_id BIGINT NOT NULL,
+    year INTEGER NOT NULL,
+    recap_id BIGINT NOT NULL,
+    payload JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uq_share_recaps_token
+        UNIQUE (token),
+
+    CONSTRAINT fk_share_recaps_user_id
+        FOREIGN KEY(user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_share_recaps_recap_id
+        FOREIGN KEY(recap_id)
+        REFERENCES yearly_recaps(id)
+        ON DELETE CASCADE
+);
+
 CREATE TABLE user_achievements(
     user_id BIGINT NOT NULL,
     achievement_id BIGINT NOT NULL,
@@ -318,6 +341,9 @@ CREATE INDEX idx_deals_buyer_created_at
 
 CREATE INDEX idx_conversation_participants_conversation_id
     ON conversation_participants(conversation_id);
+
+CREATE INDEX idx_share_recaps_user_year
+    ON share_recaps(user_id, year);
 
 CREATE UNIQUE INDEX idx_uq_deals_completed_listing
     ON deals(listing_id)
