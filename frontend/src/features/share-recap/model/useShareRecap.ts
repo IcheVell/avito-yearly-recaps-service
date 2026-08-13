@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import { getApiErrorMessage } from '../../../shared/api/apiError';
 import { useCreateShareRecapMutation } from '../../../shared/api/shareRecapApi';
+import { toAppUrl } from '../../../shared/lib/appUrl';
 
 type UseShareRecapOptions = {
   userId: number;
@@ -15,7 +16,7 @@ type UseShareRecapResult = {
 };
 
 export function toAbsoluteShareUrl(shareUrl: string): string {
-  return new URL(shareUrl, window.location.origin).toString();
+  return toAppUrl(shareUrl);
 }
 
 async function copyText(value: string): Promise<boolean> {
@@ -47,8 +48,8 @@ export function useShareRecap({
       }
 
       const absoluteUrl = toAbsoluteShareUrl(shareUrl);
-      const copied = await copyText(absoluteUrl);
-      onCopied(copied ? 'Ссылка скопирована' : absoluteUrl);
+      await copyText(absoluteUrl);
+      onCopied('Ссылка скопирована');
     } catch (error) {
       onError(getApiErrorMessage(error));
     }
