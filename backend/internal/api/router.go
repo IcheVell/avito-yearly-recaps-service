@@ -14,6 +14,7 @@ import (
 type Dependencies struct {
 	Profiles     handlers.ProfileProvider
 	Recaps       handlers.RecapService
+	ShareRecaps  handlers.ShareRecapService
 	Achievements handlers.AchievementProvider
 	Stats        handlers.StatsProvider
 	Fortunes     handlers.FortuneProvider
@@ -30,6 +31,7 @@ func NewRouter(deps Dependencies) http.Handler {
 
 	profilesHandler := handlers.NewProfilesHandler(deps.Profiles, deps.CurrentYear, logger)
 	recapsHandler := handlers.NewRecapsHandler(deps.Recaps, deps.Achievements, deps.Stats, deps.CurrentYear, logger)
+	shareRecapsHandler := handlers.NewShareRecapsHandler(deps.ShareRecaps, deps.CurrentYear, logger)
 	fortunesHandler := handlers.NewFortunesHandler(deps.Fortunes, deps.CurrentYear, logger)
 	healthHandler := handlers.NewHealthHandler()
 
@@ -47,6 +49,8 @@ func NewRouter(deps Dependencies) http.Handler {
 		r.Get("/profiles", profilesHandler.List)
 		r.Post("/recaps/generate", recapsHandler.Generate)
 		r.Get("/users/{userId}/recap", recapsHandler.GetUserRecap)
+		r.Post("/users/{userId}/recap/share", shareRecapsHandler.CreateShare)
+		r.Get("/share/{token}", shareRecapsHandler.GetShare)
 		r.Get("/users/{userId}/achievements", recapsHandler.ListAchievements)
 		r.Get("/users/{userId}/stats", recapsHandler.GetStats)
 		r.Get("/users/{userId}/prediction", fortunesHandler.GetUserPrediction)

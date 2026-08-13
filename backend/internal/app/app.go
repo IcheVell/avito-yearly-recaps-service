@@ -68,16 +68,19 @@ func Run(ctx context.Context) error {
 	userRepo := repository.NewUserRepository(db, logger)
 	metricsRepo := repository.NewMetricsRepository(db, logger)
 	recapRepo := repository.NewRecapRepository(db, logger)
+	shareRecapRepo := repository.NewShareRecapRepository(db, logger)
 	achievementsRepo := repository.NewAchievementsRepository(db, logger)
 	userStatsRepo := repository.NewUserStatsRepository(db, logger)
 
 	achievementsService := service.NewAchievementService(achievementsRepo, userRepo, userStatsRepo, logger)
 	recapService := service.NewRecapService(userRepo, metricsRepo, recapRepo, achievementsService, logger)
+	shareRecapService := service.NewShareRecapService(recapService, shareRecapRepo)
 	fortuneService := service.NewFortuneService(userRepo, newFortuneGenerator(cfg), logger)
 
 	handler := api.NewRouter(api.Dependencies{
 		Profiles:     userRepo,
 		Recaps:       recapService,
+		ShareRecaps:  shareRecapService,
 		Achievements: achievementsService,
 		Stats:        recapService,
 		Fortunes:     fortuneService,
