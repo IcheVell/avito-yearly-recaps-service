@@ -2,9 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import logoSrc from '../../assets/logo.svg.webp';
 import type { Profile } from '../../entities/profile/types';
-import type { Prediction } from '../../entities/prediction/types';
 import type { Recap } from '../../entities/recap/types';
-import { PredictionModal } from '../../features/get-prediction/PredictionModal';
 import { useGetAchievementsQuery } from '../../shared/api/achievementsApi';
 import { getApiErrorMessage } from '../../shared/api/apiError';
 import { useGetProfilesQuery } from '../../shared/api/profilesApi';
@@ -26,7 +24,6 @@ export function ProfilePage() {
   );
   const [activeTab, setActiveTab] = useState<ProfileTab>('statistics');
   const [openRecap, setOpenRecap] = useState<Recap | null>(null);
-  const [openPrediction, setOpenPrediction] = useState<Prediction | null>(null);
   const selectedProfileIdRef = useRef<number | null>(null);
 
   const { data, isLoading, error, refetch } = useGetProfilesQuery();
@@ -43,20 +40,11 @@ export function ProfilePage() {
     selectedProfileIdRef.current = profileId;
     setSelectedProfileId(profileId);
     setOpenRecap(null);
-    setOpenPrediction(null);
   }, []);
 
   const handleRecapReceived = useCallback((recap: Recap) => {
     if (recap.userId === selectedProfileIdRef.current) {
-      setOpenPrediction(null);
       setOpenRecap(recap);
-    }
-  }, []);
-
-  const handlePredictionReceived = useCallback((prediction: Prediction) => {
-    if (prediction.userId === selectedProfileIdRef.current) {
-      setOpenRecap(null);
-      setOpenPrediction(prediction);
     }
   }, []);
 
@@ -127,7 +115,6 @@ export function ProfilePage() {
                 profile={selectedProfile}
                 year={data.currentYear}
                 onRecapReceived={handleRecapReceived}
-                onPredictionReceived={handlePredictionReceived}
               />
             )}
 
@@ -163,13 +150,6 @@ export function ProfilePage() {
 
       {openRecap && (
         <RecapOverlay recap={openRecap} onClose={() => setOpenRecap(null)} />
-      )}
-
-      {openPrediction && (
-        <PredictionModal
-          prediction={openPrediction}
-          onClose={() => setOpenPrediction(null)}
-        />
       )}
     </>
   );
