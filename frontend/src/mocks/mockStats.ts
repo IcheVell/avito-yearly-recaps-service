@@ -105,7 +105,7 @@ export function getMockStats(userId: number): YearMetrics {
     yearsOnAvito: 6,
     priceMin: 500,
     priceMax: 150_000,
-    sellerRating: Math.min(5, 4.5 + factor * 0.05),
+    sellerRating: Math.round(Math.min(5, 4.5 + factor * 0.05) * 10) / 10,
     favoriteBuyCategory,
     favoriteSellCategory,
     mostViewedListing,

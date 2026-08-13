@@ -36,7 +36,7 @@ const recap: Recap = {
     type: 'create_listing',
     label: 'Создать объявление',
     reason: 'Продолжить продажи',
-    target: {},
+    target: { listingIds: [], categoryId: 0, listings: [] },
   },
 };
 
