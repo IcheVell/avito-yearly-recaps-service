@@ -1,9 +1,12 @@
+import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
+import { Provider } from 'react-redux';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Recap } from '../../../src/entities/recap/types';
+import { baseApi } from '../../../src/shared/api/baseApi';
 import { RecapOverlay } from '../../../src/widgets/RecapOverlay/RecapOverlay';
 
 const recap: Recap = {
@@ -44,8 +47,20 @@ const recap: Recap = {
   },
 };
 
+function renderWithStore(component: ReactNode) {
+  const store = configureStore({
+    reducer: {
+      [baseApi.reducerPath]: baseApi.reducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(baseApi.middleware),
+  });
+
+  return render(<Provider store={store}>{component}</Provider>);
+}
+
 function renderOverlay(onClose = vi.fn()) {
-  return render(<RecapOverlay recap={recap} onClose={onClose} />);
+  return renderWithStore(<RecapOverlay recap={recap} onClose={onClose} />);
 }
 
 function getPreviousButton() {
@@ -171,7 +186,7 @@ describe('навигация по итогам', () => {
   it('закрывается по Escape и восстанавливает прокрутку body', async () => {
     document.body.style.overflow = 'auto';
     const user = userEvent.setup();
-    render(<OverlayHarness />);
+    renderWithStore(<OverlayHarness />);
 
     expect(document.body.style.overflow).toBe('hidden');
 

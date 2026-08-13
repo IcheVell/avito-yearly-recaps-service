@@ -235,7 +235,7 @@
 
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
 
   padding: 8px 16px;
 }
@@ -353,8 +353,8 @@
   }
 
   .progress {
-    left: 14px;
-    width: calc(100vw - 104px);
+    left: 78px;
+    width: calc(100vw - 156px);
     transform: none;
   }
 

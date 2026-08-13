@@ -1,4 +1,4 @@
-import type { Recap } from '../entities/recap/types';
+import type { Recap, ShareRecap } from '../entities/recap/types';
 import { mockAchievementCatalog } from './mockAchievements';
 import { mockProfiles } from './mockProfiles';
 
@@ -641,6 +641,28 @@ const mockRecapStore = new Map<number, Recap>(
 
 export function getMockRecap(userId: number): Recap | undefined {
   return mockRecapStore.get(userId);
+}
+
+export function toShareRecap(recap: Recap): ShareRecap {
+  return {
+    year: recap.year,
+    role: {
+      code: recap.role.code,
+      name: recap.role.name,
+      title: recap.role.title,
+    },
+    metrics: recap.metrics.map((metric) => ({
+      type: metric.type,
+      title: metric.title,
+      text: metric.text,
+      highlights: metric.highlights,
+    })),
+    achievements: recap.achievements.map((achievement) => ({
+      code: achievement.code,
+      name: achievement.name,
+      imageUrl: achievement.imageUrl,
+    })),
+  };
 }
 
 export function generateMockRecap(userId: number): Recap {

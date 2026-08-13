@@ -1,8 +1,7 @@
 import type { Profile } from '../../entities/profile/types';
-import type { Prediction } from '../../entities/prediction/types';
 import type { Recap } from '../../entities/recap/types';
 import { GenerateRecapButton } from '../../features/generate-recap/GenerateRecapButton';
-import { GetPredictionButton } from '../../features/get-prediction/GetPredictionButton';
+import { FortuneCookieButton } from '../../features/get-prediction/FortuneCookieButton';
 import { GetRecapButton } from '../../features/get-recap/GetRecapButton';
 
 import { ProfileAvatar } from './ProfileAvatar';
@@ -12,14 +11,12 @@ type ProfileSummaryProps = {
   profile: Profile;
   year: number;
   onRecapReceived: (recap: Recap) => void;
-  onPredictionReceived: (prediction: Prediction) => void;
 };
 
 export function ProfileSummary({
   profile,
   year,
   onRecapReceived,
-  onPredictionReceived,
 }: ProfileSummaryProps) {
   return (
     <div className={styles.profileDetails}>
@@ -38,10 +35,10 @@ export function ProfileSummary({
 
           <GetRecapButton userId={profile.id} onReceived={onRecapReceived} />
 
-          <GetPredictionButton
+          <FortuneCookieButton
+            key={profile.id}
             userId={profile.id}
             nextYear={year + 1}
-            onReceived={onPredictionReceived}
           />
         </div>
       </div>

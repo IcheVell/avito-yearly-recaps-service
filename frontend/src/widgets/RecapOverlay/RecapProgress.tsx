@@ -1,9 +1,11 @@
 import { CloseRecapButton } from '../../features/close-recap/CloseRecapButton';
+import { ShareRecapButton } from '../../features/share-recap/ShareRecapButton';
 
 import type { RecapSlide } from './model/recapSlides';
 import styles from './RecapOverlay.module.css';
 
 type RecapProgressProps = {
+  userId: number;
   slides: RecapSlide[];
   currentSlide: number;
   onSelectSlide: (index: number) => void;
@@ -11,6 +13,7 @@ type RecapProgressProps = {
 };
 
 export function RecapProgress({
+  userId,
   slides,
   currentSlide,
   onSelectSlide,
@@ -18,6 +21,8 @@ export function RecapProgress({
 }: RecapProgressProps) {
   return (
     <header className={styles.topBar}>
+      <ShareRecapButton userId={userId} />
+
       <div
         className={styles.progress}
         aria-label={`Карточка ${currentSlide + 1} из ${slides.length}`}

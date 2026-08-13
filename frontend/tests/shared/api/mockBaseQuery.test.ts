@@ -5,7 +5,7 @@ vi.mock('../../../src/shared/config/env', () => ({
   env: { apiBaseUrl: '/api', useMocks: true },
 }));
 
-import type { Recap } from '../../../src/entities/recap/types';
+import type { Recap, ShareRecap } from '../../../src/entities/recap/types';
 import { resolveMockRequest } from '../../../src/mocks/mockBaseQuery';
 import type { MockAchievementsResponseDto } from '../../../src/mocks/mockAchievements';
 import { achievementsApi } from '../../../src/shared/api/achievementsApi';
@@ -136,5 +136,36 @@ describe('mockBaseQuery contract', () => {
         data: { error: { code: 'USER_NOT_FOUND' } },
       },
     });
+  });
+
+  it('creates and returns a share recap by token', () => {
+    expect(
+      resolveMockRequest({
+        url: '/users/1/recap/share',
+        method: 'POST',
+      }),
+    ).toEqual({
+      data: { shareUrl: '/share/mock-share-1' },
+    });
+
+    const share = readData<ShareRecap>(
+      resolveMockRequest('/share/mock-share-1'),
+    );
+
+    expect(share.year).toBeGreaterThan(0);
+    expect(share.role.name).toBeTruthy();
+    expect(share).not.toHaveProperty('action');
+    expect(share).not.toHaveProperty('userId');
+  });
+
+  it('restores a deterministic mock share after an application reload', () => {
+    const share = readData<ShareRecap>(
+      resolveMockRequest('/share/mock-share-2'),
+    );
+
+    expect(share.year).toBeGreaterThan(0);
+    expect(share.role.name).toBeTruthy();
+    expect(share).not.toHaveProperty('action');
+    expect(share).not.toHaveProperty('userId');
   });
 });

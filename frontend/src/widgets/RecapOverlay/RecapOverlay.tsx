@@ -88,6 +88,7 @@ export function RecapOverlay({ recap, onClose }: RecapOverlayProps) {
       aria-label={`Итоги ${recap.year} года`}
     >
       <RecapProgress
+        userId={recap.userId}
         slides={slides}
         currentSlide={currentSlide}
         onSelectSlide={scrollToSlide}

@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import type { Prediction } from '../../../entities/prediction/types';
 import { getApiErrorMessage } from '../../../shared/api/apiError';
@@ -7,6 +7,7 @@ import { useLazyGetPredictionQuery } from '../../../shared/api/predictionApi';
 type UseGetPredictionOptions = {
   userId: number;
   onReceived: (prediction: Prediction) => void;
+  onError?: (message: string) => void;
 };
 
 type UseGetPredictionResult = {
@@ -18,22 +19,28 @@ type UseGetPredictionResult = {
 export function useGetPrediction({
   userId,
   onReceived,
+  onError,
 }: UseGetPredictionOptions): UseGetPredictionResult {
   const [triggerGetPrediction, { isFetching, error }] =
     useLazyGetPredictionQuery();
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const getPrediction = useCallback(async () => {
+    setLocalError(null);
+
     try {
       const prediction = await triggerGetPrediction(userId).unwrap();
       onReceived(prediction);
-    } catch {
-      return;
+    } catch (requestError) {
+      const message = getApiErrorMessage(requestError);
+      setLocalError(message);
+      onError?.(message);
     }
-  }, [onReceived, triggerGetPrediction, userId]);
+  }, [onError, onReceived, triggerGetPrediction, userId]);
 
   return {
     getPrediction,
     isGetting: isFetching,
-    errorMessage: error ? getApiErrorMessage(error) : null,
+    errorMessage: localError ?? (error ? getApiErrorMessage(error) : null),
   };
 }
