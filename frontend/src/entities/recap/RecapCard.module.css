@@ -106,14 +106,16 @@
 
 .title {
   min-width: 0;
+  max-width: none;
   margin: 0;
 
   color: var(--accent-deep);
-  font-size: clamp(15px, 1.4vw, 18px);
-  line-height: 1.08;
+  font-size: clamp(11px, 1.02vw, 14px);
+  line-height: 1.12;
   font-weight: 900;
   letter-spacing: -0.012em;
   text-align: left;
+  white-space: nowrap;
 
   overflow-wrap: normal;
   word-break: normal;
@@ -131,7 +133,7 @@
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 0.08em 0.06em 0.14em;
+  padding: 0.08em 0.12em 0.22em 0.04em;
 
   color: var(--accent-deep);
   font-family:
@@ -461,8 +463,8 @@
   margin: 0;
 
   color: var(--ink);
-  font-size: clamp(23px, 2.2vw, 29px);
-  line-height: 1.08;
+  font-size: clamp(21px, 2vw, 28px);
+  line-height: 1.1;
   font-weight: 900;
   letter-spacing: -0.036em;
   text-align: left;
@@ -471,15 +473,17 @@
 .value.roleName {
   width: 100%;
   margin: 0;
+  padding-bottom: 0.26em;
   color: var(--accent-deep);
-  line-height: 0.88;
+  line-height: 0.96;
+  letter-spacing: -0.056em;
   text-align: left;
   text-transform: uppercase;
 }
 
 .roleWhy {
-  max-width: 30ch;
-  margin: 2px 0 0;
+  max-width: 32ch;
+  margin: 4px 0 0;
   padding-left: 14px;
 
   border-left: 4px solid var(--accent);
@@ -498,8 +502,8 @@
 
   border-top: 2px solid rgb(12 12 13 / 13%);
 
-  font-size: clamp(21px, 2.1vw, 27px);
-  line-height: 1.16;
+  font-size: clamp(20px, 1.95vw, 26px);
+  line-height: 1.14;
   font-weight: 900;
   text-align: left;
 }
@@ -550,7 +554,7 @@
 
 .metricCardWithImage .metricMain {
   justify-content: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .metricCardWithImage .valueSlot {
@@ -649,25 +653,33 @@
   grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
+.actionCard .title {
+  max-width: none;
+  font-size: clamp(11px, 0.98vw, 14px);
+  line-height: 1.08;
+  letter-spacing: -0.008em;
+}
+
 .actionBody {
   align-self: stretch;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 18px;
+  gap: 14px;
   min-height: 0;
-  padding: 24px 0;
+  padding: 14px 0 10px;
 }
 
 .actionEyebrow {
   margin: 0;
 
   color: var(--accent-deep);
-  font-size: 14px;
-  line-height: 1;
+  font-size: 12px;
+  line-height: 1.1;
   font-weight: 950;
-  letter-spacing: 0.075em;
+  letter-spacing: 0.055em;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 
@@ -678,20 +690,21 @@
 }
 
 .actionReason {
-  max-width: 22ch;
+  max-width: none;
   color: var(--ink);
   font-family: 'Arial Black', ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(30px, 3vw, 39px);
+  font-size: clamp(18px, 2vw, 26px);
   line-height: 1.04;
   font-weight: 900;
-  letter-spacing: -0.048em;
+  letter-spacing: -0.04em;
   text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .actionButton {
-  min-height: 64px;
+  min-height: 60px;
   width: 100%;
-  padding: 10px 20px;
+  padding: 10px 18px;
 
   display: flex;
   align-items: center;
@@ -734,6 +747,12 @@
 
 .actionButton:active {
   transform: translateY(0);
+}
+
+.actionButton span {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 /* Variants */
@@ -899,9 +918,18 @@
   }
 
   .actionBody {
-    padding: 16px 0;
+    padding: 12px 0 10px;
+  }
+
+  .actionReason {
+    font-size: clamp(18px, 5.1vw, 24px);
+  }
+
+  .title {
+    max-width: none;
   }
 }
+
 
 @media (max-width: 360px) {
   .card {
@@ -930,6 +958,10 @@
   .valueSlot {
     min-height: 76px;
   }
+
+  .actionReason {
+    font-size: 20px;
+  }
 }
 
 @media (max-height: 720px) {
@@ -957,8 +989,12 @@
   }
 
   .actionBody {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .actionReason {
+    font-size: clamp(18px, 2vw, 25px);
   }
 }
 

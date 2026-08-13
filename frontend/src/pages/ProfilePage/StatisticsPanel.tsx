@@ -8,6 +8,7 @@ import { StatisticsSummary } from './statistics/StatisticsSummary';
 
 type StatisticsPanelProps = {
   stats: YearMetrics | null;
+  year: number;
   isLoading: boolean;
   errorMessage: string | null;
   onRetry: () => void;
@@ -15,6 +16,7 @@ type StatisticsPanelProps = {
 
 export function StatisticsPanel({
   stats,
+  year,
   isLoading,
   errorMessage,
   onRetry,
@@ -35,7 +37,7 @@ export function StatisticsPanel({
 
   return (
     <div className={styles.panel}>
-      <StatisticsSummary stats={stats} />
+      <StatisticsSummary stats={stats} year={year} />
       <StatisticsDetails stats={stats} />
     </div>
   );

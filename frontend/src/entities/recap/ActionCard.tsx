@@ -30,7 +30,7 @@ export function ActionCard({
       <div className={styles.actionBody}>
         <p className={styles.actionEyebrow}>Попробуй в новом году</p>
         <p className={`${styles.text} ${styles.actionReason}`}>
-          {truncateText(action.reason)}
+          {truncateText(action.reason, 84)}
         </p>
       </div>
 
