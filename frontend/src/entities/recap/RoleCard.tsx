@@ -28,7 +28,7 @@ export function RoleCard({ role, variant, isActive }: RoleCardProps) {
 
         <FitText
           className={`${styles.value} ${styles.roleName}`}
-          maxFontSize={72}
+          maxFontSize={56}
           minFontSize={30}
         >
           {role.name}

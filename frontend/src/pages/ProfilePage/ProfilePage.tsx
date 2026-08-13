@@ -123,6 +123,7 @@ export function ProfilePage() {
                 {activeTab === 'statistics' ? (
                   <StatisticsPanel
                     stats={statsData ?? null}
+                    year={data?.currentYear ?? new Date().getFullYear()}
                     isLoading={isStatsLoading}
                     errorMessage={
                       statsError ? getApiErrorMessage(statsError) : null
