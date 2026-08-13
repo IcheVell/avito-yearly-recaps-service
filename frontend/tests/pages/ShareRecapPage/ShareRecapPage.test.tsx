@@ -100,7 +100,7 @@ describe('страница share recap', () => {
     ).toHaveAttribute('src', '/static/achievements/two_faced_market.png');
     expect(
       screen.getByRole('link', { name: 'Получить свои итоги года' }),
-    ).toHaveAttribute('href', '/');
+    ).toHaveAttribute('href', `${window.location.origin}/`);
 
     const request = fetchMock.mock.calls[0][0] as Request;
     expect(request.method).toBe('GET');

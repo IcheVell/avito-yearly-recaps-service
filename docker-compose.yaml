@@ -27,6 +27,8 @@ services:
     image: yearly-recaps-frontend
     build:
       context: ./frontend
+      args:
+        VITE_PUBLIC_ORIGIN: ${VITE_PUBLIC_ORIGIN:-}
     ports:
       - "80:80"
     depends_on:

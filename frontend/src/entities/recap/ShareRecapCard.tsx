@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import logoSrc from '../../assets/logo.svg.webp';
+import { toAppUrl } from '../../shared/lib/appUrl';
 import { toRootRelativeUrl } from '../../shared/lib/toRootRelativeUrl';
 import { SafeImage } from '../../shared/ui/SafeImage/SafeImage';
 
@@ -119,7 +120,7 @@ export function ShareRecapCard({ recap }: ShareRecapCardProps) {
           </section>
         ) : null}
 
-        <a className={styles.cta} href="/">
+        <a className={styles.cta} href={toAppUrl('/')}>
           Получить свои итоги года
         </a>
       </div>
