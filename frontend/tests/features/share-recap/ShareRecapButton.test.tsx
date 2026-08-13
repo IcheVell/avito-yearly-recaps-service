@@ -95,4 +95,38 @@ describe('кнопка поделиться итогами', () => {
       'Итоги года ещё не сгенерированы',
     );
   });
+
+  it('копирует ссылку через fallback, если Clipboard API недоступен', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        createJsonResponse({ shareUrl: '/share/fallback-token' }, 201),
+      ),
+    );
+
+    const execCommand = vi.fn().mockReturnValue(true);
+    Object.defineProperty(document, 'execCommand', {
+      configurable: true,
+      value: execCommand,
+    });
+
+    const user = userEvent.setup();
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')),
+      },
+    });
+    renderButton();
+
+    await user.click(
+      screen.getByRole('button', { name: 'Поделиться итогами' }),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Ссылка скопирована',
+    );
+    expect(execCommand).toHaveBeenCalledWith('copy');
+    expect(document.querySelector('textarea[aria-hidden="true"]')).toBeNull();
+  });
 });

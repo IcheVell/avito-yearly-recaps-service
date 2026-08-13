@@ -19,17 +19,51 @@ export function toAbsoluteShareUrl(shareUrl: string): string {
   return toAppUrl(shareUrl);
 }
 
-async function copyText(value: string): Promise<boolean> {
-  if (!navigator.clipboard?.writeText) {
+function copyTextFallback(value: string): boolean {
+  if (typeof document.execCommand !== 'function') {
     return false;
   }
 
+  const activeElement = document.activeElement;
+  const textarea = document.createElement('textarea');
+  textarea.value = value;
+  textarea.setAttribute('readonly', '');
+  textarea.setAttribute('aria-hidden', 'true');
+  textarea.style.position = 'fixed';
+  textarea.style.top = '0';
+  textarea.style.left = '0';
+  textarea.style.width = '1px';
+  textarea.style.height = '1px';
+  textarea.style.opacity = '0';
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, value.length);
+
   try {
-    await navigator.clipboard.writeText(value);
-    return true;
+    return document.execCommand('copy');
   } catch {
     return false;
+  } finally {
+    textarea.remove();
+    if (activeElement instanceof HTMLElement) {
+      activeElement.focus();
+    }
   }
+}
+
+async function copyText(value: string): Promise<boolean> {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch {
+      // Fall back for HTTP deployments and restrictive browser policies.
+    }
+  }
+
+  return copyTextFallback(value);
 }
 
 export function useShareRecap({
@@ -48,8 +82,8 @@ export function useShareRecap({
       }
 
       const absoluteUrl = toAbsoluteShareUrl(shareUrl);
-      await copyText(absoluteUrl);
-      onCopied('Ссылка скопирована');
+      const copied = await copyText(absoluteUrl);
+      onCopied(copied ? 'Ссылка скопирована' : absoluteUrl);
     } catch (error) {
       onError(getApiErrorMessage(error));
     }
