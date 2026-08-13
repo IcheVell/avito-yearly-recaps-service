@@ -9,7 +9,7 @@ describe('MostViewedListingCard', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Самое просматриваемое объявление',
+        name: 'Популярное объявление',
       }),
     ).toBeInTheDocument();
     expect(screen.getByText('Недостаточно данных.')).toBeInTheDocument();
