@@ -1,0 +1,249 @@
+.card {
+  --share-accent: #00aaff;
+  --share-ink: #111;
+  --share-line: #7ed6f5;
+
+  position: relative;
+  z-index: 1;
+  width: 70%;
+  max-width: 920px;
+  min-height: 100%;
+  padding: 0;
+
+  display: grid;
+  justify-items: stretch;
+  align-items: stretch;
+
+  overflow: auto;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #cfefff 0%, #ffffff 78%);
+  color: var(--share-ink);
+}
+
+.content {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
+  padding: 28px 28px 32px;
+
+  display: grid;
+  align-content: start;
+  justify-items: stretch;
+}
+
+.heroDecor {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 320px;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.heroDecor span {
+  position: absolute;
+  display: block;
+}
+
+.snowflakeTop,
+.snowflakeLeft {
+  color: rgb(255 255 255 / 88%);
+  line-height: 1;
+}
+
+.snowflakeTop {
+  top: 10px;
+  right: 4px;
+  font-size: 150px;
+  transform: rotate(8deg);
+}
+
+.snowflakeLeft {
+  top: 96px;
+  left: -8px;
+  font-size: 112px;
+  transform: rotate(-12deg);
+}
+
+.header,
+.hero,
+.section,
+.cta {
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: grid;
+  justify-items: start;
+}
+
+.logo {
+  display: block;
+  width: auto;
+  height: 32px;
+}
+
+.lead,
+.leadAfter {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.year {
+  margin: 2px 0 0;
+
+  color: var(--share-accent);
+  font-size: clamp(64px, 18vw, 96px);
+  line-height: 0.9;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.hero {
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.section {
+  padding: 16px 0 4px;
+  border-top: 2px solid var(--share-line);
+}
+
+.heading,
+.sectionTitle {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.label {
+  font-weight: 800;
+}
+
+.body {
+  margin: 8px 0 0;
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.highlight {
+  color: var(--share-accent);
+  font-weight: 800;
+}
+
+.badges {
+  margin: 12px 0 0;
+  padding: 0;
+
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+
+  list-style: none;
+}
+
+.badgeItem {
+  width: 132px;
+
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.badge {
+  width: 128px;
+  height: 128px;
+
+  display: grid;
+  place-items: center;
+
+  background: transparent;
+}
+
+.badgeImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.badgeFallback {
+  color: var(--share-accent);
+  font-size: 36px;
+  font-weight: 900;
+}
+
+.badgeName {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 700;
+  text-align: center;
+}
+
+.cta {
+  width: min(360px, 100%);
+  margin: 28px auto 0;
+  padding: 16px 18px;
+
+  display: block;
+  justify-self: center;
+
+  border-radius: 16px;
+  background: var(--share-accent);
+  color: white;
+
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}
+
+.cta:hover {
+  background: #0095dd;
+}
+
+@media (max-width: 720px) {
+  .card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 20px 16px 24px;
+  }
+
+  .heroDecor {
+    height: 260px;
+  }
+
+  .snowflakeTop {
+    font-size: 120px;
+  }
+
+  .snowflakeLeft {
+    top: 72px;
+    font-size: 92px;
+  }
+
+  .lead,
+  .leadAfter,
+  .heading,
+  .sectionTitle {
+    font-size: 20px;
+  }
+
+  .body {
+    font-size: 18px;
+  }
+}

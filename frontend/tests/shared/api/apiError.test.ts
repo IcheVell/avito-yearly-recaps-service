@@ -23,6 +23,20 @@ describe('getApiErrorMessage', () => {
     expect(message).toContain('ещё не сгенерированы');
   });
 
+  it('показывает специальное сообщение, если share-ссылка не найдена', () => {
+    const message = getApiErrorMessage({
+      status: 404,
+      data: {
+        error: {
+          code: 'SHARE_NOT_FOUND',
+          message: 'share not found',
+        },
+      },
+    });
+
+    expect(message).toBe('Эти итоги больше недоступны.');
+  });
+
   it('использует сообщение бэкенда для остальных ошибок', () => {
     const message = getApiErrorMessage({
       status: 400,

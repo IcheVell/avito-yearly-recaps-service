@@ -26,6 +26,10 @@ export function getApiErrorMessage(error: unknown): string {
       return 'Итоги года ещё не сгенерированы. Сначала создайте их.';
     }
 
+    if (body.error?.code === 'SHARE_NOT_FOUND') {
+      return 'Эти итоги больше недоступны.';
+    }
+
     if (body.error?.message) {
       return body.error.message;
     }

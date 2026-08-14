@@ -54,8 +54,23 @@ type RecapActionResponse struct {
 }
 
 type RecapActionTargetResponse struct {
-	ListingIDs []int64 `json:"listingIds"`
-	CategoryID int64   `json:"categoryId"`
+	ListingIDs   []int64                      `json:"listingIds"`
+	CategoryID   int64                        `json:"categoryId"`
+	CategoryName string                       `json:"categoryName,omitempty"`
+	Listings     []RecapActionListingResponse `json:"listings"`
+}
+
+type RecapActionListingResponse struct {
+	ID           int64   `json:"id"`
+	Name         string  `json:"name,omitempty"`
+	ImageURL     string  `json:"imageUrl,omitempty"`
+	Price        *int64  `json:"price"`
+	Status       string  `json:"status,omitempty"`
+	CategoryID   int64   `json:"categoryId,omitempty"`
+	CategoryName string  `json:"categoryName,omitempty"`
+	ViewsCount   int     `json:"viewsCount,omitempty"`
+	UpdatedAt    *string `json:"updatedAt,omitempty"`
+	City         string  `json:"city,omitempty"`
 }
 
 type RecapDebugResponse struct {
@@ -84,8 +99,10 @@ func NewRecapResponse(story recap.Recap) RecapResponse {
 			Label:  story.Action.Label,
 			Reason: story.Action.Reason,
 			Target: RecapActionTargetResponse{
-				ListingIDs: emptyInt64SliceIfNil(story.Action.Target.ListingIDs),
-				CategoryID: story.Action.Target.CategoryID,
+				ListingIDs:   emptyInt64SliceIfNil(story.Action.Target.ListingIDs),
+				CategoryID:   story.Action.Target.CategoryID,
+				CategoryName: story.Action.Target.CategoryName,
+				Listings:     newRecapActionListingResponses(story.Action.Target.Listings),
 			},
 		},
 		Debug: RecapDebugResponse{
@@ -118,6 +135,38 @@ func newRecapAchievementResponses(achievements []recap.RecapAchievement) []Recap
 			Name:        achievement.Name,
 			Description: achievement.Description,
 			ImageURL:    achievement.ImageURL,
+		})
+	}
+
+	return items
+}
+
+func newRecapActionListingResponses(
+	listings []recap.RecapActionListing,
+) []RecapActionListingResponse {
+	if listings == nil {
+		return []RecapActionListingResponse{}
+	}
+
+	items := make([]RecapActionListingResponse, 0, len(listings))
+	for _, listing := range listings {
+		var updatedAt *string
+		if listing.UpdatedAt != nil {
+			value := listing.UpdatedAt.UTC().Format(time.RFC3339)
+			updatedAt = &value
+		}
+
+		items = append(items, RecapActionListingResponse{
+			ID:           listing.ID,
+			Name:         listing.Name,
+			ImageURL:     listing.ImageURL,
+			Price:        listing.Price,
+			Status:       listing.Status,
+			CategoryID:   listing.CategoryID,
+			CategoryName: listing.CategoryName,
+			ViewsCount:   listing.ViewsCount,
+			UpdatedAt:    updatedAt,
+			City:         listing.City,
 		})
 	}
 

@@ -90,13 +90,15 @@ func (r *AchievementsRepository) AddAchievementToUser(ctx context.Context, userI
 func (r *AchievementsRepository) GetRulesForAchievements(ctx context.Context) ([]recap.Rule, error) {
 	var rows []struct {
 		AchievementID int64  `gorm:"column:achievement_id"`
+		Code          string `gorm:"column:code"`
 		Rule          []byte `gorm:"column:rule"`
 	}
 
 	err := r.db.
 		WithContext(ctx).
 		Table("achievement_rules").
-		Select("achievement_id, rule").
+		Joins("JOIN achievements ON achievements.id = achievement_rules.achievement_id").
+		Select("achievement_rules.achievement_id, achievements.code, achievement_rules.rule").
 		Scan(&rows).
 		Error
 
@@ -115,7 +117,7 @@ func (r *AchievementsRepository) GetRulesForAchievements(ctx context.Context) ([
 			return nil, fmt.Errorf("unmarshal rule for achievement %d: %w", row.AchievementID, err)
 		}
 
-		rules = append(rules, recap.Rule{ID: row.AchievementID, RuleNode: ruleNode})
+		rules = append(rules, recap.Rule{ID: row.AchievementID, Code: row.Code, RuleNode: ruleNode})
 	}
 
 	return rules, nil

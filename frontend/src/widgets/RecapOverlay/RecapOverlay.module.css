@@ -1,4 +1,6 @@
 .overlay {
+  --recap-card-width: min(390px, calc(100vw - 32px));
+
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -233,7 +235,7 @@
 
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
 
   padding: 8px 16px;
 }
@@ -291,7 +293,7 @@
 .track::before,
 .track::after {
   content: '';
-  flex: 0 0 max(0px, calc((100vw - 390px) / 2 - 24px));
+  flex: 0 0 max(0px, calc((100vw - var(--recap-card-width)) / 2 - 24px));
 }
 
 .track::-webkit-scrollbar {
@@ -345,12 +347,14 @@
 
 @media (max-width: 640px) {
   .overlay {
+    --recap-card-width: calc(100vw - 28px);
+
     grid-template-rows: 70px minmax(0, 1fr) 60px;
   }
 
   .progress {
-    left: 14px;
-    width: calc(100vw - 104px);
+    left: 78px;
+    width: calc(100vw - 156px);
     transform: none;
   }
 

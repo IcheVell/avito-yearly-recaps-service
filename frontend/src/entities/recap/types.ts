@@ -19,54 +19,54 @@ export type RecapMetric = {
   payload: MetricPayload;
 };
 
+export type ActionListingPreview = {
+  id: number;
+  name?: string | null;
+  imageUrl?: string | null;
+  price?: number | null;
+  city?: string | null;
+  status?: string | null;
+  categoryId?: number | null;
+  categoryName?: string | null;
+  viewsCount?: number | null;
+  updatedAt?: string | null;
+};
+
+export type RecapActionTarget = {
+  listingIds: number[];
+  categoryId: number;
+  categoryName?: string;
+  listings: ActionListingPreview[];
+};
+
 type RecapActionBase = {
   label: string;
   reason: string;
+  target: RecapActionTarget;
 };
 
 export type BoostListingsAction = RecapActionBase & {
   type: 'boost_listings';
-  target: {
-    listingIds: number[];
-    categoryId?: number;
-  };
 };
 
 export type CreateListingAction = RecapActionBase & {
   type: 'create_listing';
-  target: Record<string, never>;
 };
 
 export type ListingAbandonedAction = RecapActionBase & {
   type: 'listing_abandoned';
-  target: {
-    listingIds: number[];
-    categoryId: number;
-  };
 };
 
 export type CompareTopAction = RecapActionBase & {
   type: 'compare_top';
-  target: {
-    listingIds: number[];
-    categoryId: number;
-  };
 };
 
 export type OpenFavoritesAction = RecapActionBase & {
   type: 'open_favorites';
-  target: {
-    listingIds?: number[];
-    categoryId?: number;
-  };
 };
 
 export type ContinueSearchAction = RecapActionBase & {
   type: 'continue_search';
-  target: {
-    listingIds?: number[];
-    categoryId?: number;
-  };
 };
 
 export type RecapAction =
@@ -96,4 +96,34 @@ export type Recap = {
 
 export type GenerateRecapRequest = {
   userId: number;
+};
+
+export type ShareRecapRole = {
+  code: string;
+  name: string;
+  title: string;
+};
+
+export type ShareRecapMetric = {
+  type: string;
+  title: string;
+  text: string;
+  highlights: string[];
+};
+
+export type ShareRecapAchievement = {
+  code: string;
+  name: string;
+  imageUrl: string | null;
+};
+
+export type ShareRecap = {
+  year: number;
+  role: ShareRecapRole;
+  metrics: ShareRecapMetric[];
+  achievements: ShareRecapAchievement[];
+};
+
+export type CreateShareRecapResponse = {
+  shareUrl: string;
 };

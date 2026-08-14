@@ -1,29 +1,373 @@
 # Контракты `avito-yearly-recaps-service`
-Контракты фиксируют формат данных **на границах слоёв**.  
-Внутренние таблицы БД могут меняться; эти объекты — нет (без согласования команды).
-```text
-БД / repository (Кирюха)
-        │  Contract A: YearMetrics
-        ▼
-metrics + engine (Алина)
-        │  Contract B: Recap (domain)
-        ▼
-api / dto (Илья)
-        │  Contract C: HTTP JSON API
-        ▼
-frontend
-```
----
-# Contract A — `YearMetrics`
-**Назначение:** всё, что нужно движку, чтобы собрать блоки 1–4, **уже агрегировано**.  
-BE2 не пишет SQL.
-- В бд указано  `NUMERIC(12,2)` но в метриках целые рубли  `48000` ← `ROUND(SUM(price))`
-## Структура
-```
-{
-  "userId": 1,
-  "registrationDate": "2025-06-01T12:00:00Z",
 
+Документ описывает актуальные границы между repository, domain, HTTP API и frontend.
+Источники истины для форматов:
+
+| Граница               | Источник                                        |
+| --------------------- | ----------------------------------------------- |
+| Агрегированные данные | `backend/internal/domain/recap/year_metrics.go` |
+| Полный recap          | `backend/internal/domain/recap/recap.go`        |
+| HTTP DTO              | `backend/internal/api/dto/`                     |
+| HTTP-маршруты         | `backend/internal/api/router.go`                |
+| Frontend-нормализация | `frontend/src/shared/api/normalize*.ts`         |
+
+Все названия JSON-полей чувствительны к регистру. Время передаётся в формате RFC 3339.
+Массивы в HTTP-ответах нормализуются в `[]`, а не в `null`.
+
+## Contract A — `YearMetrics`
+
+`YearMetrics` — внутренний доменный объект с агрегированной активностью пользователя за
+активный год. Repository заполняет его, а engine использует при выборе роли, метрик,
+достижений и следующего действия.
+
+### Скалярные поля
+
+| Поле                   | Go-тип      | Примечание                     |
+| ---------------------- | ----------- | ------------------------------ |
+| `UserID`               | `int64`     | Идентификатор пользователя     |
+| `RegistrationDate`     | `time.Time` | Дата регистрации               |
+| `ViewsCount`           | `int64`     | Просмотры объявлений           |
+| `SearchesCount`        | `int64`     | Поиски                         |
+| `FavoritesCount`       | `int64`     | Добавления в избранное         |
+| `MessagesPeopleCount`  | `int64`     | Количество начатых диалогов    |
+| `ListingsCreatedCount` | `int64`     | Созданные объявления           |
+| `BuysCount`            | `int64`     | Завершённые покупки            |
+| `SellsCount`           | `int64`     | Завершённые продажи            |
+| `SpentAmount`          | `*int64`    | Целые рубли или `nil`          |
+| `EarnedAmount`         | `*int64`    | Целые рубли или `nil`          |
+| `MaxStreakDays`        | `int64`     | Максимальная серия активности  |
+| `ActiveDays`           | `int64`     | Активные дни                   |
+| `YearsOnAvito`         | `int64`     | Полные годы с даты регистрации |
+| `PriceMin`             | `*int64`    | Минимальная цена или `nil`     |
+| `PriceMax`             | `*int64`    | Максимальная цена или `nil`    |
+| `SellerRating`         | `*float64`  | Рейтинг или `nil`              |
+
+### Вложенные данные
+
+| Поле                   | Тип                         | Примечание                                 |
+| ---------------------- | --------------------------- | ------------------------------------------ |
+| `FavoriteBuyCategory`  | `*YearMetricsCategory`      | Любимая категория покупок                  |
+| `FavoriteSellCategory` | `*YearMetricsCategory`      | Любимая категория продаж                   |
+| `MostViewedListing`    | `*YearMetricsListing`       | Самое просматриваемое объявление           |
+| `BestReviewReceived`   | `*YearMetricsReview`        | Лучший полученный отзыв                    |
+| `BestReviewLeft`       | `*YearMetricsReview`        | Лучший оставленный отзыв                   |
+| `ViewsByCategory`      | `[]YearMetricsViews`        | Просмотры по категориям                    |
+| `SearchesByCategory`   | `[]YearMetricsSearches`     | Поиски по категориям                       |
+| `Favorites`            | `[]YearMetricsFavorite`     | Избранное с данными объявления и категории |
+| `ListingViewCounts`    | `[]YearMetricsListingCount` | Просмотры конкретных объявлений            |
+| `MessagedListingIDs`   | `[]int64`                   | Объявления, по которым начат диалог        |
+| `OwnListings`          | `[]YearMetricsOwnListing`   | Объявления пользователя                    |
+| `YearAchievements`     | `[]YearAchievement`         | Выданные за активный год достижения        |
+
+Внутренние элементы `Favorites`, `ListingViewCounts` и `OwnListings` содержат обогащённые
+данные объявления: название, изображение, цену, город и название категории. Они нужны для
+формирования `action.target.listings`, но полностью через `/stats` не публикуются.
+
+## Contract B — `Recap`
+
+Полный recap возвращается при генерации и при последующем получении итогов.
+
+```json
+{
+  "id": 101,
+  "userId": 910001,
+  "year": 2026,
+  "createdAt": "2026-08-12T12:00:00Z",
+  "role": {
+    "code": "seller",
+    "name": "Продавец",
+    "title": "В этом году ты крутой продавец!",
+    "subtitle": "Ты продал 9 товаров.",
+    "why": "67% активности — создание объявлений и продажа товаров",
+    "activitySharePercent": 67
+  },
+  "metrics": [
+    {
+      "type": "earned_amount",
+      "title": "Заработанная сумма",
+      "text": "Твои объявления отработали как подработка: 120 000 ₽ за год.",
+      "highlights": ["120 000 ₽"],
+      "payload": {
+        "earnedAmount": 120000
+      }
+    }
+  ],
+  "achievements": [
+    {
+      "code": "streak_survivor",
+      "name": "Несгибаемый",
+      "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
+      "imageUrl": "/static/achievements/streak_survivor.png"
+    }
+  ],
+  "action": {
+    "type": "boost_listings",
+    "label": "Обновить объявления",
+    "reason": "Часть твоих объявлений потеряла отклик — стоит поднять их снова.",
+    "target": {
+      "listingIds": [11],
+      "categoryId": 0,
+      "listings": [
+        {
+          "id": 11,
+          "name": "Велосипед",
+          "imageUrl": "/static/listings/bike.jpg",
+          "price": 15000,
+          "status": "active",
+          "categoryId": 3,
+          "categoryName": "Транспорт",
+          "viewsCount": 3,
+          "updatedAt": "2026-07-01T12:00:00Z",
+          "city": "Новосибирск"
+        }
+      ]
+    }
+  },
+  "debug": {
+    "generatorVersion": "v1",
+    "seedProfile": "seller_1"
+  }
+}
+```
+
+Ограничения текущего генератора:
+
+- `role` — ровно один объект; коды: `seller`, `buyer`, `watcher`;
+- `metrics` — от 0 до 4 элементов: до двух `number`, одного `qualitative` и одного
+  `comparison`;
+- `achievements` — от 0 до 3 элементов;
+- `action` — ровно один объект;
+- `listingIds`, `listings`, `metrics`, `highlights` и `achievements` не бывают `null`.
+
+### `action.target`
+
+```ts
+type RecapActionTarget = {
+  listingIds: number[];
+  categoryId: number;
+  categoryName?: string;
+  listings: ActionListingPreview[];
+};
+
+type ActionListingPreview = {
+  id: number;
+  name?: string;
+  imageUrl?: string;
+  price: number | null;
+  status?: string;
+  categoryId?: number;
+  categoryName?: string;
+  viewsCount?: number;
+  updatedAt?: string;
+  city?: string;
+};
+```
+
+Если действие не связано с категорией, `categoryId` равен `0`, а `categoryName` отсутствует.
+`price` присутствует всегда и может быть `null`; остальные неизвестные необязательные поля
+не включаются в JSON.
+
+Полный каталог кодов находится в [`CATALOG.md`](./CATALOG.md).
+
+## Публичная share-карточка
+
+Share-карточка — отдельный сохранённый снимок полного recap. В неё не входят `userId`,
+`createdAt`, `action`, `debug`, payload метрик и описания достижений.
+
+```json
+{
+  "year": 2026,
+  "role": {
+    "code": "seller",
+    "name": "Продавец",
+    "title": "В этом году ты крутой продавец!"
+  },
+  "metrics": [
+    {
+      "type": "earned_amount",
+      "title": "Заработанная сумма",
+      "text": "Твои объявления отработали как подработка: 120 000 ₽ за год.",
+      "highlights": ["120 000 ₽"]
+    }
+  ],
+  "achievements": [
+    {
+      "code": "streak_survivor",
+      "name": "Несгибаемый",
+      "imageUrl": "/static/achievements/streak_survivor.png"
+    }
+  ]
+}
+```
+
+Токен хранится в `share_recaps`, срока действия и API для отзыва ссылки сейчас нет.
+
+## Contract C — HTTP JSON API
+
+Base URL в браузере:
+
+- `http://localhost/api` — через frontend Nginx;
+- `http://localhost:8081/api` — прямой локальный доступ к backend.
+
+Активный год задаётся переменной backend `RECAP_YEAR`. Frontend не выбирает произвольный
+год. Поле `year` в body генерации сохранено в DTO для совместимости, но backend игнорирует
+его и использует настроенный год.
+
+### Список маршрутов
+
+| Method | Endpoint                           | Успех         | Назначение                        |
+| ------ | ---------------------------------- | ------------- | --------------------------------- |
+| `GET`  | `/api/health`                      | `200`         | Проверка живости                  |
+| `GET`  | `/api/profiles`                    | `200`         | Тестовые профили и активный год   |
+| `POST` | `/api/recaps/generate`             | `200` / `201` | Генерация или перегенерация recap |
+| `GET`  | `/api/users/{userId}/recap`        | `200`         | Получение сохранённого recap      |
+| `POST` | `/api/users/{userId}/recap/share`  | `201`         | Создание публичного снимка        |
+| `GET`  | `/api/share/{token}`               | `200`         | Получение публичного снимка       |
+| `GET`  | `/api/users/{userId}/achievements` | `200`         | Достижения и прогресс             |
+| `GET`  | `/api/users/{userId}/stats`        | `200`         | Годовая статистика                |
+| `GET`  | `/api/users/{userId}/prediction`   | `200`         | Предсказание на следующий год     |
+
+### `GET /api/health`
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### `GET /api/profiles`
+
+Профили сортируются backend по `username`.
+
+```json
+{
+  "currentYear": 2026,
+  "items": [
+    {
+      "id": 910001,
+      "username": "aferist_alina",
+      "imageUrl": "/static/users/aferist_alina.jpg"
+    }
+  ]
+}
+```
+
+### `POST /api/recaps/generate`
+
+```json
+{
+  "userId": 910001
+}
+```
+
+Тело должно содержать один JSON-объект размером не более 1 MiB. Неизвестные поля
+отклоняются, за исключением поддерживаемого, но игнорируемого поля `year`.
+
+- `201 Created` — recap для пары `(userId, RECAP_YEAR)` создан впервые;
+- `200 OK` — существующий recap перегенерирован, его `id` и `createdAt` сохранены;
+- тело успешного ответа соответствует `Recap`.
+
+### `GET /api/users/{userId}/recap`
+
+Возвращает сохранённый `Recap` за `RECAP_YEAR`. Если итогов ещё нет, возвращается
+`404 RECAP_NOT_FOUND`.
+
+### `POST /api/users/{userId}/recap/share`
+
+Тело запроса не требуется. Backend получает уже сохранённый recap за активный год, создаёт
+новый случайный токен и сохраняет отдельный публичный снимок.
+
+#### Response `201`
+
+```json
+{
+  "shareUrl": "/share/9285a995c07678383f7f788c34d63ff6"
+}
+```
+
+Если recap ещё не создан, возвращается `404 RECAP_NOT_FOUND`.
+
+### `GET /api/share/{token}`
+
+Возвращает объект из раздела [«Публичная share-карточка»](#публичная-share-карточка).
+Неизвестный токен возвращает `404 SHARE_NOT_FOUND`.
+
+### `GET /api/users/{userId}/achievements`
+
+Перед ответом backend обновляет накопительную статистику, проверяет правила и выдаёт новые
+достижения. `earned` сортируется по `earnedAt` от новых к старым.
+
+```json
+{
+  "earned": [
+    {
+      "code": "streak_survivor",
+      "name": "Несгибаемый",
+      "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
+      "earnedAt": "2026-08-12T12:00:00Z",
+      "imageUrl": "/static/achievements/streak_survivor.png"
+    }
+  ],
+  "locked": [
+    {
+      "code": "trust_badge",
+      "name": "Знак доверия",
+      "description": "Высокий рейтинг продавца: с тобой имеют дело охотно и спокойно.",
+      "imageUrl": "/static/achievements/trust_badge.png"
+    }
+  ],
+  "achievements_progress": [
+    {
+      "code": "trust_badge",
+      "type": "all",
+      "is_complete": false,
+      "progress": 50,
+      "children": [
+        {
+          "code": "trust_badge",
+          "type": "condition",
+          "is_complete": true,
+          "progress": 100,
+          "condition": {
+            "metric": "seller_rating",
+            "operator": ">=",
+            "current": "4.9",
+            "target": "4.8"
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### `achievements_progress`
+
+Каждый верхнеуровневый элемент связан с достижением по `code`. Тот же `code` повторяется во
+вложенных узлах.
+
+| Поле          | Тип                       | Описание                           |
+| ------------- | ------------------------- | ---------------------------------- |
+| `code`        | `string`                  | Код достижения                     |
+| `type`        | `condition \| all \| any` | Тип правила                        |
+| `is_complete` | `boolean`                 | Выполнено ли правило               |
+| `progress`    | `number`                  | Процент от 0 до 100                |
+| `condition`   | `object`, optional        | Листовое условие                   |
+| `children`    | `array`, optional         | Дочерние правила для `all` / `any` |
+
+`condition.current` и `condition.target` передаются строками. Прогресс вычисляет backend;
+frontend не пересчитывает его самостоятельно.
+
+### `GET /api/users/{userId}/stats`
+
+Ответ является публичной проекцией `YearMetrics`. В отличие от внутреннего объекта он не
+содержит `YearAchievements` и обогащённые названия/изображения внутри вспомогательных
+массивов.
+
+```json
+{
+  "userId": 910001,
+  "registrationDate": "2018-04-12T09:00:00Z",
   "viewsCount": 847,
   "searchesCount": 120,
   "favoritesCount": 15,
@@ -31,52 +375,54 @@ BE2 не пишет SQL.
   "listingsCreatedCount": 8,
   "buysCount": 4,
   "sellsCount": 9,
-
   "spentAmount": 48000,
   "earnedAmount": 120000,
-
   "maxStreakDays": 14,
   "activeDays": 120,
-  "yearsOnAvito": 6,
-
+  "yearsOnAvito": 8,
   "priceMin": 500,
   "priceMax": 150000,
-
   "sellerRating": 4.9,
-
-  "favoriteBuyCategory": { "id": 1, "name": "Электроника" },
-  "favoriteSellCategory": { "id": 3, "name": "Одежда и обувь" },
-
+  "favoriteBuyCategory": {
+    "id": 1,
+    "name": "Электроника"
+  },
+  "favoriteSellCategory": null,
   "mostViewedListing": {
     "id": 2,
     "name": "iPhone 13 128GB",
     "city": "Москва",
-    "imageUrl": "https://...",
+    "imageUrl": "/static/listings/iphone.jpg",
     "viewsCount": 42
   },
-
-  "bestReviewReceived": {
-    "id": 5,
-    "rating": 5,
-    "text": "Всё четко, рекомендую"
-  },
-  "bestReviewLeft": {
-    "id": 6,
-    "rating": 5,
-    "text": "Товар как в описании"
-  },
+  "bestReviewReceived": null,
+  "bestReviewLeft": null,
   "viewsByCategory": [
-    { "categoryId": 1, "categoryName": "Электроника", "views": 400 }
+    {
+      "categoryId": 1,
+      "categoryName": "Электроника",
+      "views": 400
+    }
   ],
   "searchesByCategory": [
-    { "categoryId": 1, "categoryName": "Электроника", "searches": 80 }
+    {
+      "categoryId": 1,
+      "categoryName": "Электроника",
+      "searches": 80
+    }
   ],
   "favorites": [
-    { "listingId": 2, "categoryId": 1 },
-    { "listingId": 8, "categoryId": 3 }
+    {
+      "listingId": 2,
+      "categoryId": 1
+    }
   ],
   "listingViewCounts": [
-    { "listingId": 2, "categoryId": 1, "views": 42 }
+    {
+      "listingId": 2,
+      "categoryId": 1,
+      "views": 42
+    }
   ],
   "messagedListingIds": [9],
   "ownListings": [
@@ -84,349 +430,38 @@ BE2 не пишет SQL.
       "id": 11,
       "categoryId": 3,
       "status": "active",
-      "updatedAt": "2025-06-01T12:00:00Z",
+      "updatedAt": "2026-07-01T12:00:00Z",
       "viewsCount": 3
     }
   ]
 }
 ```
 
-# Contract B — `Recap` (результат генерации)
-## Структура
+Поля сумм, диапазона цен, рейтинга, категорий, объявления и отзывов могут быть `null`.
 
-```
-{
-  "id": 101,
-  "userId": 1,
-  "year": 2025,
-  "createdAt": "2026-01-15T12:00:00Z",
+### `GET /api/users/{userId}/prediction`
 
-  "role": {
-    "code": "seller",
-    "name": "Продавец",
-    "title": "В этом году ты крутой продавец!",
-    "subtitle": "Ты продал 9 товаров.",
-    "why": "67% активности — создание объявлений и продажа товаров",
-    "activitySharePercent": 67
-  },
-
-  "metrics": [
-    {
-      "type": "earned_amount",
-      "title": "Твои продажи",
-      "text": "Твои объявления отработали как подработка: 120 000 ₽ за год.",
-      "highlights": ["120 000 ₽"],
-      "payload": { "earnedAmount": 120000 }
-    },
-    {
-      "type": "max_streak_days",
-      "title": "Серия активности",
-      "text": "Твой личный рекорд упорства — 14-дневная серия.",
-      "highlights": ["14-дневная серия"],
-      "payload": { "maxStreakDays": 14 }
-    },
-    {
-      "type": "most_viewed_listing",
-      "title": "Товар, к которому ты возвращался",
-      "text": "Один лот не давал тебе покоя — iPhone 13 128GB.",
-      "highlights": ["iPhone 13 128GB"],
-      "payload": {
-        "listingId": 2,
-        "name": "iPhone 13 128GB",
-        "imageUrl": "https://...",
-        "viewsCount": 42
-      }
-    }
-  ],
-
-  "achievements": [
-    {
-      "code": "clean_sale",
-      "name": "Чистая продажа",
-      "description": "У тебя есть завершённые продажи в этом году.",
-      "imageUrl": "/static/achievements/clean-sale.png"
-    },
-    {
-      "code": "diplomat",
-      "name": "Дипломат",
-      "description": "Ты вёл много диалогов относительно просмотров.",
-      "imageUrl": "/static/achievements/diplomat.png"
-    }
-  ],
-
-  "action": {
-    "type": "boost_listings",
-    "label": "Обновить объявления",
-    "reason": "Есть активные объявления с низким откликом.",
-    "target": {
-      "listingIds": [11],
-      "categoryId": 3
-    }
-  },
-
-  "debug": {
-    "generatorVersion": "v1",
-    "seedProfile": "seller_1"
-  }
-}
-```
-## Блок 1 — `role`
-
-| `code`    | `name`         | Когда                                                  |
-| --------- | -------------- | ------------------------------------------------------ |
-| `seller`  | `Продавец`     | доминируют listings + sells                            |
-| `buyer`   | `Покупатель`   | доминируют buys (+ сильный поиск/избранное к покупкам) |
-| `watcher` | `Наблюдатель`  | доминируют views/searches, мало сделок и сообщений     |
-
-Поля блока: `code`, `name`, `title`, `subtitle`, `why`, `activitySharePercent`.
-`name` — короткое человекочитаемое название роли (не путать с `title`).
-
-## Блок 2 — `metrics[]`
-Ровно **3** элемента.  
-`selector` выбирает случайно среди **доступных** типов.
-## Блок 3 — `achievements[]`
-0…3 элемента.  
-Поля: `code`, `name`, `description`, `imageUrl`.
-## Блок 4 — `action`
-Ровно **одно** действие.
-Действия обговорим позже
-# Contract C  HTTP JSON API
-Назначение: контракт между frontend и backend.  
-Frontend не считает роли/метрики/ачивки/действие — только рендерит объект `Recap` (Contract B).
-Base URL (в браузере):
-- `http://localhost/api` (через nginx proxy)
-
-Год итогов определяет backend. Frontend не передаёт `year` в запросах генерации, получения recap и статистики. Все эти endpoint используют единый активный год, заданный конфигурацией backend, например `RECAP_YEAR`.
-### 1) `GET /api/profiles`
-*Для `GET /api/profiles` оставить прямой вызов repo*
-Список тестовых пользователей для выбора на первом экране.
-Поле `currentYear` передаётся один раз на верхнем уровне ответа и содержит активный год итогов, определённый backend. Frontend использует его только для отображения и не отправляет обратно в запросах.
-#### Response `200`
-```
-{
-  "currentYear": 2026,
-  "items": [
-    {
-      "id": 1,
-      "username": "seller_anna",
-      "imageUrl": "/static/users/seller_anna.png"
-    },
-    {
-      "id": 2,
-      "username": "buyer_igor",
-      "imageUrl": "/static/users/buyer_igor.png"
-    }
-  ]
-}
-```
-### 2) `POST /api/recaps/generate`
-Генерация (или перегенерация) итогов за год для пользователя.
-#### Request body
-```
-{
-  "userId": 1
-}
-```
-Год не принимается от frontend. Backend использует активный год итогов из своей конфигурации.
-#### Поведение
-- Если для пары `(userId, currentYear)` recap ещё не существует — создаётся новый recap.
-- Если recap за активный год уже существует — выполняется перегенерация и обновление существующего recap.
-#### Response
-- `201 Created` — создан новый recap.
-- `200 OK` — выполнена перегенерация существующего recap.
-Тело ответа в обоих случаях = Contract B `Recap`:
-```
-{
-  "id": 101,
-  "userId": 1,
-  "year": 2025,
-  "createdAt": "2026-01-15T12:00:00Z",
-
-  "role": {
-    "code": "seller",
-    "name": "Продавец",
-    "title": "В этом году ты крутой продавец!",
-    "subtitle": "Ты продал 9 товаров.",
-    "why": "67% активности — создание объявлений и продажа товаров",
-    "activitySharePercent": 67
-  },
-
-  "metrics": [
-    {
-      "type": "earned_amount",
-      "title": "Твои продажи",
-      "text": "Твои объявления отработали как подработка: 120 000 ₽ за год.",
-      "highlights": ["120 000 ₽"],
-      "payload": { "earnedAmount": 120000 }
-    },
-    {
-      "type": "max_streak_days",
-      "title": "Серия активности",
-      "text": "Твой личный рекорд упорства — 14-дневная серия.",
-      "highlights": ["14-дневная серия"],
-      "payload": { "maxStreakDays": 14 }
-    },
-    {
-      "type": "most_viewed_listing",
-      "title": "Товар, к которому ты возвращался",
-      "text": "Один лот не давал тебе покоя — iPhone 13 128GB.",
-      "highlights": ["iPhone 13 128GB"],
-      "payload": {
-        "listingId": 2,
-        "name": "iPhone 13 128GB",
-        "imageUrl": "https://...",
-        "viewsCount": 42
-      }
-    }
-  ],
-
-  "achievements": [
-    {
-      "code": "clean_sale",
-      "name": "Чистая продажа",
-      "description": "У тебя есть завершённые продажи в этом году.",
-      "imageUrl": "/static/achievements/clean-sale.png"
-    },
-    {
-      "code": "diplomat",
-      "name": "Дипломат",
-      "description": "Ты вёл много диалогов относительно просмотров.",
-      "imageUrl": "/static/achievements/diplomat.png"
-    }
-  ],
-
-  "action": {
-    "type": "boost_listings",
-    "label": "Обновить объявления",
-    "reason": "Есть активные объявления с низким откликом.",
-    "target": {
-      "listingIds": [11],
-      "categoryId": 3
-    }
-  },
-
-  "debug": {
-    "generatorVersion": "v1",
-    "seedProfile": "seller_1"
-  }
-}
-```
-### 3) `GET /api/users/{userId}/recap`
-Получить уже сгенерированные итоги пользователя за активный год.
-#### Path params
-- `userId` (`int64`) — идентификатор пользователя
-#### Example
-```text
-GET /api/users/1/recap
-```
-Год не передаётся в path или query params. Backend использует тот же активный год, что и при генерации recap.
-#### Response `200`
-Тело ответа = Contract B `Recap`.
-
-Если recap пользователя за активный год ещё не был сгенерирован, возвращается `404 Not Found`.
-
-### 4) `GET /api/users/{userId}/achievements`
-Получить каталог ачивок пользователя: полученные (включая прошлые годы) и ещё не полученные.
-#### Path params
-- `userId` (`int64`)
-#### Response `200`
-```
-{
-  "earned": [
-    {
-      "code": "diplomat",
-      "name": "Дипломат",
-      "description": "Кажется ты перепутал Avito с мессенджером.",
-      "earnedAt": "2025-12-20T12:00:00Z",
-      "imageUrl": "/static/achievements/diplomat.png"
-    },
-    {
-      "code": "plot_twist",
-      "name": "Неожиданный поворот",
-      "description": "После паузы ты вернулся на площадку — сюжет года сделал виток.",
-      "earnedAt": "2023-05-18T12:00:00Z",
-      "imageUrl": "/static/achievements/plot-twist.png"
-    }
-  ],
-  "locked": [
-    {
-      "code": "streak_survivor",
-      "name": "Несгибаемый",
-      "description": "Были дни, когда Avito тебя не отпускал — серия без пропусков.",
-      "imageUrl": "/static/achievements/streak-survivor.png"
-    }
-  ]
-}
-```
-- `earned` — ачивки пользователя; сортируются по `earnedAt` от новых к старым; у каждого элемента есть `imageUrl`.
-- `locked` — ачивки из общего каталога, которых у пользователя ещё нет; без `earnedAt`; у каждого элемента есть `imageUrl`.
-- Если у пользователя нет полученных ачивок, `earned` = `[]`.
-- Если получены все ачивки каталога, `locked` = `[]`.
-
-### 5) `GET /api/users/{userId}/stats`
-Получить все агрегированные статы пользователя за активный год.
-#### Path params
-- `userId` (`int64`)
-#### Example
-```text
-GET /api/users/1/stats
-```
-Год не передаётся в query params. Backend использует единый активный год итогов.
-#### Response `200`
-Тело ответа = Contract A `YearMetrics` для указанного пользователя и активного года.
-
-### 6) `GET /static/{path}`
-Получить статический файл изображения. Роут находится вне `/api` и используется браузером для загрузки картинок по значению `imageUrl`.
-
-В MVP через `/static` раздаются:
-
-- `/static/achievements/{filename}` — изображения ачивок;
-- `/static/users/{filename}` — аватарки пользователей.
-
-#### Examples
-```text
-GET /static/achievements/diplomat.png
-GET /static/users/seller_anna.png
-```
-
-#### Response `200`
-В ответ возвращается файл изображения с соответствующим `Content-Type`, например:
-
-```text
-Content-Type: image/png
-```
-
-В JSON-ответах backend поле `imageUrl` содержит HTTP-путь к нужному файлу, например:
+Возвращает развлекательное, а не аналитическое или ML-предсказание на `RECAP_YEAR + 1`.
+Пользовательские метрики во внешний AI-запрос не передаются.
 
 ```json
 {
-  "imageUrl": "/static/achievements/diplomat.png"
+  "userId": 910001,
+  "year": 2027,
+  "title": "Твоё предсказание на 2027",
+  "text": "В следующем году тебя ждёт неожиданно выгодная находка. Главное — не пролистать её мимо.",
+  "type": "fortune"
 }
 ```
 
-или для аватарки пользователя:
+Если внешний AI API не настроен, вернул ошибку или недопустимый текст, backend использует
+локальный fallback в том же формате.
+
+## Ошибки
+
+Ошибки обработанных API-маршрутов имеют единый формат:
 
 ```json
-{
-  "imageUrl": "/static/users/seller_anna.png"
-}
-```
-
-Если файл не найден, возвращается `404 Not Found`.
-
-### 7) `GET /api/health`
-Проверка живости сервиса.
-#### Response `200`
-```
-{
-  "status": "ok"
-}
-```
-Frontend не может выбрать прошлый год через публичный API: параметр `year` отсутствует во всех endpoint, связанных с recap и статистикой.
-
-## Ошибки (единый формат)
-Для всех endpoint:
-```
 {
   "error": {
     "code": "VALIDATION_ERROR",
@@ -437,8 +472,14 @@ Frontend не может выбрать прошлый год через пуб�
   }
 }
 ```
-### Рекомендуемые коды
-- `400 Bad Request` — невалидный body/params
-- `404 Not Found` — пользователь или запрошенные данные не найдены
-- `409 Conflict` — конфликт состояния (опционально)
-- `500 Internal Server Error` — внутренняя ошибка
+
+| HTTP  | Коды, встречающиеся сейчас                                               | Смысл                                             |
+| ----- | ------------------------------------------------------------------------ | ------------------------------------------------- |
+| `400` | `VALIDATION_ERROR`                                                       | Невалидный path-параметр или JSON body            |
+| `404` | `USER_NOT_FOUND`, `RECAP_NOT_FOUND`, `SHARE_NOT_FOUND`                   | Пользователь, recap или share не найдены          |
+| `404` | `USER_STATS_NOT_FOUND`, `ACHIEVEMENTS_NOT_FOUND`, `ACHIEVEMENTS_TO_USER` | Ошибка данных при обновлении достижений           |
+| `500` | `INTERNAL_ERROR`                                                         | Внутренняя ошибка; детали клиенту не раскрываются |
+
+Обёртка API умеет отображать `409 CONFLICT`, но текущие сервисы этот статус намеренно не
+возвращают. Неизвестные маршруты и неподдерживаемые методы обрабатывает Chi стандартным
+ответом `404`/`405`; для них JSON-обёртка не гарантируется.

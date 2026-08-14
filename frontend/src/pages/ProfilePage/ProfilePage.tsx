@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import logoSrc from '../../assets/logo.svg.webp';
 import type { Profile } from '../../entities/profile/types';
@@ -24,12 +24,29 @@ export function ProfilePage() {
   );
   const [activeTab, setActiveTab] = useState<ProfileTab>('statistics');
   const [openRecap, setOpenRecap] = useState<Recap | null>(null);
+  const selectedProfileIdRef = useRef<number | null>(null);
 
   const { data, isLoading, error, refetch } = useGetProfilesQuery();
 
   const selectedProfile: Profile | undefined =
     data?.items.find((profile) => profile.id === selectedProfileId) ??
     data?.items[0];
+
+  useEffect(() => {
+    selectedProfileIdRef.current = selectedProfile?.id ?? null;
+  }, [selectedProfile?.id]);
+
+  const handleProfileSelect = useCallback((profileId: number) => {
+    selectedProfileIdRef.current = profileId;
+    setSelectedProfileId(profileId);
+    setOpenRecap(null);
+  }, []);
+
+  const handleRecapReceived = useCallback((recap: Recap) => {
+    if (recap.userId === selectedProfileIdRef.current) {
+      setOpenRecap(recap);
+    }
+  }, []);
 
   const shouldLoadStats =
     activeTab === 'statistics' && selectedProfile !== undefined;
@@ -87,7 +104,7 @@ export function ProfilePage() {
               <ProfileList
                 profiles={data.items}
                 selectedProfileId={selectedProfile?.id ?? 0}
-                onSelect={setSelectedProfileId}
+                onSelect={handleProfileSelect}
               />
             )}
           </aside>
@@ -97,7 +114,7 @@ export function ProfilePage() {
               <ProfileSummary
                 profile={selectedProfile}
                 year={data.currentYear}
-                onRecapReceived={setOpenRecap}
+                onRecapReceived={handleRecapReceived}
               />
             )}
 
@@ -106,6 +123,7 @@ export function ProfilePage() {
                 {activeTab === 'statistics' ? (
                   <StatisticsPanel
                     stats={statsData ?? null}
+                    year={data?.currentYear ?? new Date().getFullYear()}
                     isLoading={isStatsLoading}
                     errorMessage={
                       statsError ? getApiErrorMessage(statsError) : null

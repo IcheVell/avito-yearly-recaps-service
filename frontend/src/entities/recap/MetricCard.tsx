@@ -59,29 +59,35 @@ export function MetricCard({ metric, variant, isActive }: MetricCardProps) {
   const imageUrl = getPayloadString(metric.payload, 'imageUrl');
 
   return (
-    <RecapCardShell variant={variant} isActive={isActive}>
+    <RecapCardShell
+      variant={variant}
+      isActive={isActive}
+      className={`${styles.metricCard} ${imageUrl ? styles.metricCardWithImage : ''}`}
+    >
       <RecapCardHeader title={metric.title} />
 
-      {imageUrl && (
-        <SafeImage
-          className={styles.image}
-          src={imageUrl}
-          alt=""
-          loading="lazy"
-        />
-      )}
+      <div className={styles.metricMain}>
+        {imageUrl && (
+          <SafeImage
+            className={styles.image}
+            src={imageUrl}
+            alt=""
+            loading="lazy"
+          />
+        )}
 
-      <div className={styles.valueSlot}>
-        <FitText
-          className={`${styles.value} ${styles.highlightValue}`}
-          maxFontSize={64}
-          minFontSize={28}
-        >
-          {displayHighlight}
-        </FitText>
+        <div className={styles.valueSlot}>
+          <FitText
+            className={`${styles.value} ${styles.highlightValue}`}
+            maxFontSize={62}
+            minFontSize={17}
+          >
+            {displayHighlight}
+          </FitText>
+        </div>
       </div>
 
-      <p className={styles.text}>
+      <p className={`${styles.text} ${styles.metricText}`}>
         {renderTextWithHighlight(bodyText, mainHighlight)}
       </p>
     </RecapCardShell>

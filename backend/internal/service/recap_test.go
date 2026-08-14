@@ -82,9 +82,9 @@ type fakeAchievementSync struct {
 	calls []int64
 }
 
-func (f *fakeAchievementSync) UpdateUserAchievements(ctx context.Context, userID int64) error {
+func (f *fakeAchievementSync) UpdateUserAchievements(ctx context.Context, userID int64) ([]*recap.AchievementEvaluation, error) {
 	f.calls = append(f.calls, userID)
-	return f.err
+	return nil, f.err
 }
 
 func testYearMetrics() *recap.YearMetrics {

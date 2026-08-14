@@ -28,8 +28,9 @@ export function ActionCard({
       <RecapCardHeader title="Что попробовать дальше" />
 
       <div className={styles.actionBody}>
+        <p className={styles.actionEyebrow}>Попробуй в новом году</p>
         <p className={`${styles.text} ${styles.actionReason}`}>
-          {truncateText(action.reason)}
+          {truncateText(action.reason, 84)}
         </p>
       </div>
 
@@ -39,7 +40,7 @@ export function ActionCard({
         tabIndex={isActive ? 0 : -1}
         onClick={() => onAction?.(action)}
       >
-        {action.label}
+        <span>{action.label}</span>
       </button>
     </RecapCardShell>
   );

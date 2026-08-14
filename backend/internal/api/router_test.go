@@ -3,6 +3,8 @@ package api_test
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,6 +13,7 @@ import (
 	"v1/internal/api"
 	"v1/internal/api/dto"
 	"v1/internal/domain/entity"
+	domainfortune "v1/internal/domain/fortune"
 	"v1/internal/domain/recap"
 	applog "v1/internal/logger"
 )
@@ -52,15 +55,16 @@ func (f *fakeRecaps) GetUserRecap(ctx context.Context, userID int64, year int) (
 }
 
 type fakeAchievements struct {
-	userID int64
-	earned []entity.UserAchievement
-	locked []entity.Achievement
-	err    error
+	userID      int64
+	earned      []entity.UserAchievement
+	locked      []entity.Achievement
+	evaluations []*recap.AchievementEvaluation
+	err         error
 }
 
-func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, error) {
+func (f *fakeAchievements) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, []*recap.AchievementEvaluation, error) {
 	f.userID = userID
-	return f.earned, f.locked, f.err
+	return f.earned, f.locked, f.evaluations, f.err
 }
 
 type fakeStats struct {
@@ -74,6 +78,19 @@ func (f *fakeStats) GetUserStats(ctx context.Context, userID int64, year int) (r
 	f.userID = userID
 	f.year = year
 	return f.metrics, f.err
+}
+
+type fakeFortunes struct {
+	userID      int64
+	currentYear int
+	fortune     domainfortune.Fortune
+	err         error
+}
+
+func (f *fakeFortunes) GetUserFortune(ctx context.Context, userID int64, currentYear int) (domainfortune.Fortune, error) {
+	f.userID = userID
+	f.currentYear = currentYear
+	return f.fortune, f.err
 }
 
 type testHTTPError struct {
@@ -365,6 +382,105 @@ func TestRouter(t *testing.T) {
 	}
 }
 
+func TestRouterPrediction(t *testing.T) {
+	tests := []struct {
+		name       string
+		target     string
+		fortunes   *fakeFortunes
+		wantStatus int
+		assert     func(t *testing.T, rr *httptest.ResponseRecorder, fortunes *fakeFortunes)
+	}{
+		{
+			name:   "get user prediction",
+			target: "/api/users/1/prediction",
+			fortunes: &fakeFortunes{
+				fortune: domainfortune.Fortune{
+					UserID: 1,
+					Year:   2027,
+					Title:  "Твоё предсказание на 2027",
+					Text:   "В следующем году на Avito тебя ждёт редкая находка.",
+					Type:   domainfortune.TypeFortune,
+				},
+			},
+			wantStatus: http.StatusOK,
+			assert: func(t *testing.T, rr *httptest.ResponseRecorder, fortunes *fakeFortunes) {
+				if fortunes.userID != 1 {
+					t.Fatalf("userID = %d, want 1", fortunes.userID)
+				}
+				if fortunes.currentYear != testCurrentYear {
+					t.Fatalf("currentYear = %d, want %d", fortunes.currentYear, testCurrentYear)
+				}
+
+				var response dto.PredictionResponse
+				decodeResponse(t, rr, &response)
+
+				if response.UserID != 1 {
+					t.Fatalf("userId = %d, want 1", response.UserID)
+				}
+				if response.Year != 2027 {
+					t.Fatalf("year = %d, want 2027", response.Year)
+				}
+				if response.Title != "Твоё предсказание на 2027" {
+					t.Fatalf("title = %q, want year title", response.Title)
+				}
+				if response.Text == "" {
+					t.Fatal("text is empty")
+				}
+				if response.Type != domainfortune.TypeFortune {
+					t.Fatalf("type = %q, want %q", response.Type, domainfortune.TypeFortune)
+				}
+			},
+		},
+		{
+			name:       "invalid user id",
+			target:     "/api/users/0/prediction",
+			fortunes:   &fakeFortunes{},
+			wantStatus: http.StatusBadRequest,
+			assert: func(t *testing.T, rr *httptest.ResponseRecorder, fortunes *fakeFortunes) {
+				assertValidationField(t, rr, "userId")
+			},
+		},
+		{
+			name:   "maps service error",
+			target: "/api/users/1/prediction",
+			fortunes: &fakeFortunes{
+				err: testHTTPError{
+					status: http.StatusNotFound,
+					code:   "USER_NOT_FOUND",
+					msg:    "user not found",
+				},
+			},
+			wantStatus: http.StatusNotFound,
+			assert: func(t *testing.T, rr *httptest.ResponseRecorder, fortunes *fakeFortunes) {
+				assertErrorCode(t, rr, "USER_NOT_FOUND")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			router := api.NewRouter(api.Dependencies{
+				Fortunes:    tt.fortunes,
+				CurrentYear: testCurrentYear,
+				Logger:      applog.NewDiscard(),
+			})
+
+			req := httptest.NewRequest(http.MethodGet, tt.target, nil)
+			rr := httptest.NewRecorder()
+
+			router.ServeHTTP(rr, req)
+
+			if rr.Code != tt.wantStatus {
+				t.Fatalf("status = %d, want %d", rr.Code, tt.wantStatus)
+			}
+
+			if tt.assert != nil {
+				tt.assert(t, rr, tt.fortunes)
+			}
+		})
+	}
+}
+
 func TestNewRouterRequiresCurrentYear(t *testing.T) {
 	defer func() {
 		if recover() == nil {
@@ -374,7 +490,7 @@ func TestNewRouterRequiresCurrentYear(t *testing.T) {
 
 	_ = api.NewRouter(api.Dependencies{
 		Profiles: fakeProfiles{},
-		Logger:   applog.NewDiscard(),
+		Logger:   slog.New(slog.NewTextHandler(io.Discard, nil)),
 	})
 }
 
@@ -384,7 +500,7 @@ func newTestRouter(
 	achievements *fakeAchievements,
 	stats *fakeStats,
 ) http.Handler {
-	logger := applog.NewDiscard()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	return api.NewRouter(api.Dependencies{
 		Profiles:     profiles,
 		Recaps:       recaps,

@@ -16,7 +16,7 @@ func Generate(yearMetrics recap.YearMetrics) (recap.Recap, error) {
 		return recap.Recap{}, err
 	}
 
-	action, err := ResolveAction(yearMetrics, role.Code)
+	action, err := ResolveAction(yearMetrics)
 	if err != nil {
 		return recap.Recap{}, err
 	}

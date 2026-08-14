@@ -41,17 +41,18 @@ func NewAchievementService(achievementRepo AchievementRepository, userRepo UserR
 	}
 }
 
-func (s *AchievementService) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, error) {
+func (s *AchievementService) ListUserAchievements(ctx context.Context, userID int64) ([]entity.UserAchievement, []entity.Achievement, []*recap.AchievementEvaluation, error) {
 	s.logger.InfoContext(ctx, "list user achievements started", "user_id", userID, "operation", "list_user_achievements")
 
-	if err := s.UpdateUserAchievements(ctx, userID); err != nil {
-		return nil, nil, err
+	rules, err := s.UpdateUserAchievements(ctx, userID)
+	if err != nil {
+		return nil, nil, nil, err
 	}
 
 	earned, locked, err := s.achievements.ListUserAchievements(ctx, userID)
 	if err != nil {
 		s.logger.ErrorContext(ctx, "list user achievements failed", "user_id", userID, "err", err, "operation", "list_user_achievements")
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	s.logger.InfoContext(
@@ -62,21 +63,21 @@ func (s *AchievementService) ListUserAchievements(ctx context.Context, userID in
 		"locked_count", len(locked),
 		"operation", "list_user_achievements",
 	)
-	return earned, locked, nil
+	return earned, locked, rules, nil
 }
 
-func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID int64) error {
+func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID int64) ([]*recap.AchievementEvaluation, error) {
 	s.logger.InfoContext(ctx, "update user achievements started", "user_id", userID, "operation", "update_user_achievements")
 
 	if _, err := s.users.GetByID(ctx, userID); err != nil {
 		s.logger.WarnContext(ctx, "update user achievements user lookup failed", "user_id", userID, "err", err, "operation", "update_user_achievements")
-		return mapUserError(err)
+		return nil, mapUserError(err)
 	}
 
 	userStats, err := s.userStats.GetByUserID(ctx, userID)
 	if err != nil {
 		s.logger.WarnContext(ctx, "update user achievements stats lookup failed", "user_id", userID, "err", err, "operation", "update_user_achievements")
-		return mapUserStatsError(err)
+		return nil, mapUserStatsError(err)
 	}
 
 	from := userStats.ProcessedAt
@@ -92,24 +93,26 @@ func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID 
 			"err", err,
 			"operation", "update_user_achievements",
 		)
-		return mapUserStatsError(err)
+		return nil, mapUserStatsError(err)
 	}
 
 	userStats, err = s.userStats.GetByUserID(ctx, userID)
 	if err != nil {
 		s.logger.ErrorContext(ctx, "update user achievements stats reload failed", "user_id", userID, "err", err, "operation", "update_user_achievements")
-		return mapUserStatsError(err)
+		return nil, mapUserStatsError(err)
 	}
 
 	rules, err := s.achievements.GetRulesForAchievements(ctx)
 	if err != nil {
 		s.logger.ErrorContext(ctx, "update user achievements rules load failed", "user_id", userID, "err", err, "operation", "update_user_achievements")
-		return err
+		return nil, err
 	}
 
-	awarded := 0
+	achievementEvaluations := make([]*recap.AchievementEvaluation, 0, len(rules))
+
+	matched := 0
 	for _, rule := range rules {
-		ok, err := enginerules.EvaluateRule(rule.RuleNode, *userStats)
+		ruleEvaluation, err := enginerules.EvaluateRule(rule.RuleNode, *userStats)
 		if err != nil {
 			s.logger.ErrorContext(
 				ctx,
@@ -119,10 +122,10 @@ func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID 
 				"err", err,
 				"operation", "update_user_achievements",
 			)
-			return fmt.Errorf("evaluate rule: %w", err)
+			return nil, fmt.Errorf("evaluate rule: %w", err)
 		}
 
-		if ok {
+		if ruleEvaluation.IsComplete {
 			if err := s.achievements.AddAchievementToUser(ctx, userID, rule.ID); err != nil {
 				s.logger.ErrorContext(
 					ctx,
@@ -132,10 +135,10 @@ func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID 
 					"err", err,
 					"operation", "update_user_achievements",
 				)
-				return mapAchievementError(err)
+				return nil, mapAchievementError(err)
 			}
 
-			awarded++
+			matched++
 			s.logger.InfoContext(
 				ctx,
 				"achievement rule matched",
@@ -144,6 +147,11 @@ func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID 
 				"operation", "update_user_achievements",
 			)
 		}
+
+		achievementEvaluations = append(achievementEvaluations, &recap.AchievementEvaluation{
+			Code:       rule.Code,
+			Evaluation: *ruleEvaluation,
+		})
 	}
 
 	s.logger.InfoContext(
@@ -151,12 +159,12 @@ func (s *AchievementService) UpdateUserAchievements(ctx context.Context, userID 
 		"update user achievements succeeded",
 		"user_id", userID,
 		"rules_count", len(rules),
-		"matched_count", awarded,
+		"matched_count", matched,
 		"buys_count", userStats.BuysCount,
 		"sells_count", userStats.SellsCount,
 		"operation", "update_user_achievements",
 	)
-	return nil
+	return achievementEvaluations, nil
 }
 
 func mapUserStatsError(err error) error {

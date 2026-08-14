@@ -1,6 +1,7 @@
 import type { Profile } from '../../entities/profile/types';
 import type { Recap } from '../../entities/recap/types';
 import { GenerateRecapButton } from '../../features/generate-recap/GenerateRecapButton';
+import { FortuneCookieButton } from '../../features/get-prediction/FortuneCookieButton';
 import { GetRecapButton } from '../../features/get-recap/GetRecapButton';
 
 import { ProfileAvatar } from './ProfileAvatar';
@@ -33,6 +34,12 @@ export function ProfileSummary({
           />
 
           <GetRecapButton userId={profile.id} onReceived={onRecapReceived} />
+
+          <FortuneCookieButton
+            key={profile.id}
+            userId={profile.id}
+            nextYear={year + 1}
+          />
         </div>
       </div>
     </div>

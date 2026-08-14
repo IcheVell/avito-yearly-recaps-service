@@ -81,8 +81,7 @@ style: reorder imports
 
 ```text
 chore: configure Docker Compose
-chore: configure golangci-lint
-chore: update dependencies
+chore: update frontend dependencies
 ```
 
 ---
@@ -108,23 +107,26 @@ chore: update dependencies
 Примеры:
 
 ```text
-feature/AYRS-15-recap-generation
-feature/AYRS-23-favorite-analytics
-bugfix/AYRS-31-active-days-calculation
+feat/AYRS-15-recap-generation
+feat/AYRS-23-favorite-analytics
+fix/AYRS-31-active-days-calculation
 docs/AYRS-5-api-documentation
 refactor/AYRS-36-recap-service
 chore/AYRS-7-docker-configuration
 ```
 
+Тип ветки совпадает с типом коммита: `feat`, `fix`, `docs`, `refactor`, `test` или `chore`.
 В описании используются английские слова в нижнем регистре, разделённые дефисами.
 
 ---
 
-## Работа с основной веткой
+## Работа с основными ветками
 
-- Прямой push в `main` или `master` запрещён.
+- `develop` — текущая интеграционная ветка проекта; обычные Pull Request направляются в неё.
+- `master` используется как стабильная ветка и обновляется через согласованный Pull Request из `develop`.
+- Прямой push в `develop` и `master` запрещён.
 - Изменения добавляются только через отдельную ветку и Pull Request.
-- Перед созданием Pull Request необходимо обновить свою ветку относительно основной.
+- Перед созданием Pull Request необходимо обновить свою ветку относительно `develop`.
 - Pull Request должен содержать изменения только одной задачи.
 - Нельзя выполнять `force push` в общие ветки без согласования.
 - После слияния Pull Request рабочую ветку следует удалить.
@@ -142,3 +144,20 @@ chore/AYRS-7-docker-configuration
 - миграции применяются без ошибок;
 - в коммитах нет секретов и временных файлов;
 - README и API-документация обновлены, если это необходимо.
+
+Минимальные проверки backend:
+
+```bash
+cd backend
+go test ./...
+```
+
+Минимальные проверки frontend:
+
+```bash
+cd frontend
+npm run format:check
+npm test
+npm run lint
+npm run build
+```

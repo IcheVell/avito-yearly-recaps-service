@@ -12,12 +12,10 @@
   align-items: center;
   gap: 16px;
 
-  border: 1px solid rgb(177 31 49 / 22%);
-  border-left: 4px solid #b11f31;
+  border: 1px solid transparent;
   border-radius: 14px;
 
   background: rgb(255 255 255 / 97%);
-  color: #771322;
   box-shadow: 0 16px 42px rgb(0 0 0 / 22%);
   backdrop-filter: blur(12px);
 
@@ -26,6 +24,18 @@
 
   transform: translate(-50%, 0);
   animation: toastEnter 240ms ease-out both;
+}
+
+.error {
+  border-color: rgb(177 31 49 / 22%);
+  border-left: 4px solid #b11f31;
+  color: #771322;
+}
+
+.success {
+  border-color: rgb(0 170 255 / 28%);
+  border-left: 4px solid #00aaff;
+  color: #0b5f86;
 }
 
 .toast span {
@@ -45,12 +55,19 @@
   border: 0;
   border-radius: 50%;
 
-  background: rgb(177 31 49 / 9%);
-  color: #771322;
-
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
+}
+
+.error button {
+  background: rgb(177 31 49 / 9%);
+  color: #771322;
+}
+
+.success button {
+  background: rgb(0 170 255 / 12%);
+  color: #0b5f86;
 }
 
 .toastLeaving {

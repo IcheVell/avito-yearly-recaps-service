@@ -1,0 +1,211 @@
+.reason {
+  margin: 0 0 16px;
+
+  color: #333;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+
+  padding: 12px;
+  border-radius: 16px;
+  background: #f6f7f9;
+}
+
+.cardImage,
+.cardImageFallback {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.cardImageFallback {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #e8edf3, #dfe7f1);
+  color: #6b7c90;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.cardBody {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.cardMeta {
+  margin: 0;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.categoryFocus {
+  margin: 0 0 8px;
+  color: #111;
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.cardActions {
+  margin-top: 6px;
+}
+
+.primaryButton,
+.secondaryButton,
+.ghostButton {
+  margin: 0;
+  padding: 11px 16px;
+
+  border: 0;
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: #00aaff;
+  color: #fff;
+}
+
+.primaryButton:hover {
+  background: #0096e0;
+}
+
+.secondaryButton {
+  background: #00aaff;
+  color: #fff;
+}
+
+.secondaryButton:hover {
+  background: #0096e0;
+}
+
+.ghostButton {
+  background: #00aaff;
+  color: #fff;
+}
+
+.ghostButton:hover {
+  background: #0096e0;
+}
+
+.stubNote {
+  margin: 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.createForm {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #444;
+}
+
+.fieldInput,
+.fieldSelect,
+.fieldTextarea {
+  width: 100%;
+  padding: 11px 12px;
+
+  border: 1px solid #d8dbe2;
+  border-radius: 12px;
+  background: #fff;
+  color: #111;
+}
+
+.fieldTextarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.compareTableWrap {
+  overflow: auto;
+  border-radius: 16px;
+  border: 1px solid #e4e7ee;
+}
+
+.compareTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 520px;
+}
+
+.compareTable th,
+.compareTable td {
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #eef0f5;
+}
+
+.compareTable th {
+  background: #f7f8fb;
+  font-size: 13px;
+  font-weight: 800;
+  color: #444;
+}
+
+.compareTable td {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.compareActions {
+  display: grid;
+  gap: 8px;
+}
+
+.emptyState {
+  margin: 0;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f6f7f9;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.linkRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}

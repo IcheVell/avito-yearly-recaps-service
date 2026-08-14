@@ -225,6 +225,8 @@
 
   .profileContentPanel {
     min-height: 320px;
+    overflow-y: visible;
+    overscroll-behavior: auto;
   }
 }
 

@@ -10,6 +10,9 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 COPY . .
 
+ARG VITE_PUBLIC_ORIGIN=
+ENV VITE_PUBLIC_ORIGIN=$VITE_PUBLIC_ORIGIN
+
 RUN npm run build
 
 # ---- run ----

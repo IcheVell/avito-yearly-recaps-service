@@ -1,0 +1,595 @@
+.iconButton {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: 2px solid #d99a38;
+  border-radius: 50%;
+  background: #fff8e8;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.iconButton:hover,
+.iconButton:focus-visible {
+  z-index: 5;
+  background: #fff1cd;
+  box-shadow: 0 8px 22px rgb(129 75 11 / 20%);
+  transform: translateY(-2px) rotate(-4deg);
+}
+
+.iconButton::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+
+  width: max-content;
+  max-width: 230px;
+  padding: 8px 11px;
+
+  border-radius: 9px;
+  background: #222;
+  color: #fff;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 5px);
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.iconButton:hover::after,
+.iconButton:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.miniCookie {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 4px rgb(95 49 5 / 24%));
+  transform: rotate(-3deg);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: rgb(12 8 18 / 82%);
+  cursor: default;
+  animation: backdropEnter 260ms ease-out both;
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 5;
+  top: 24px;
+  right: 24px;
+
+  width: 44px;
+  height: 44px;
+  padding: 0;
+
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+
+  cursor: pointer;
+}
+
+.closeButton::before,
+.closeButton::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 21px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.closeButton::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.closeButton::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.closeButton:hover,
+.closeButton:focus-visible {
+  background: rgb(255 255 255 / 22%);
+}
+
+.scene {
+  position: relative;
+  z-index: 2;
+  width: min(680px, 100%);
+  min-height: min(520px, calc(100dvh - 80px));
+
+  display: grid;
+  place-items: center;
+}
+
+.cookieAssembly {
+  position: absolute;
+  z-index: 3;
+  width: 330px;
+  height: 330px;
+  pointer-events: none;
+}
+
+.cookieWhole,
+.cookiePiece,
+.cookiePiece img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cookieWhole,
+.cookiePiece {
+  filter: drop-shadow(0 16px 18px rgb(35 17 2 / 30%));
+  transition:
+    transform 720ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 320ms ease;
+}
+
+.cookiePiece {
+  opacity: 0;
+}
+
+.cookiePieceLeft {
+  clip-path: polygon(
+    0 0,
+    52% 0,
+    49% 19%,
+    53% 34%,
+    48% 50%,
+    52% 68%,
+    48% 100%,
+    0 100%
+  );
+  transform-origin: 44% 55%;
+}
+
+.cookiePieceRight {
+  clip-path: polygon(
+    52% 0,
+    100% 0,
+    100% 100%,
+    48% 100%,
+    52% 68%,
+    48% 50%,
+    53% 34%,
+    49% 19%
+  );
+  transform-origin: 57% 55%;
+}
+
+.cracking {
+  animation: cookieTremble 420ms ease-in-out infinite;
+}
+
+.crack {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  width: 4px;
+  border-radius: 4px;
+  background: #6d3508;
+  box-shadow: 0 0 1px rgb(255 225 155 / 65%);
+  opacity: 0;
+  transform: rotate(var(--crack-angle)) scaleY(0);
+  transform-origin: top;
+}
+
+.crackOne {
+  --crack-angle: 13deg;
+
+  top: 92px;
+  height: 43px;
+}
+
+.crackTwo {
+  --crack-angle: -17deg;
+
+  top: 129px;
+  height: 45px;
+}
+
+.crackThree {
+  --crack-angle: 11deg;
+
+  top: 168px;
+  height: 45px;
+}
+
+.cracking .crackOne {
+  animation: crackDraw 700ms 150ms ease-out forwards;
+}
+
+.cracking .crackTwo {
+  animation: crackDraw 700ms 500ms ease-out forwards;
+}
+
+.cracking .crackThree {
+  animation: crackDraw 700ms 850ms ease-out forwards;
+}
+
+.ready .cookieWhole,
+.opened .cookieWhole,
+.error .cookieWhole {
+  opacity: 0;
+}
+
+.ready .cookiePiece,
+.opened .cookiePiece,
+.error .cookiePiece {
+  opacity: 1;
+}
+
+.ready .cookiePieceLeft,
+.error .cookiePieceLeft {
+  transform: translateX(-68px) rotate(-10deg);
+}
+
+.ready .cookiePieceRight,
+.error .cookiePieceRight {
+  transform: translateX(68px) rotate(10deg);
+}
+
+.opened .cookiePieceLeft {
+  opacity: 0;
+  transform: translate(-126px, 40px) rotate(-24deg) scale(0.88);
+}
+
+.opened .cookiePieceRight {
+  opacity: 0;
+  transform: translate(126px, 40px) rotate(24deg) scale(0.88);
+}
+
+.crumb {
+  position: absolute;
+  z-index: 4;
+  width: 11px;
+  height: 11px;
+  border-radius: 45% 55% 50% 40%;
+  background: #d8983f;
+  opacity: 0;
+}
+
+.ready .crumb,
+.error .crumb {
+  opacity: 1;
+  animation: crumbFall 650ms ease-out both;
+}
+
+.opened .crumb {
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.crumbOne {
+  top: 130px;
+  left: 159px;
+}
+
+.crumbTwo {
+  top: 158px;
+  left: 172px;
+  animation-delay: 80ms !important;
+}
+
+.crumbThree {
+  top: 188px;
+  left: 154px;
+  animation-delay: 150ms !important;
+}
+
+.paper {
+  position: relative;
+  z-index: 2;
+
+  border: 1px solid #e9d8aa;
+  background:
+    linear-gradient(rgb(101 74 28 / 7%) 1px, transparent 1px) 0 34px / 100% 28px,
+    #fffdf5;
+  color: #2c2418;
+  box-shadow: 0 20px 55px rgb(0 0 0 / 32%);
+  cursor: pointer;
+  transition:
+    width 650ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    min-height 650ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    padding 500ms ease,
+    transform 650ms cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.paperReady {
+  width: 104px;
+  min-height: 46px;
+  padding: 7px;
+  transform: translateY(3px) rotate(-2deg);
+  animation: paperPeek 520ms 300ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.paperReady:hover,
+.paperReady:focus-visible {
+  transform: translateY(-4px) rotate(1deg) scale(1.07);
+}
+
+.paperOpened {
+  --paper-inline-padding: 46px;
+
+  width: min(560px, calc(100vw - 48px));
+  min-height: 310px;
+  padding: 42px var(--paper-inline-padding) 88px;
+  border-radius: 8px;
+  cursor: default;
+  transform: translateY(0) rotate(0);
+}
+
+.paperHint {
+  display: block;
+  overflow: hidden;
+  color: #725329;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-transform: uppercase;
+  transition: opacity 180ms ease;
+}
+
+.paperOpened .paperHint {
+  position: absolute;
+  opacity: 0;
+}
+
+.predictionContent {
+  display: grid;
+  gap: 24px;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 300ms 420ms ease,
+    transform 300ms 420ms ease;
+}
+
+.paperOpened .predictionContent {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.predictionContent strong {
+  font-size: clamp(24px, 5vw, 35px);
+  line-height: 1.12;
+}
+
+.predictionContent > span {
+  font-size: clamp(18px, 3.2vw, 23px);
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.predictionDisclaimer {
+  position: absolute;
+  right: var(--paper-inline-padding);
+  bottom: 24px;
+  left: var(--paper-inline-padding);
+
+  color: #746956;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: left;
+  opacity: 0;
+  transition: opacity 300ms 420ms ease;
+}
+
+.paperOpened .predictionDisclaimer {
+  opacity: 1;
+}
+
+.errorCard {
+  position: relative;
+  z-index: 6;
+  width: min(430px, 100%);
+  margin-top: 390px;
+  padding: 20px;
+
+  display: grid;
+  gap: 10px;
+
+  border-radius: 18px;
+  background: #fff;
+  color: #2b2020;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 30%);
+  text-align: center;
+}
+
+.errorCard strong {
+  font-size: 20px;
+}
+
+.errorCard button {
+  justify-self: center;
+  margin-top: 5px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: #00aaff;
+  color: white;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 720px) {
+  .iconButton {
+    align-self: center;
+  }
+
+  .cookieAssembly {
+    width: 260px;
+    height: 260px;
+  }
+
+  .ready .cookiePieceLeft,
+  .error .cookiePieceLeft {
+    transform: translateX(-48px) rotate(-13deg);
+  }
+
+  .ready .cookiePieceRight,
+  .error .cookiePieceRight {
+    transform: translateX(48px) rotate(13deg);
+  }
+
+  .opened .cookiePieceLeft {
+    transform: translate(-82px, 98px) rotate(-24deg) scale(0.72);
+  }
+
+  .opened .cookiePieceRight {
+    transform: translate(82px, 98px) rotate(24deg) scale(0.72);
+  }
+
+  .crackOne {
+    top: 73px;
+    height: 34px;
+  }
+
+  .crackTwo {
+    top: 103px;
+    height: 35px;
+  }
+
+  .crackThree {
+    top: 134px;
+    height: 35px;
+  }
+
+  .paperOpened {
+    --paper-inline-padding: 28px;
+
+    min-height: 290px;
+    padding: 34px var(--paper-inline-padding) 84px;
+  }
+
+  .closeButton {
+    top: 14px;
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .cracking,
+  .cracking .crack,
+  .ready .crumb,
+  .error .crumb,
+  .paperReady {
+    animation: none;
+  }
+
+  .cookieWhole,
+  .cookiePiece,
+  .paper,
+  .predictionContent,
+  .predictionDisclaimer {
+    transition-duration: 1ms;
+  }
+}
+
+@keyframes backdropEnter {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes cookieTremble {
+  0%,
+  100% {
+    transform: rotate(-1deg) scale(1);
+  }
+
+  25% {
+    transform: translate(-3px, 1px) rotate(1deg) scale(1.015);
+  }
+
+  50% {
+    transform: translate(3px, -1px) rotate(-0.5deg) scale(1.025);
+  }
+
+  75% {
+    transform: translate(-2px, -1px) rotate(1.5deg) scale(1.015);
+  }
+}
+
+@keyframes crackDraw {
+  to {
+    opacity: 1;
+    transform: rotate(var(--crack-angle)) scaleY(1);
+  }
+}
+
+@keyframes crumbFall {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) rotate(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(48px) rotate(110deg);
+  }
+}
+
+@keyframes paperPeek {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scaleX(0.4);
+  }
+}

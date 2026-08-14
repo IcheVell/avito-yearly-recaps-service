@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"v1/internal/ai"
 	"v1/internal/api"
 	"v1/internal/config"
 	applog "v1/internal/logger"
@@ -67,17 +68,22 @@ func Run(ctx context.Context) error {
 	userRepo := repository.NewUserRepository(db, logger)
 	metricsRepo := repository.NewMetricsRepository(db, logger)
 	recapRepo := repository.NewRecapRepository(db, logger)
+	shareRecapRepo := repository.NewShareRecapRepository(db, logger)
 	achievementsRepo := repository.NewAchievementsRepository(db, logger)
 	userStatsRepo := repository.NewUserStatsRepository(db, logger)
 
 	achievementsService := service.NewAchievementService(achievementsRepo, userRepo, userStatsRepo, logger)
 	recapService := service.NewRecapService(userRepo, metricsRepo, recapRepo, achievementsService, logger)
+	shareRecapService := service.NewShareRecapService(recapService, shareRecapRepo)
+	fortuneService := service.NewFortuneService(userRepo, newFortuneGenerator(cfg), logger)
 
 	handler := api.NewRouter(api.Dependencies{
 		Profiles:     userRepo,
 		Recaps:       recapService,
+		ShareRecaps:  shareRecapService,
 		Achievements: achievementsService,
 		Stats:        recapService,
+		Fortunes:     fortuneService,
 		CurrentYear:  cfg.RecapYear,
 		Logger:       logger,
 	})
@@ -89,4 +95,22 @@ func Run(ctx context.Context) error {
 	appLogger.Info("application stopped", "operation", "shutdown_application")
 
 	return nil
+}
+
+func newFortuneGenerator(cfg config.Config) service.FortuneGenerator {
+	if cfg.AIAPIKey == "" {
+		return nil
+	}
+
+	timeout := time.Duration(cfg.AITimeoutMS) * time.Millisecond
+
+	return ai.NewFortuneGenerator(ai.Config{
+		APIKey:             cfg.AIAPIKey,
+		Scope:              cfg.AIScope,
+		Model:              cfg.AIModel,
+		APIURL:             cfg.AIAPIURL,
+		AuthURL:            cfg.AIAuthURL,
+		Timeout:            timeout,
+		InsecureSkipVerify: cfg.AIInsecureSkipVerify,
+	})
 }

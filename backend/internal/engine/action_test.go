@@ -10,7 +10,7 @@ import (
 func TestChooseType_SellerBoostListings(t *testing.T) {
 	old := time.Now().AddDate(0, 0, -30)
 	m := recap.YearMetrics{
-		SellsCount: 10,
+		SellsCount: 3,
 		OwnListings: []recap.YearMetricsOwnListing{
 			{ID: 1, Status: "active", UpdatedAt: old, ViewsCount: 1},
 			{ID: 2, Status: "active", UpdatedAt: old, ViewsCount: 3},
@@ -18,7 +18,7 @@ func TestChooseType_SellerBoostListings(t *testing.T) {
 		},
 	}
 
-	got := chooseType(m, "seller")
+	got := chooseType(m)
 
 	if got.Type != boostListings {
 		t.Fatalf("Type = %q, want %q", got.Type, boostListings)
@@ -32,7 +32,7 @@ func TestChooseType_SellerBoostListings(t *testing.T) {
 func TestChooseType_ListingAbandoned(t *testing.T) {
 	m := recap.YearMetrics{
 		ListingViewCounts: []recap.YearMetricsListingCount{
-			{ListingID: 100, CategoryID: 7, Views: 12},
+			{ListingID: 100, CategoryID: 7, Views: 20},
 		},
 		MessagedListingIDs: []int64{200},
 		Favorites: []recap.YearMetricsFavorite{
@@ -40,7 +40,7 @@ func TestChooseType_ListingAbandoned(t *testing.T) {
 		},
 	}
 
-	got := chooseType(m, "buyer")
+	got := chooseType(m)
 
 	if got.Type != listingAbandoned {
 		t.Fatalf("Type = %q, want %q", got.Type, listingAbandoned)
@@ -73,7 +73,7 @@ func TestChooseType_CompareTop(t *testing.T) {
 		MessagedListingIDs: []int64{1, 2, 3, 4, 5},
 	}
 
-	got := chooseType(m, "buyer")
+	got := chooseType(m)
 
 	if got.Type != compareTop {
 		t.Fatalf("Type = %q, want %q", got.Type, compareTop)
@@ -95,7 +95,7 @@ func TestChooseType_FallbackContinueSearch(t *testing.T) {
 		},
 	}
 
-	got := chooseType(m, "watcher")
+	got := chooseType(m)
 
 	if got.Type != continueSearch {
 		t.Fatalf("Type = %q, want %q", got.Type, continueSearch)
